@@ -4,8 +4,8 @@ import GameState from './components/GameState';
 
 export enum PlayerState {
   NeedTeammate,
-  NoGame,
-  GameToPlay,
+  NoRound,
+  RoundToPlay,
   Playing,
   Waiting
 }
@@ -20,24 +20,30 @@ export default function Page() {
   const player1 = players[0];
   const player2 = players.length > 1 ? players[1] : "No teammate set";
 
-  // TODO: Make sure that this is player1 (using cache, etc).
+  // TODO: if only 1 player here:
+  //  is this user the first player? (via auth, cache)
+  //  if not: Potluck has invited you to play Wavelink. What's your name?
+  //  redirect / add to URL
 
   // TODO: make sure player2 is a real player
 
   const [playerState, setPlayerState] = React.useState(PlayerState.NeedTeammate);
 
   if (playerState == PlayerState.NeedTeammate && players.length > 1) {
-    setPlayerState(PlayerState.NoGame);
+    setPlayerState(PlayerState.NoRound);
   }
 
   // TODO: get game for users
+    // if no game for these users, create game
+
 
   // TODO: get rounds for game
+    // Highlight latest round
 
   // TODO: Is there an active round? (No time_completed)
-    // if I have to play, then set state to GameToPlay
+    // if I have to play, then set state to RoundToPlay
     // if Waiting, then set state to Waiting
-  // If not, set state to NoGame
+  // If not, set state to NoROund
 
 
 
@@ -45,19 +51,26 @@ export default function Page() {
   const [word2, setWord2] = React.useState("");
 
   function startTurn() {
-    // if NoGame, then grab a new pair
-    if (playerState == PlayerState.NoGame) {
+    // TODO: if NoRound, then create a new round
+    if (playerState == PlayerState.NoRound) {
       setPlayerState(PlayerState.Playing);
       setWord1("Dog");
       setWord2("Tree");
     }
 
-    // else if GameToPlay, insert the pair
+    // else if RoundToPlay, insert the pair
   }
 
   function submitAnswer(submission : string) {
-    setPlayerState(PlayerState.Waiting);
+    // submit link
     console.log(submission);
+    // return - update on this round
+
+    // If other player submitted for this round
+    // set state to RoundComplete
+
+    // else set to Waiting
+    setPlayerState(PlayerState.Waiting);
   }
 
   if (players.length == 0) {
@@ -74,7 +87,7 @@ export default function Page() {
         Hey {player1}. 
         <br />TODO: Grab all your opponents
         <br />Send your link to a friend to play.
-      </div>
+      </div>  
     );
   }
 
