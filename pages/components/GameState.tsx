@@ -3,7 +3,7 @@ import { PlayerState } from "../[...players]";
 
 type GameStateProps = {
   playerState: PlayerState,
-  startGame: () => void,
+  startTurn: () => void,
   word1: string,
   word2: string,
   submitAnswer: (submission: string) => void,
@@ -11,7 +11,7 @@ type GameStateProps = {
 
 export default function GameState({
   playerState,
-  startGame,
+  startTurn,
   word1,
   word2,
   submitAnswer,
@@ -30,10 +30,21 @@ export default function GameState({
     { (playerState == PlayerState.NoGame ) &&
       <button
           className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-          onClick={startGame}
+          onClick={startTurn}
       >
         Start round
       </button>
+  }
+    { (playerState == PlayerState.GameToPlay ) &&
+      <div>
+        It&apos;s your turn.
+      <button
+          className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
+          onClick={startTurn}
+      >
+        Play round.
+      </button>
+      </div>
   }
   { (playerState == PlayerState.Playing ) &&
     <div>

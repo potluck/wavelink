@@ -14,9 +14,15 @@ export enum PlayerState {
 export default function Page() {
   const router = useRouter();
   console.log("hi pots", router.query.players);
+
   const players = !Array.isArray(router.query.players)? (router.query.players? [router.query.players] : []): router.query.players;
-  const player1 = players.length > 0 ? players[0] : "No player set";
+
+  const player1 = players[0];
   const player2 = players.length > 1 ? players[1] : "No teammate set";
+
+  // TODO: Make sure that this is player1 (using cache, etc).
+
+  // TODO: make sure player2 is a real player
 
   const [playerState, setPlayerState] = React.useState(PlayerState.NeedTeammate);
 
@@ -24,23 +30,52 @@ export default function Page() {
     setPlayerState(PlayerState.NoGame);
   }
 
-  // get rounds for pair
+  // TODO: get game for users
+
+  // TODO: get rounds for game
+
+  // TODO: Is there an active round? (No time_completed)
+    // if I have to play, then set state to GameToPlay
+    // if Waiting, then set state to Waiting
+  // If not, set state to NoGame
+
 
 
   const [word1, setWord1] = React.useState("");
   const [word2, setWord2] = React.useState("");
 
-  function startGame() {
+  function startTurn() {
+    // if NoGame, then grab a new pair
     if (playerState == PlayerState.NoGame) {
       setPlayerState(PlayerState.Playing);
       setWord1("Dog");
       setWord2("Tree");
     }
+
+    // else if GameToPlay, insert the pair
   }
 
   function submitAnswer(submission : string) {
     setPlayerState(PlayerState.Waiting);
     console.log(submission);
+  }
+
+  if (players.length == 0) {
+    return (
+      <div className={`grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}>
+        Loading...
+      </div>
+    );
+  }
+
+  if (players.length == 1) {
+    return (
+      <div className={`grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}>
+        Hey {player1}. 
+        <br />TODO: Grab all your opponents
+        <br />Send your link to a friend to play.
+      </div>
+    );
   }
 
   return  (
@@ -51,12 +86,12 @@ export default function Page() {
           Welcome: {player1}
         </li>
         <li className="mb-2">
-          You're playing with: {player2}
+          You&apos;re playing with: {player2}
         </li>
 
         <GameState
             playerState={playerState}
-            startGame={startGame}
+            startTurn={startTurn}
             word1={word1}
             word2={word2}
             submitAnswer={submitAnswer}
