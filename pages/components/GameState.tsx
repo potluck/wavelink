@@ -36,7 +36,7 @@ export default function GameState({
     submitAnswer(answer);
   }
 
-  const prevRounds = rounds.map((round) =>
+  const prevRounds = (rounds || []).map((round) =>
     <li key={round.counter}>Round {round.counter}. Word 1: {round.word1}, Word 2: {round.word2}</li>
   );
 

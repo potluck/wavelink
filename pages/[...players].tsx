@@ -1,7 +1,6 @@
 import { useRouter } from 'next/router'
 import React, { useEffect } from 'react';
 import GameState from './components/GameState';
-import Round from './components/GameState';
 
 export enum PlayerState {
   NeedTeammate,
@@ -11,25 +10,25 @@ export enum PlayerState {
   Waiting
 }
 
-const callAPICreateOrRetrieveUser = async (userName: string) => {
-  try {
-    const res = await fetch(`/api/create-user/?user=${userName}`);
-    const data = await res.json();
-    console.log(data);
-  } catch (err) {
-    console.log(err);
-  }
-}
+// const callAPICreateOrRetrieveUser = async (userName: string) => {
+//   try {
+//     const res = await fetch(`/api/create-user/?user=${userName}`);
+//     const data = await res.json();
+//     console.log(data);
+//   } catch (err) {
+//     console.log(err);
+//   }
+// }
 
-const callAPICreateOrRetrieveGame = async (userName: string) => {
-  try {
-    const res = await fetch(`/api/create-or-retrieve-game/?user=${userName}`);
-    const data = await res.json();
-    console.log(data);
-  } catch (err) {
-    console.log(err);
-  }
-}
+// const callAPICreateOrRetrieveGame = async (userName: string) => {
+//   try {
+//     const res = await fetch(`/api/create-or-retrieve-game/?user=${userName}`);
+//     const data = await res.json();
+//     console.log(data);
+//   } catch (err) {
+//     console.log(err);
+//   }
+// }
 
 const callAPIRetrieveRounds = async () => {
   try {
