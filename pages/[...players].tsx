@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router'
-import React from 'react';
+import React, { useEffect } from 'react';
 import GameState from './components/GameState';
+import Round from './components/GameState';
 
 export enum PlayerState {
   NeedTeammate,
@@ -10,6 +11,37 @@ export enum PlayerState {
   Waiting
 }
 
+const callAPICreateOrRetrieveUser = async (userName: string) => {
+  try {
+    const res = await fetch(`/api/create-user/?user=${userName}`);
+    const data = await res.json();
+    console.log(data);
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+const callAPICreateOrRetrieveGame = async (userName: string) => {
+  try {
+    const res = await fetch(`/api/create-or-retrieve-game/?user=${userName}`);
+    const data = await res.json();
+    console.log(data);
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+const callAPIRetrieveRounds = async () => {
+  try {
+    const gameId = 1;
+    const res = await fetch(`/api/retrieve-rounds/?gameId=${gameId}`);
+    const data = await res.json();
+    // console.log("rounds: ", data);
+    return data;
+  } catch (err) {
+    console.log(err);
+  }
+}
 
 export default function Page() {
   const router = useRouter();
@@ -29,6 +61,8 @@ export default function Page() {
 
   const [playerState, setPlayerState] = React.useState(PlayerState.NeedTeammate);
 
+  const [rounds, setRounds] = React.useState([]);
+
   if (playerState == PlayerState.NeedTeammate && players.length > 1) {
     setPlayerState(PlayerState.NoRound);
   }
@@ -36,14 +70,22 @@ export default function Page() {
   // TODO: get game for users
     // if no game for these users, create game
 
+    useEffect(() => {
+      callAPIRetrieveRounds()
+        .then((rounds) => {
+          console.log(rounds.rows);
+          setRounds(rounds.rows)
 
-  // TODO: get rounds for game
-    // Highlight latest round
+          // TODO: Is there an active round? (No time_completed)
+            // if I have to play, then set state to RoundToPlay
+            // if Waiting, then set state to Waiting
+          // If not, set state to NoRound
 
-  // TODO: Is there an active round? (No time_completed)
-    // if I have to play, then set state to RoundToPlay
-    // if Waiting, then set state to Waiting
-  // If not, set state to NoROund
+        })}, []);
+
+
+    // TODO: Highlight latest round
+
 
 
 
@@ -73,6 +115,8 @@ export default function Page() {
     setPlayerState(PlayerState.Waiting);
   }
 
+    // callAPICreateUser(player1);
+
   if (players.length == 0) {
     return (
       <div className={`grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}>
@@ -82,6 +126,7 @@ export default function Page() {
   }
 
   if (players.length == 1) {
+
     return (
       <div className={`grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}>
         Hey {player1}. 
@@ -107,6 +152,7 @@ export default function Page() {
             startTurn={startTurn}
             word1={word1}
             word2={word2}
+            rounds={rounds}
             submitAnswer={submitAnswer}
         />
 

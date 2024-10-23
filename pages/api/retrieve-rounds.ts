@@ -6,14 +6,7 @@ export default async function handler(
   request: NextApiRequest,
   response: NextApiResponse,
 ) {
-  try {
-    const userName = request.query.user as string;
-    if (!userName) throw new Error('User name required');
-    await sql`INSERT INTO users (name) VALUES (${userName});`;
-  } catch (error) {
-    return response.status(500).json({ error });
-  }
- 
-  const users = await sql`SELECT * FROM users;`;
-  return response.status(200).json({ users });
+  const gameId = request.query.gameId as string;
+  const {rows} = await sql`SELECT * FROM rounds r JOIN pairs p on r.pair_id = p.id where r.game_id = ${gameId};`;
+  return response.status(200).json({ rows });
 }

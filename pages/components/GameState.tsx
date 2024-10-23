@@ -7,6 +7,16 @@ type GameStateProps = {
   word1: string,
   word2: string,
   submitAnswer: (submission: string) => void,
+  rounds: Round[]
+}
+
+export type Round = {
+  id: number,
+  counter: number,
+  similarity_score: number | null,
+  rareness_score: number | null,
+  word1: string,
+  word2: string
 }
 
 export default function GameState({
@@ -15,6 +25,7 @@ export default function GameState({
   word1,
   word2,
   submitAnswer,
+  rounds,
 } : GameStateProps) {
 
   const [answer, setAnswer] = useState("");
@@ -25,8 +36,14 @@ export default function GameState({
     submitAnswer(answer);
   }
 
+  const prevRounds = rounds.map((round) =>
+    <li key={round.counter}>Round {round.counter}. Word 1: {round.word1}, Word 2: {round.word2}</li>
+  );
+
+
   return (
     <div>
+      <div>{prevRounds}</div>
     { (playerState == PlayerState.NoRound ) &&
       <button
           className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
