@@ -86,7 +86,7 @@ export default function Page() {
   // TODO: make sure player2 is a real player
 
   // TODO: figure this out after retrieving players
-  let thisPlayerHasLowerID : boolean = (player1 == "summer");
+  const thisPlayerHasLowerID : boolean = (player1 == "summer");
 
   const [playerState, setPlayerState] = React.useState(PlayerState.NeedTeammate);
 
@@ -104,9 +104,7 @@ export default function Page() {
     useEffect(() => {
       callAPIRetrieveRounds()
         .then((rounds) => {
-          // console.log(rounds.rows);
           const {prevRounds, currRound} = processRounds(rounds.rows);
-          // console.log(prevRounds, currRound);
           setPreviousRounds(prevRounds);
           setCurrentRound(currRound);
 
@@ -121,7 +119,7 @@ export default function Page() {
             setPlayerState(PlayerState.NoRound);
           }
 
-        })}, [router.query.players]);
+        })}, [router.query.players, thisPlayerHasLowerID]);
 
 
 
