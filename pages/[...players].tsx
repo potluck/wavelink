@@ -86,7 +86,7 @@ export default function Page() {
   // TODO: make sure player2 is a real player
 
   // TODO: figure this out after retrieving players
-  const thisPlayerHasLowerID : boolean = true;
+  let thisPlayerHasLowerID : boolean = (player1 == "summer");
 
   const [playerState, setPlayerState] = React.useState(PlayerState.NeedTeammate);
 
@@ -111,8 +111,9 @@ export default function Page() {
           setCurrentRound(currRound);
 
           if (currRound !== null) {
-            if ((thisPlayerHasLowerID && !!currRound.link1) || (!thisPlayerHasLowerID && !!currRound.link2)) {
+            if ((thisPlayerHasLowerID && !!(currRound?.link1)) || (!thisPlayerHasLowerID && !!currRound.link2)) {
               setPlayerState(PlayerState.Waiting);
+              console.log("Waiting");
             } else {
               setPlayerState(PlayerState.RoundToPlay);
             }
@@ -120,7 +121,7 @@ export default function Page() {
             setPlayerState(PlayerState.NoRound);
           }
 
-        })}, []);
+        })}, [router.query.players]);
 
 
 
@@ -134,8 +135,7 @@ export default function Page() {
   }
 
   function submitAnswer(submission : string) {
-    // submit link
-    console.log(submission);
+    // console.log(submission);
     let completed = false;
     if ((thisPlayerHasLowerID && !!currentRound?.link2) || (!thisPlayerHasLowerID && !!currentRound?.link1)) {
       completed = true;

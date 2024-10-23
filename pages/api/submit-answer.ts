@@ -12,6 +12,7 @@ export default async function handler(
     const thisLower = request.query.thisLower as string;
     const completed = request.query.completed as string;
     if (!roundId || !submission || !thisLower || !completed) throw new Error('Missing param');
+    // TODO: calculate scores
     if (thisLower == "true" && completed == "true") {
       await sql`UPDATE rounds SET link1=${submission}, completed_at = NOW() WHERE id=${roundId};`;
     } else if (thisLower == "true" && completed == "false"){
