@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import React, { useEffect } from 'react';
-import GameState from './components/GameState';
+import GameState, { Round } from './components/GameState';
 
 export enum PlayerState {
   NeedTeammate,
@@ -42,9 +42,36 @@ const callAPIRetrieveRounds = async () => {
   }
 }
 
+const callAPISubmitAnswer = async (roundId: number, submission: string, thisPlayerHasLowerID: boolean, completed: boolean) => {
+  try {
+    const res = await fetch(`/api/submit-answer/?roundId=${roundId}&&submission=${submission}&thisLower=${thisPlayerHasLowerID}&completed=${completed}`);
+    const data = await res.json();
+    // console.log("rounds: ", data);
+    return data;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+
+const processRounds = (rounds : Round[]) : {prevRounds: Round[], currRound: Round | null} => {
+  // console.log("processing pots! ", rounds);
+  const prevRounds : Round[] = [];
+  let currRound = null;
+  for (const round of rounds) {
+    if (round.completed_at == null) {
+      currRound = round;
+    } else {
+      prevRounds.push(round);
+    }
+  }
+
+  return {prevRounds, currRound};
+}
+
 export default function Page() {
   const router = useRouter();
-  console.log("hi pots", router.query.players);
+  // console.log("hi pots. players: ", router.query.players);
 
   const players = !Array.isArray(router.query.players)? (router.query.players? [router.query.players] : []): router.query.players;
 
@@ -58,11 +85,16 @@ export default function Page() {
 
   // TODO: make sure player2 is a real player
 
+  // TODO: figure this out after retrieving players
+  const thisPlayerHasLowerID : boolean = true;
+
   const [playerState, setPlayerState] = React.useState(PlayerState.NeedTeammate);
 
-  const [rounds, setRounds] = React.useState([]);
+  const [previousRounds, setPreviousRounds] = React.useState<Round[]>([]);
+  const [currentRound, setCurrentRound] = React.useState<Round | null>(null);
 
   if (playerState == PlayerState.NeedTeammate && players.length > 1) {
+    // TODO: clean this up
     setPlayerState(PlayerState.NoRound);
   }
 
@@ -72,46 +104,51 @@ export default function Page() {
     useEffect(() => {
       callAPIRetrieveRounds()
         .then((rounds) => {
-          console.log(rounds.rows);
-          setRounds(rounds.rows)
+          // console.log(rounds.rows);
+          const {prevRounds, currRound} = processRounds(rounds.rows);
+          // console.log(prevRounds, currRound);
+          setPreviousRounds(prevRounds);
+          setCurrentRound(currRound);
 
-          // TODO: Is there an active round? (No time_completed)
-            // if I have to play, then set state to RoundToPlay
-            // if Waiting, then set state to Waiting
-          // If not, set state to NoRound
+          if (currRound !== null) {
+            if ((thisPlayerHasLowerID && !!currRound.link1) || (!thisPlayerHasLowerID && !!currRound.link2)) {
+              setPlayerState(PlayerState.Waiting);
+            } else {
+              setPlayerState(PlayerState.RoundToPlay);
+            }
+          } else {
+            setPlayerState(PlayerState.NoRound);
+          }
 
         })}, []);
 
 
-    // TODO: Highlight latest round
-
-
-
-
-  const [word1, setWord1] = React.useState("");
-  const [word2, setWord2] = React.useState("");
 
   function startTurn() {
-    // TODO: if NoRound, then create a new round
     if (playerState == PlayerState.NoRound) {
+      // TODO: if NoRound, then create a new round
       setPlayerState(PlayerState.Playing);
-      setWord1("Dog");
-      setWord2("Tree");
+    } else if (playerState == PlayerState.RoundToPlay) {
+      setPlayerState(PlayerState.Playing);
     }
-
-    // else if RoundToPlay, insert the pair
   }
 
   function submitAnswer(submission : string) {
     // submit link
     console.log(submission);
-    // return - update on this round
-
-    // If other player submitted for this round
-    // set state to RoundComplete
-
-    // else set to Waiting
-    setPlayerState(PlayerState.Waiting);
+    let completed = false;
+    if ((thisPlayerHasLowerID && !!currentRound?.link2) || (!thisPlayerHasLowerID && !!currentRound?.link1)) {
+      completed = true;
+    }
+    callAPISubmitAnswer(currentRound?.id || 0, submission, thisPlayerHasLowerID, completed)
+      .then(() => {
+        if (completed) {
+          // TODO - get the score. Show the score.
+          setPlayerState(PlayerState.NoRound);
+        } else {
+          setPlayerState(PlayerState.Waiting);
+        }
+      })
   }
 
     // callAPICreateUser(player1);
@@ -149,9 +186,8 @@ export default function Page() {
         <GameState
             playerState={playerState}
             startTurn={startTurn}
-            word1={word1}
-            word2={word2}
-            rounds={rounds}
+            previousRounds={previousRounds}
+            currentRound={currentRound}
             submitAnswer={submitAnswer}
         />
 

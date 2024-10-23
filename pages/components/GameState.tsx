@@ -4,10 +4,9 @@ import { PlayerState } from "../[...players]";
 type GameStateProps = {
   playerState: PlayerState,
   startTurn: () => void,
-  word1: string,
-  word2: string,
   submitAnswer: (submission: string) => void,
-  rounds: Round[]
+  previousRounds: Round[],
+  currentRound: Round | null
 }
 
 export type Round = {
@@ -16,16 +15,19 @@ export type Round = {
   similarity_score: number | null,
   rareness_score: number | null,
   word1: string,
-  word2: string
+  word2: string,
+  link1: string | null,
+  link2: string | null,
+  created_at: string,
+  completed_at: string | null,
 }
 
 export default function GameState({
   playerState,
   startTurn,
-  word1,
-  word2,
   submitAnswer,
-  rounds,
+  previousRounds,
+  currentRound
 } : GameStateProps) {
 
   const [answer, setAnswer] = useState("");
@@ -36,14 +38,15 @@ export default function GameState({
     submitAnswer(answer);
   }
 
-  const prevRounds = (rounds || []).map((round) =>
-    <li key={round.counter}>Round {round.counter}. Word 1: {round.word1}, Word 2: {round.word2}</li>
+  const prevRounds = (previousRounds || []).map((round) =>
+    <li key={round.counter}>Round {round.counter}. Score: {(round.similarity_score || 0) + (round.rareness_score || 0)}</li>
   );
 
 
+  // TODO: loading state
   return (
     <div>
-      <div>{prevRounds}</div>
+      {previousRounds?.length>0 && <div>Previous Rounds: {prevRounds}</div>}
     { (playerState == PlayerState.NoRound ) &&
       <button
           className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
@@ -66,10 +69,10 @@ export default function GameState({
   { (playerState == PlayerState.Playing ) &&
     <div>
       <li className="mb-2">
-        Your words are: {word1} and {word2}.
+        Your words are: {currentRound?.word1} and {currentRound?.word2}.
       </li>
       <form onSubmit={handleSubmit}>
-        <textarea
+        <input
           value={answer}
           onChange={e => setAnswer(e.target.value)}
           className={"block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"}
