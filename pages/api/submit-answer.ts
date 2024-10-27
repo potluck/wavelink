@@ -10,16 +10,26 @@ export default async function handler(
     const roundId = request.query.roundId as string;
     const submission = request.query.submission as string;
     const thisLower = request.query.thisLower as string;
-    const completed = request.query.completed as string;
-    if (!roundId || !submission || !thisLower || !completed) throw new Error('Missing param');
-    // TODO: calculate scores
-    if (thisLower == "true" && completed == "true") {
+    if (!roundId || !submission || !thisLower) throw new Error('Missing param');
+
+
+    const {rows} = await sql`SELECT * FROM rounds r where id = ${roundId};`;
+    let completed = false;
+    for (const row of rows) {
+      if ((thisLower == "true" && row.link2 != null) || (thisLower == "false" && row.link1 != null)) {
+        completed = true;
+        // TODO: calculate scores
+      }
+    }
+
+
+    if (thisLower == "true" && completed) {
       await sql`UPDATE rounds SET link1=${submission}, completed_at = NOW() WHERE id=${roundId};`;
-    } else if (thisLower == "true" && completed == "false"){
+    } else if (thisLower == "true" && !completed){
       await sql`UPDATE rounds SET link1=${submission} WHERE id=${roundId};`;
-    } else if (thisLower == "false" && completed == "true"){
+    } else if (thisLower == "false" && completed){
       await sql`UPDATE rounds SET link2=${submission}, completed_at = NOW() WHERE id=${roundId};`;
-    } else if (thisLower == "false" && completed == "false"){
+    } else if (thisLower == "false" && !completed){
       await sql`UPDATE rounds SET link2=${submission} WHERE id=${roundId};`;
     }
   } catch (error) {

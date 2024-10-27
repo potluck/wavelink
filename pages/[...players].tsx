@@ -42,9 +42,9 @@ const callAPIRetrieveRounds = async () => {
   }
 }
 
-const callAPISubmitAnswer = async (roundId: number, submission: string, thisPlayerHasLowerID: boolean, completed: boolean) => {
+const callAPISubmitAnswer = async (roundId: number, submission: string, thisPlayerHasLowerID: boolean) => {
   try {
-    const res = await fetch(`/api/submit-answer/?roundId=${roundId}&&submission=${submission}&thisLower=${thisPlayerHasLowerID}&completed=${completed}`);
+    const res = await fetch(`/api/submit-answer/?roundId=${roundId}&&submission=${submission}&thisLower=${thisPlayerHasLowerID}}`);
     const data = await res.json();
     // console.log("rounds: ", data);
     return data;
@@ -134,13 +134,13 @@ export default function Page() {
 
   function submitAnswer(submission : string) {
     // console.log(submission);
-    let completed = false;
+    let completedLocally = false;
     if ((thisPlayerHasLowerID && !!currentRound?.link2) || (!thisPlayerHasLowerID && !!currentRound?.link1)) {
-      completed = true;
+      completedLocally = true;
     }
-    callAPISubmitAnswer(currentRound?.id || 0, submission, thisPlayerHasLowerID, completed)
+    callAPISubmitAnswer(currentRound?.id || 0, submission, thisPlayerHasLowerID)
       .then(() => {
-        if (completed) {
+        if (completedLocally) {
           // TODO - get the score. Show the score.
           setPlayerState(PlayerState.NoRound);
         } else {
