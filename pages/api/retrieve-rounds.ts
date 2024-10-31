@@ -9,6 +9,6 @@ export default async function handler(
   response: NextApiResponse,
 ) {
   const gameId = request.query.gameId as string;
-  const {rows} = await sql`SELECT * FROM rounds r JOIN pairs p on r.pair_id = p.id where r.game_id = ${gameId};`;
+  const {rows} = await sql`SELECT r.*, p.word1, p.word2 FROM rounds r JOIN pairs p on r.pair_id = p.id where r.game_id = ${gameId};`;
   return response.status(200).json({ rows });
 }

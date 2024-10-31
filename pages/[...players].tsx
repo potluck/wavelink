@@ -20,19 +20,18 @@ export enum PlayerState {
 //   }
 // }
 
-// const callAPICreateOrRetrieveGame = async (userName: string) => {
-//   try {
-//     const res = await fetch(`/api/create-or-retrieve-game/?user=${userName}`);
-//     const data = await res.json();
-//     console.log(data);
-//   } catch (err) {
-//     console.log(err);
-//   }
-// }
-
-const callAPIRetrieveRounds = async () => {
+const callAPICreateRound = async (gameId: number, thisLower: boolean) => {
   try {
-    const gameId = 1;
+    const res = await fetch(`/api/create-new-round/?gameId=${gameId}&thisLower=${thisLower}`);
+    const data = await res.json();
+    return data.rows[0];
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+const callAPIRetrieveRounds = async (gameId: number) => {
+  try {
     const res = await fetch(`/api/retrieve-rounds/?gameId=${gameId}`);
     const data = await res.json();
     // console.log("rounds: ", data);
@@ -44,7 +43,7 @@ const callAPIRetrieveRounds = async () => {
 
 const callAPISubmitAnswer = async (roundId: number, submission: string, thisPlayerHasLowerID: boolean) => {
   try {
-    const res = await fetch(`/api/submit-answer/?roundId=${roundId}&&submission=${submission}&thisLower=${thisPlayerHasLowerID}}`);
+    const res = await fetch(`/api/submit-answer/?roundId=${roundId}&&submission=${submission}&thisLower=${thisPlayerHasLowerID}`);
     const data = await res.json();
     // console.log("rounds: ", data);
     return data;
@@ -78,6 +77,7 @@ export default function Page() {
   const player1 = players[0];
   const player2 = players.length > 1 ? players[1] : "No teammate set";
 
+
   // TODO: if only 1 player here:
   //  is this user the first player? (via auth, cache)
   //  if not: Potluck has invited you to play Wavelink. What's your name?
@@ -99,10 +99,11 @@ export default function Page() {
   }
 
   // TODO: get game for users
+  const gameId = 1;
     // if no game for these users, create game
 
     useEffect(() => {
-      callAPIRetrieveRounds()
+      callAPIRetrieveRounds(gameId)
         .then((rounds) => {
           const {prevRounds, currRound} = processRounds(rounds.rows);
           setPreviousRounds(prevRounds);
@@ -125,7 +126,11 @@ export default function Page() {
 
   function startTurn() {
     if (playerState == PlayerState.NoRound) {
-      // TODO: if NoRound, then create a new round
+      callAPICreateRound(gameId, thisPlayerHasLowerID)
+      .then((round) => {
+        console.log("Hey pots: created a new round. ", round);
+        setCurrentRound(round);
+      });
       setPlayerState(PlayerState.Playing);
     } else if (playerState == PlayerState.RoundToPlay) {
       setPlayerState(PlayerState.Playing);
@@ -133,7 +138,7 @@ export default function Page() {
   }
 
   function submitAnswer(submission : string) {
-    // console.log(submission);
+    console.log("submitting: ", currentRound, submission);
     let completedLocally = false;
     if ((thisPlayerHasLowerID && !!currentRound?.link2) || (!thisPlayerHasLowerID && !!currentRound?.link1)) {
       completedLocally = true;
@@ -187,6 +192,7 @@ export default function Page() {
             previousRounds={previousRounds}
             currentRound={currentRound}
             submitAnswer={submitAnswer}
+            thisLower={thisPlayerHasLowerID}
         />
 
     </ul>

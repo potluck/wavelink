@@ -1,6 +1,4 @@
-// collect all the pairs that either user has in any of their games
-// find a pair that isn't in that set.
-// if none, create a new pair
+// check if open round exists. If not, create a new one and return it
 
 import { sql } from '@vercel/postgres';
 import { NextApiResponse, NextApiRequest } from 'next';
@@ -9,14 +7,34 @@ export default async function handler(
   request: NextApiRequest,
   response: NextApiResponse,
 ) {
+  const gameId = request.query.gameId as string;
+  const thisLower = request.query.thisLower as string;
+  if (!gameId || !thisLower) throw new Error('Missing gameId or thisLower');
+  let pairToReturn = -1;
+
   try {
-    const userName = request.query.user as string;
-    if (!userName) throw new Error('User name required');
-    await sql`INSERT INTO users (name) VALUES (${userName});`;
+    const {rows} = await sql`SELECT * FROM rounds r where r.game_id = ${gameId};`;
+    let currRound = null;
+    let maxPair = -1;
+    for (const round of rows) {
+      if (round.completed_at == null && (thisLower? round.link1 : round.link2) == null) {
+        currRound = round;
+        pairToReturn = currRound.pair_id;
+      } else if (round.pair_id > maxPair) {
+        maxPair = round.pair_id;
+      }
+    }
+    if (currRound == null) {
+      await sql`INSERT INTO rounds (game_id, pair_id) VALUES (${gameId}, ${maxPair + 1});`;
+      pairToReturn = maxPair+1;
+    }
+
   } catch (error) {
     return response.status(500).json({ error });
   }
- 
-  const users = await sql`SELECT * FROM users;`;
-  return response.status(200).json({ users });
+  const {rows} = await sql`SELECT r.*, p.word1, p.word2 FROM rounds r JOIN pairs p on r.pair_id = p.id where r.game_id = ${gameId} and r.pair_id=${pairToReturn};`;
+  // if (rows.length == 0) {
+  //   return response.status(500).json({ error: "error finding round I just created" });
+  // }
+  return response.status(200).json({rows});
 }

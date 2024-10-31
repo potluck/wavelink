@@ -6,7 +6,8 @@ type GameStateProps = {
   startTurn: () => void,
   submitAnswer: (submission: string) => void,
   previousRounds: Round[],
-  currentRound: Round | null
+  currentRound: Round | null,
+  thisLower: boolean
 }
 
 export type Round = {
@@ -27,7 +28,8 @@ export default function GameState({
   startTurn,
   submitAnswer,
   previousRounds,
-  currentRound
+  currentRound,
+  thisLower,
 } : GameStateProps) {
 
   const [answer, setAnswer] = useState("");
@@ -38,15 +40,19 @@ export default function GameState({
     submitAnswer(answer);
   }
 
-  const prevRounds = (previousRounds || []).map((round) =>
-    <li key={round.counter}>Round {round.counter}. Score: {(round.similarity_score || 0) + (round.rareness_score || 0)}</li>
-  );
+  const prevRounds = (previousRounds || []).map((round, idx) =>
+    <li key={idx}>
+      <b>Round {idx + 1}. </b>
+      <br />- Score: {(round.similarity_score || 0) + (round.rareness_score || 0)} (Similarity: {(round.similarity_score || 0)}, Rareness: {(round.rareness_score || 0)})
+      <br />- Words: {round.word1}, {round.word2}
+      <br />- Your submission: {thisLower? round.link1:round.link2}, Their submission: {thisLower? round.link2:round.link1}
+    </li>
+  ).reverse();
 
 
   // TODO: loading state
   return (
     <div>
-      {previousRounds?.length>0 && <div>Previous Rounds: {prevRounds}</div>}
     { (playerState == PlayerState.NoRound ) &&
       <button
           className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
@@ -93,6 +99,7 @@ export default function GameState({
   { (playerState == PlayerState.Waiting ) &&
       <li className="mb-2">Waiting for your friend to complete this round.</li>
   }
+  {previousRounds?.length>0 && <div><b>Previous Rounds:</b> {prevRounds}</div>}
   </div>
   );
 }
