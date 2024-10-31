@@ -100,12 +100,11 @@ export default function Page() {
       .then((games) => {
         if (games.rows != null && games.rows.length > 0) {
           const game = games.rows[0];
-          console.log("got a game pots: ", game);
           setGameId(game.id);
           if (game.lowerusername.toString().toLowerCase() == player1.toLowerCase()) {
-            setThisPlayerLower(false);
-          } else {
             setThisPlayerLower(true);
+          } else {
+            setThisPlayerLower(false);
           }
       }
       })}, [router.query.players, player1, player2, thisPlayerHasLowerID]);
