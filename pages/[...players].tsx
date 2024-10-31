@@ -150,10 +150,6 @@ export default function Page() {
     if (submission.length < 2) {
       return false;
     }
-    let completedLocally = false;
-    if ((thisPlayerHasLowerID && !!currentRound?.link2) || (!thisPlayerHasLowerID && !!currentRound?.link1)) {
-      completedLocally = true;
-    }
     callAPISubmitAnswer(currentRound?.id || 0, submission, thisPlayerHasLowerID)
       .then(({completed, similarityScore, rarenessScore, link1, link2}) => {
         if (completed) {
