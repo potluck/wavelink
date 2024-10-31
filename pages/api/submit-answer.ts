@@ -14,7 +14,7 @@ function computeRareness(word: string) {
     return 2;
   } else if (rank < 10000) {
     return 3;
-  } else if (rank < 20000) {
+  } else if (rank < 50000) {
     return 4;
   }
   return 5;
