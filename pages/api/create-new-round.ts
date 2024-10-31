@@ -18,7 +18,7 @@ export default async function handler(
     let maxPair = -1;
 
     for (const round of rows) {
-      if (round.completed_at == null && (thisLower? round.link1 : round.link2) == null) {
+      if (round.completed_at == null && (thisLower == "true"? round.link1 : round.link2) == null) {
         currRound = round;
         pairToReturn = currRound.pair_id;
       } else if (round.pair_id > maxPair) {
