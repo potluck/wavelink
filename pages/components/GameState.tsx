@@ -58,12 +58,15 @@ export default function GameState({
         <li>
           This is a game of making connections. In each round, you receive 2 words.
         </li>
+        <li>&nbsp;</li>
         <li>
           You and your partner will each submit a single word that connects those clues. Your mission is:
         </li>
+        <li>&nbsp;</li>
         <li>
           1) Submit the same word as your partner.
         </li>
+        <li>&nbsp;</li>
         <li>
           2) Submit as uncommon of a word as possible. This gets you bonus points, only if you and your partner submit the same word!
         </li>
@@ -72,7 +75,7 @@ export default function GameState({
       }
     { (playerState == PlayerState.NoRound ) &&
       <button
-          className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
+          className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 mx-auto"
           onClick={startTurn}
       >
         Start round
