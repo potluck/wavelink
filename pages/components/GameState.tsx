@@ -56,9 +56,13 @@ export default function GameState({
       {previousRounds == null || previousRounds.length == 0 &&
       <div>
         <li>
-          This is a game of making connections. In each round, you receive 2 words.
+          This is a game of making connections between words <b>while being on a similar wavelength as your partner</b>.
         </li>
-        <li>&nbsp;</li>
+        <br />
+        <li>
+          Rounds are quick! Spend less than 20 seconds for a round. In each round, you receive 2 words.
+        </li>
+        <br />
         <li>
           You and your partner will each submit a single word that connects those clues. Your mission is:
         </li>
@@ -68,7 +72,7 @@ export default function GameState({
         </li>
         <li>&nbsp;</li>
         <li>
-          2) Submit as uncommon of a word as possible. This gets you bonus points, only if you and your partner submit the same word!
+          2) Submit a more uncommon word. This gets you bonus points, but only if you and your partner submit the same word!
         </li>
         <br />
         </div>
