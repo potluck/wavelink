@@ -87,6 +87,7 @@ export default function Page() {
 
   const [previousRounds, setPreviousRounds] = React.useState<Round[]>([]);
   const [currentRound, setCurrentRound] = React.useState<Round | null>(null);
+  const [completedRound, setCompletedRound] = React.useState<Round | null>(null);
   const [gameId, setGameId] = React.useState<number>(0);
   const [thisPlayerHasLowerID, setThisPlayerLower] = React.useState<boolean>(false);
 
@@ -155,14 +156,27 @@ export default function Page() {
       completedLocally = true;
     }
     callAPISubmitAnswer(currentRound?.id || 0, submission, thisPlayerHasLowerID)
-      .then(() => {
-        if (completedLocally) {
+      .then(({completed, similarityScore, rarenessScore, link1, link2}) => {
+        if (completed) {
+          const newRound:Round = {
+            id: currentRound?.id || 0,
+            similarity_score: similarityScore,
+            rareness_score: rarenessScore,
+            word1: currentRound?.word1 || "",
+            word2: currentRound?.word2 || "",
+            link1,
+            link2,
+            created_at: currentRound?.created_at || "",
+            completed_at: ""
+          };
+          setCompletedRound(newRound);
           // TODO - get the score. Show the score.
           setPlayerState(PlayerState.NoRound);
         } else {
           setPlayerState(PlayerState.Waiting);
         }
       })
+      return true;
   }
 
     // callAPICreateUser(player1);
@@ -204,6 +218,7 @@ export default function Page() {
             currentRound={currentRound}
             submitAnswer={submitAnswer}
             thisLower={thisPlayerHasLowerID}
+            completedRound={completedRound}
         />
 
     </ul>

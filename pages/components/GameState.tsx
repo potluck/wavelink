@@ -4,15 +4,15 @@ import { PlayerState } from "../[...players]";
 type GameStateProps = {
   playerState: PlayerState,
   startTurn: () => void,
-  submitAnswer: (submission: string) => void,
+  submitAnswer: (submission: string) => boolean,
   previousRounds: Round[],
   currentRound: Round | null,
   thisLower: boolean
+  completedRound: Round | null,
 }
 
 export type Round = {
   id: number,
-  counter: number,
   similarity_score: number | null,
   rareness_score: number | null,
   word1: string,
@@ -30,6 +30,7 @@ export default function GameState({
   previousRounds,
   currentRound,
   thisLower,
+  completedRound
 } : GameStateProps) {
 
   const [answer, setAnswer] = useState("");
@@ -37,7 +38,9 @@ export default function GameState({
 
   function handleSubmit(e : FormEvent<HTMLFormElement>){
     e.preventDefault();
-    submitAnswer(answer);
+    if (submitAnswer(answer)) {
+      setAnswer("");
+    };
   }
 
   const prevRounds = (previousRounds || []).map((round, idx) =>
@@ -49,11 +52,19 @@ export default function GameState({
     </li>
   ).reverse();
 
+  const justCompletedRound = completedRound && (
+  <div>
+    <b>Round complete! </b>
+    <br />- Score: {(completedRound.similarity_score || 0) + (completedRound.rareness_score || 0)} (Similarity: {(completedRound.similarity_score || 0)}, Rareness: {(completedRound.rareness_score || 0)})
+    <br />- Words: {completedRound.word1}, {completedRound.word2}
+    <br />- Your submission: {thisLower? completedRound.link1:completedRound.link2}, Their submission: {thisLower? completedRound.link2:completedRound.link1}
+  </div>);
+
 
   // TODO: loading state
   return (
     <div>
-      {previousRounds == null || previousRounds.length == 0 &&
+      {previousRounds == null || previousRounds.length == 0 && completedRound == null &&
       <div>
         <li>
           This is a game of making connections between words <b>while being on a similar wavelength as your partner</b>.
@@ -82,7 +93,7 @@ export default function GameState({
           className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 mx-auto"
           onClick={startTurn}
       >
-        Start round
+        Start new round
       </button>
   }
     { (playerState == PlayerState.RoundToPlay ) &&
@@ -121,8 +132,9 @@ export default function GameState({
       <li className="mb-2">Send your link to a friend to play.</li>
   }
   { (playerState == PlayerState.Waiting ) &&
-      <li className="mb-2">Waiting for your partner to complete this round.</li>
+      <li className="mb-2">Waiting for your partner to complete this round. You will need to refresh to see their submission.</li>
   }
+  {justCompletedRound}
   {previousRounds?.length>0 && <div><b>Previous Rounds:</b> {prevRounds}</div>}
   </div>
   );

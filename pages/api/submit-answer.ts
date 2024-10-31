@@ -34,11 +34,12 @@ export default async function handler(
     let completed = false;
     let similarityScore = 0;
     let rarenessScore = 0;
+    let otherLink = null;
     for (const row of rows) {
       if ((thisLower == "true" && row.link2 != null) || (thisLower == "false" && row.link1 != null)) {
         completed = true;
-        const otherWord = thisLower == "true"? row.link2 : row.link1;
-        if (distance(stemmer(submission), stemmer(otherWord)) <= 1) {
+        otherLink = thisLower == "true"? row.link2 : row.link1;
+        if (distance(stemmer(submission), stemmer(otherLink)) <= 1) {
           similarityScore = 1;
           rarenessScore = computeRareness(submission.toLowerCase());
         }
@@ -55,9 +56,8 @@ export default async function handler(
     } else if (thisLower == "false" && !completed){
       await sql`UPDATE rounds SET link2=${submission} WHERE id=${roundId};`;
     }
+    return response.status(200).json({completed, similarityScore, rarenessScore, link1: thisLower == "true"? submission : otherLink, link2:  thisLower == "true"? otherLink : submission});
   } catch (error) {
     return response.status(500).json({ error });
   }
-
-  return response.status(200).json({});
 }
