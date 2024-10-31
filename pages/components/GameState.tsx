@@ -53,6 +53,23 @@ export default function GameState({
   // TODO: loading state
   return (
     <div>
+      {previousRounds == null || previousRounds.length == 0 &&
+      <div>
+        <li>
+          This is a game of making connections. In each round, you receive 2 words.
+        </li>
+        <li>
+          You and your partner will each submit a single word that connects those clues. Your mission is:
+        </li>
+        <li>
+          1) Submit the same word as your partner.
+        </li>
+        <li>
+          2) Submit as uncommon of a word as possible. This gets you bonus points, only if you and your partner submit the same word!
+        </li>
+        <br />
+        </div>
+      }
     { (playerState == PlayerState.NoRound ) &&
       <button
           className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
@@ -97,7 +114,7 @@ export default function GameState({
       <li className="mb-2">Send your link to a friend to play.</li>
   }
   { (playerState == PlayerState.Waiting ) &&
-      <li className="mb-2">Waiting for your friend to complete this round.</li>
+      <li className="mb-2">Waiting for your partner to complete this round.</li>
   }
   {previousRounds?.length>0 && <div><b>Previous Rounds:</b> {prevRounds}</div>}
   </div>

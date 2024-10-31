@@ -16,6 +16,7 @@ export default async function handler(
     const {rows} = await sql`SELECT * FROM rounds r where r.game_id = ${gameId};`;
     let currRound = null;
     let maxPair = -1;
+
     for (const round of rows) {
       if (round.completed_at == null && (thisLower? round.link1 : round.link2) == null) {
         currRound = round;
@@ -25,8 +26,8 @@ export default async function handler(
       }
     }
     if (currRound == null) {
-      await sql`INSERT INTO rounds (game_id, pair_id) VALUES (${gameId}, ${maxPair + 1});`;
-      pairToReturn = maxPair+1;
+      await sql`INSERT INTO rounds (game_id, pair_id) VALUES (${gameId}, ${Math.max(1, maxPair + 1)});`;
+      pairToReturn = Math.max(1, maxPair + 1);
     }
 
   } catch (error) {

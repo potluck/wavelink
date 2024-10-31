@@ -7,10 +7,18 @@ export default async function handler(
   response: NextApiResponse,
 ) {
   try {
-    let userId1 = request.query.user1 as string;
-    let userId2 = request.query.user2 as string;
+    const userName1 = request.query.userName1 as string;
+    const userName2 = request.query.userName2 as string;
 
-    if (!userId1 || !userId2) throw new Error('Users 1 & 2');
+    if (!userName1 || !userName2) throw new Error('Users 1 & 2');
+    const {rows: user1} = await sql`SELECT u.id FROM users u where u.name=${userName1};`;
+
+    const {rows: user2} = await sql`SELECT u.id FROM users u where u.name=${userName2};`;
+
+    if (user1?.length != 1 || user2?.length != 1) {return response.status(500).json({ error: "user not found" });}
+
+    let userId1 = user1[0].id;
+    let userId2 = user2[0].id;
 
     if (userId1 > userId2) {
       const temp = userId1;
@@ -18,13 +26,17 @@ export default async function handler(
       userId2 = temp;
     }
 
-    // TODO: get game
-    // TODO: if game doesn't exist, create game
-    await sql`INSERT INTO users (name) VALUES (${userId1});`;
+    const {rows: game} = await sql`SELECT g.*, u.name as lowerUserName FROM games g join users u on u.id = g.user_id1 where g.user_id1=${userId1} and g.user_id2=${userId2};`;
+
+    if (game.length == 1) {
+      return response.status(200).json({ rows: game });
+    }
+
+    await sql`INSERT INTO games (user_id1, user_id2) VALUES (${userId1}, ${userId2});`;
+    const {rows: gameTake2} = await sql`SELECT g.*, u.name as lowerUserName FROM games g join users u on u.id = g.user_id1 where g.user_id1=${userId1} and g.user_id2=${userId2};`;
+    return response.status(200).json({ rows: gameTake2 });
   } catch (error) {
+    console.log("got an error: ", error);
     return response.status(500).json({ error });
   }
- 
-  const users = await sql`SELECT * FROM users;`;
-  return response.status(200).json({ users });
 }

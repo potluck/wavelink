@@ -10,15 +10,15 @@ export enum PlayerState {
   Waiting
 }
 
-// const callAPICreateOrRetrieveUser = async (userName: string) => {
-//   try {
-//     const res = await fetch(`/api/create-user/?user=${userName}`);
-//     const data = await res.json();
-//     console.log(data);
-//   } catch (err) {
-//     console.log(err);
-//   }
-// }
+const callAPICreateOrRetrieveGame = async (userName1: string, userName2: string) => {
+  try {
+    const res = await fetch(`/api/create-or-retrieve-game/?userName1=${userName1}&userName2=${userName2}`);
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.log(err);
+  }
+}
 
 const callAPICreateRound = async (gameId: number, thisLower: boolean) => {
   try {
@@ -45,7 +45,6 @@ const callAPISubmitAnswer = async (roundId: number, submission: string, thisPlay
   try {
     const res = await fetch(`/api/submit-answer/?roundId=${roundId}&&submission=${submission}&thisLower=${thisPlayerHasLowerID}`);
     const data = await res.json();
-    // console.log("rounds: ", data);
     return data;
   } catch (err) {
     console.log(err);
@@ -70,7 +69,6 @@ const processRounds = (rounds : Round[]) : {prevRounds: Round[], currRound: Roun
 
 export default function Page() {
   const router = useRouter();
-  // console.log("hi pots. players: ", router.query.players);
 
   const players = !Array.isArray(router.query.players)? (router.query.players? [router.query.players] : []): router.query.players;
 
@@ -85,22 +83,33 @@ export default function Page() {
 
   // TODO: make sure player2 is a real player
 
-  // TODO: figure this out after retrieving players
-  const thisPlayerHasLowerID : boolean = (player1 == "summer");
-
   const [playerState, setPlayerState] = React.useState(PlayerState.NeedTeammate);
 
   const [previousRounds, setPreviousRounds] = React.useState<Round[]>([]);
   const [currentRound, setCurrentRound] = React.useState<Round | null>(null);
+  const [gameId, setGameId] = React.useState<number>(0);
+  const [thisPlayerHasLowerID, setThisPlayerLower] = React.useState<boolean>(false);
 
   if (playerState == PlayerState.NeedTeammate && players.length > 1) {
     // TODO: clean this up
     setPlayerState(PlayerState.NoRound);
   }
 
-  // TODO: get game for users
-  const gameId = 1;
-    // if no game for these users, create game
+  useEffect(() => {
+    callAPICreateOrRetrieveGame(player1, player2)
+      .then((games) => {
+        if (games.rows != null && games.rows.length > 0) {
+          const game = games.rows[0];
+          console.log("got a game pots: ", game);
+          setGameId(game.id);
+          if (game.lowerusername.toString().toLowerCase() == player1.toLowerCase()) {
+            setThisPlayerLower(false);
+          } else {
+            setThisPlayerLower(true);
+          }
+      }
+      })}, [router.query.players, player1, player2, thisPlayerHasLowerID]);
+
 
     useEffect(() => {
       callAPIRetrieveRounds(gameId)
@@ -120,12 +129,13 @@ export default function Page() {
             setPlayerState(PlayerState.NoRound);
           }
 
-        })}, [router.query.players, thisPlayerHasLowerID]);
+        })}, [router.query.players, thisPlayerHasLowerID, gameId]);
 
 
 
   function startTurn() {
     if (playerState == PlayerState.NoRound) {
+      console.log("yo pots, creating round? ", gameId, thisPlayerHasLowerID);
       callAPICreateRound(gameId, thisPlayerHasLowerID)
       .then((round) => {
         console.log("Hey pots: created a new round. ", round);
@@ -138,7 +148,9 @@ export default function Page() {
   }
 
   function submitAnswer(submission : string) {
-    console.log("submitting: ", currentRound, submission);
+    if (submission.length < 2) {
+      return false;
+    }
     let completedLocally = false;
     if ((thisPlayerHasLowerID && !!currentRound?.link2) || (!thisPlayerHasLowerID && !!currentRound?.link1)) {
       completedLocally = true;
@@ -180,7 +192,7 @@ export default function Page() {
     <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
       <ul className="list-inside text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
         <li className="mb-2">
-          Welcome: {player1}
+          Hi <b>{player1}</b>. Welcome to Wavelink!
         </li>
         <li className="mb-2">
           You&apos;re playing with: {player2}
