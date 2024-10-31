@@ -34,7 +34,6 @@ const callAPIRetrieveRounds = async (gameId: number) => {
   try {
     const res = await fetch(`/api/retrieve-rounds/?gameId=${gameId}`);
     const data = await res.json();
-    // console.log("rounds: ", data);
     return data;
   } catch (err) {
     console.log(err);
@@ -170,7 +169,6 @@ export default function Page() {
             completed_at: ""
           };
           setCompletedRound(newRound);
-          // TODO - get the score. Show the score.
           setPlayerState(PlayerState.NoRound);
         } else {
           setPlayerState(PlayerState.Waiting);
@@ -178,8 +176,6 @@ export default function Page() {
       })
       return true;
   }
-
-    // callAPICreateUser(player1);
 
   if (players.length == 0) {
     return (
