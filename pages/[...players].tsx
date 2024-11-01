@@ -87,6 +87,7 @@ export default function Page() {
   const [previousRounds, setPreviousRounds] = React.useState<Round[]>([]);
   const [currentRound, setCurrentRound] = React.useState<Round | null>(null);
   const [completedRound, setCompletedRound] = React.useState<Round | null>(null);
+  const currentRoundRef = React.useRef<Round | null>(null);
   const [gameId, setGameId] = React.useState<number>(0);
   const [thisPlayerHasLowerID, setThisPlayerLower] = React.useState<boolean>(false);
 
@@ -94,6 +95,9 @@ export default function Page() {
     // TODO: clean this up
     setPlayerState(PlayerState.NoRound);
   }
+  useEffect(() => {
+    currentRoundRef.current = currentRound;
+}, [currentRound]);
 
   useEffect(() => {
     callAPICreateOrRetrieveGame(player1, player2)
@@ -120,7 +124,6 @@ export default function Page() {
           if (currRound !== null) {
             if ((thisPlayerHasLowerID && !!(currRound?.link1)) || (!thisPlayerHasLowerID && !!currRound.link2)) {
               setPlayerState(PlayerState.Waiting);
-              console.log("Waiting");
             } else {
               setPlayerState(PlayerState.RoundToPlay);
             }
@@ -130,14 +133,29 @@ export default function Page() {
 
         })}, [router.query.players, thisPlayerHasLowerID, gameId]);
 
+      useEffect(() => {
+        const eventSource = new EventSource(`/api/poll?gameId=${gameId}`);
 
+        eventSource.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          const justCompletedRound = data && data.length>0? data[0] : null;
+          if (justCompletedRound.id == currentRoundRef.current?.id) {
+            setCompletedRound(justCompletedRound);
+            setPlayerState(PlayerState.NoRound);
+          }
+        };
+        eventSource.onerror = function(){
+          console.log('error pots: '+eventSource.readyState);
+      };
+        return () => {
+          eventSource.close();
+        };
+      }, [gameId, thisPlayerHasLowerID]);
 
   function startTurn() {
     if (playerState == PlayerState.NoRound) {
-      console.log("yo pots, creating round? ", gameId, thisPlayerHasLowerID);
       callAPICreateRound(gameId, thisPlayerHasLowerID)
       .then((round) => {
-        console.log("Hey pots: created a new round. ", round);
         setCurrentRound(round);
       });
       setPlayerState(PlayerState.Playing);

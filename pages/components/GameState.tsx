@@ -132,7 +132,7 @@ export default function GameState({
       <li className="mb-2">Send your link to a friend to play.</li>
   }
   { (playerState == PlayerState.Waiting ) &&
-      <li className="mb-2">Waiting for your partner to complete this round. You will need to refresh to see their submission.</li>
+      <li className="mb-2">Waiting for your partner to complete this round. The page will update when they submit!</li>
   }
   {justCompletedRound}
   {previousRounds?.length>0 && <div><b>Previous Rounds:</b> {prevRounds}</div>}
