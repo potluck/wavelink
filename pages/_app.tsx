@@ -1,6 +1,7 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import Head from 'next/head'
+import { Analytics } from "@vercel/analytics/react"
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
@@ -12,6 +13,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <meta property="og:description" content="Can you match your partner's link?"></meta>
       </Head>
       <Component {...pageProps} />
+      <Analytics />
     </>
   );
 }
