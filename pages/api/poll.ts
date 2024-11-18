@@ -24,6 +24,9 @@ export default async function handler(
       res.write(`data: ${JSON.stringify(rows)}\n\n`);
       console.log("pots sent message: ", rows);
     }
+    else {
+      res.write(`data: {}\n\n`);
+    }
   }, 5000);
 
   res.on("close", () => {

@@ -140,7 +140,7 @@ export default function Page() {
           const data = JSON.parse(event.data);
           console.log("pots got message: ", data);
           const justCompletedRound = data && data.length>0? data[0] : null;
-          if (justCompletedRound.id == currentRoundRef.current?.id) {
+          if (justCompletedRound?.id == currentRoundRef.current?.id) {
             setCompletedRound(justCompletedRound);
             setPlayerState(PlayerState.NoRound);
           }
