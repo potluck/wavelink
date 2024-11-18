@@ -138,7 +138,6 @@ export default function Page() {
 
         eventSource.onmessage = (event) => {
           const data = JSON.parse(event.data);
-          console.log("pots got message: ", data);
           const justCompletedRound = data && data.length>0? data[0] : null;
           if (justCompletedRound?.id == currentRoundRef.current?.id) {
             setCompletedRound(justCompletedRound);
@@ -147,9 +146,6 @@ export default function Page() {
         };
         eventSource.onerror = function(e){
           console.log("error pots: "+e.type+" "+eventSource.readyState);
-          if (e instanceof ErrorEvent) {
-            console.log("errorevent pots: "+e.type+" "+e.message+" "+e.error);
-          }
       };
         return () => {
           eventSource.close();
