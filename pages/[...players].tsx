@@ -146,7 +146,10 @@ export default function Page() {
           }
         };
         eventSource.onerror = function(e){
-          console.log('error pots: '+e.type+" "+eventSource.readyState);
+          console.log("error pots: "+e.type+" "+eventSource.readyState);
+          if (e instanceof ErrorEvent) {
+            console.log("errorevent pots: "+e.type+" "+e.message+" "+e.error);
+          }
       };
         return () => {
           eventSource.close();
