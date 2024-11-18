@@ -145,8 +145,8 @@ export default function Page() {
             setPlayerState(PlayerState.NoRound);
           }
         };
-        eventSource.onerror = function(){
-          console.log('error pots: '+eventSource.readyState);
+        eventSource.onerror = function(e){
+          console.log('error pots: '+e+" "+eventSource.readyState);
       };
         return () => {
           eventSource.close();
