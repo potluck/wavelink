@@ -22,6 +22,7 @@ export default async function handler(
         and r.completed_at > now() - interval '10 seconds';`;
     if (rows.length > 0) {
       res.write(`data: ${JSON.stringify(rows)}\n\n`);
+      console.log("pots sent message: ", rows);
     }
   }, 5000);
 

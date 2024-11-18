@@ -138,6 +138,7 @@ export default function Page() {
 
         eventSource.onmessage = (event) => {
           const data = JSON.parse(event.data);
+          console.log("pots got message: ", data);
           const justCompletedRound = data && data.length>0? data[0] : null;
           if (justCompletedRound.id == currentRoundRef.current?.id) {
             setCompletedRound(justCompletedRound);
