@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import React, { useEffect } from 'react';
-import GameState, { Round } from './components/GameState';
+import GameState, { Submission, Turn } from './components/GameState';
 
 export enum PlayerState {
   NeedTeammate,
@@ -20,9 +20,9 @@ const callAPICreateOrRetrieveGame = async (userName1: string, userName2: string)
   }
 }
 
-const callAPICreateRound = async (gameId: number, thisLower: boolean) => {
+const callAPICreateTurn = async (gameId: number) => {
   try {
-    const res = await fetch(`/api/create-new-round/?gameId=${gameId}&thisLower=${thisLower}`);
+    const res = await fetch(`/api/create-new-turn/?gameId=${gameId}`);
     const data = await res.json();
     return data.rows[0];
   } catch (err) {
@@ -30,9 +30,9 @@ const callAPICreateRound = async (gameId: number, thisLower: boolean) => {
   }
 }
 
-const callAPIRetrieveRounds = async (gameId: number) => {
+const callAPIRetrieveTurns = async (gameId: number) => {
   try {
-    const res = await fetch(`/api/retrieve-rounds/?gameId=${gameId}`);
+    const res = await fetch(`/api/retrieve-turns/?gameId=${gameId}`);
     const data = await res.json();
     return data;
   } catch (err) {
@@ -40,9 +40,9 @@ const callAPIRetrieveRounds = async (gameId: number) => {
   }
 }
 
-const callAPISubmitAnswer = async (roundId: number, submission: string, thisPlayerHasLowerID: boolean) => {
+const callAPISubmitAnswer = async (turnId: number, submission: string, thisPlayerHasLowerID: boolean) => {
   try {
-    const res = await fetch(`/api/submit-answer/?roundId=${roundId}&&submission=${submission}&thisLower=${thisPlayerHasLowerID}`);
+    const res = await fetch(`/api/submit-answer/?turnId=${turnId}&&submission=${submission}&thisLower=${thisPlayerHasLowerID}`);
     const data = await res.json();
     return data;
   } catch (err) {
@@ -51,19 +51,50 @@ const callAPISubmitAnswer = async (roundId: number, submission: string, thisPlay
 }
 
 
-const processRounds = (rounds : Round[]) : {prevRounds: Round[], currRound: Round | null} => {
-  // console.log("processing pots! ", rounds);
-  const prevRounds : Round[] = [];
-  let currRound = null;
-  for (const round of rounds) {
-    if (round.completed_at == null) {
-      currRound = round;
+const processTurns = (subs : Submission[]) : {prevTurns: Turn[], currTurn: Turn | null} => {
+  const prevTurns : Turn[] = [];
+  let currTurn = null;
+  for (const sub of subs) {
+    if (sub.turn_completed_at == null) {
+      if (currTurn == null) {
+        currTurn = {
+          id: sub.turn_id,
+          rareness_score: sub.rareness_score,
+          speed_score: sub.speed_score,
+          word1: sub.word1,
+          word2: sub.word2,
+          created_at: sub.turn_created_at,
+          completed_at: sub.turn_completed_at,
+          submissions: [sub]
+        };
+      } else {
+        currTurn.submissions.push(sub);
+      }
     } else {
-      prevRounds.push(round);
+      const foundTurn = prevTurns.find(turn => turn.id == sub.turn_id);
+      if (foundTurn == null) {
+        prevTurns.push({
+          id: sub.turn_id,
+          rareness_score: sub.rareness_score,
+          speed_score: sub.speed_score,
+          word1: sub.word1,
+          word2: sub.word2,
+          created_at: sub.turn_created_at,
+          completed_at: sub.turn_completed_at,
+          submissions: [sub]
+        });
+      } else {
+        foundTurn.submissions.push(sub)
+      }
     }
   }
 
-  return {prevRounds, currRound};
+  // TODO: sort submissions by counter
+  if (currTurn != null) {
+    currTurn.submissions.sort((a, b) => a.counter - b.counter);
+  }
+
+  return {prevTurns, currTurn};
 }
 
 export default function Page() {
@@ -84,10 +115,10 @@ export default function Page() {
 
   const [playerState, setPlayerState] = React.useState(PlayerState.NeedTeammate);
 
-  const [previousRounds, setPreviousRounds] = React.useState<Round[]>([]);
-  const [currentRound, setCurrentRound] = React.useState<Round | null>(null);
-  const [completedRound, setCompletedRound] = React.useState<Round | null>(null);
-  const currentRoundRef = React.useRef<Round | null>(null);
+  const [previousTurns, setPreviousTurns] = React.useState<Turn[]>([]);
+  const [currentTurn, setCurrentTurn] = React.useState<Turn | null>(null);
+  const [completedTurn, setCompletedTurn] = React.useState<Turn | null>(null);
+  const currentTurnRef = React.useRef<Turn | null>(null);
   const [gameId, setGameId] = React.useState<number>(0);
   const [thisPlayerHasLowerID, setThisPlayerLower] = React.useState<boolean>(false);
 
@@ -96,8 +127,8 @@ export default function Page() {
     setPlayerState(PlayerState.NoRound);
   }
   useEffect(() => {
-    currentRoundRef.current = currentRound;
-}, [currentRound]);
+    currentTurnRef.current = currentTurn;
+}, [currentTurn]);
 
   useEffect(() => {
     callAPICreateOrRetrieveGame(player1, player2)
@@ -115,14 +146,16 @@ export default function Page() {
 
 
     useEffect(() => {
-      callAPIRetrieveRounds(gameId)
-        .then((rounds) => {
-          const {prevRounds, currRound} = processRounds(rounds.rows);
-          setPreviousRounds(prevRounds);
-          setCurrentRound(currRound);
+      callAPIRetrieveTurns(gameId)
+        .then((turns) => {
+          const {prevTurns, currTurn} = processTurns(turns?.rows || []);
+          console.log("any curr turn pots? ", currTurn);
+          setPreviousTurns(prevTurns);
+          setCurrentTurn(currTurn);
 
-          if (currRound !== null) {
-            if ((thisPlayerHasLowerID && !!(currRound?.link1)) || (!thisPlayerHasLowerID && !!currRound.link2)) {
+          if (currTurn !== null) {
+            const latestSub = currTurn.submissions[currTurn.submissions.length - 1];
+            if ((thisPlayerHasLowerID && !!(latestSub?.link1)) || (!thisPlayerHasLowerID && !!latestSub.link2)) {
               setPlayerState(PlayerState.Waiting);
             } else {
               setPlayerState(PlayerState.RoundToPlay);
@@ -133,30 +166,32 @@ export default function Page() {
 
         })}, [router.query.players, thisPlayerHasLowerID, gameId]);
 
-      useEffect(() => {
-        const eventSource = new EventSource(`/api/poll?gameId=${gameId}`);
+      // useEffect(() => {
+      //   const eventSource = new EventSource(`/api/poll?gameId=${gameId}`);
 
-        eventSource.onmessage = (event) => {
-          const data = JSON.parse(event.data);
-          const justCompletedRound = data && data.length>0? data[0] : null;
-          if (justCompletedRound?.id == currentRoundRef.current?.id) {
-            setCompletedRound(justCompletedRound);
-            setPlayerState(PlayerState.NoRound);
-          }
-        };
-        eventSource.onerror = function(e){
-          console.log("error pots: "+e.type+" "+eventSource.readyState);
-      };
-        return () => {
-          eventSource.close();
-        };
-      }, [gameId, thisPlayerHasLowerID]);
+      //   eventSource.onmessage = (event) => {
+      //     const data = JSON.parse(event.data);
+      //     const justCompletedRound = data && data.length>0? data[0] : null;
+      //     if (justCompletedRound?.id == currentRoundRef.current?.id) {
+      //       setCompletedRound(justCompletedRound);
+      //       setPlayerState(PlayerState.NoRound);
+      //     }
+      //   };
+      //   eventSource.onerror = function(e){
+      //     console.log("error pots: "+e.type+" "+eventSource.readyState);
+      // };
+      //   return () => {
+      //     eventSource.close();
+      //   };
+      // }, [gameId, thisPlayerHasLowerID]);
 
   function startTurn() {
     if (playerState == PlayerState.NoRound) {
-      callAPICreateRound(gameId, thisPlayerHasLowerID)
-      .then((round) => {
-        setCurrentRound(round);
+      callAPICreateTurn(gameId)
+      .then((turn) => {
+        console.log("anything pots?2 ", turn);
+        const {currTurn} = processTurns([turn]);
+        setCurrentTurn(currTurn);
       });
       setPlayerState(PlayerState.Playing);
     } else if (playerState == PlayerState.RoundToPlay) {
@@ -168,22 +203,23 @@ export default function Page() {
     if (submission.length < 2) {
       return false;
     }
-    callAPISubmitAnswer(currentRound?.id || 0, submission, thisPlayerHasLowerID)
-      .then(({completed, similarityScore, rarenessScore, link1, link2}) => {
-        if (completed) {
-          const newRound:Round = {
-            id: currentRound?.id || 0,
-            similarity_score: similarityScore,
+    callAPISubmitAnswer(currentTurn?.id || 0, submission, thisPlayerHasLowerID)
+      .then(({submissionCompleted, turnCompleted, rarenessScore, speedScore /*, link1, link2*/}) => {
+        if (turnCompleted) {
+          const newTurn:Turn = {
+            id: currentTurn?.id || 0,
             rareness_score: rarenessScore,
-            word1: currentRound?.word1 || "",
-            word2: currentRound?.word2 || "",
-            link1,
-            link2,
-            created_at: currentRound?.created_at || "",
-            completed_at: ""
+            speed_score: speedScore,
+            word1: currentTurn?.word1 || "",
+            word2: currentTurn?.word2 || "",
+            created_at: currentTurn?.created_at || "",
+            completed_at: "",
+            submissions: []
           };
-          setCompletedRound(newRound);
+          setCompletedTurn(newTurn);
           setPlayerState(PlayerState.NoRound);
+        } else if (submissionCompleted) {
+          setPlayerState(PlayerState.RoundToPlay);
         } else {
           setPlayerState(PlayerState.Waiting);
         }
@@ -224,11 +260,11 @@ export default function Page() {
         <GameState
             playerState={playerState}
             startTurn={startTurn}
-            previousRounds={previousRounds}
-            currentRound={currentRound}
+            previousTurns={previousTurns}
+            currentTurn={currentTurn}
             submitAnswer={submitAnswer}
             thisLower={thisPlayerHasLowerID}
-            completedRound={completedRound}
+            completedTurn={completedTurn}
         />
 
     </ul>

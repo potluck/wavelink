@@ -5,32 +5,49 @@ type GameStateProps = {
   playerState: PlayerState,
   startTurn: () => void,
   submitAnswer: (submission: string) => boolean,
-  previousRounds: Round[],
-  currentRound: Round | null,
+  previousTurns: Turn[],
+  currentTurn: Turn | null,
   thisLower: boolean
-  completedRound: Round | null,
+  completedTurn: Turn | null,
 }
 
-export type Round = {
-  id: number,
-  similarity_score: number | null,
+export type Submission = {
+// turn info:
+  turn_id: number,
   rareness_score: number | null,
+  speed_score: number | null,
   word1: string,
   word2: string,
+  turn_created_at: string,
+  turn_completed_at: string | null,
+// submission info:
+  id: number,
+  counter: number,
   link1: string | null,
   link2: string | null,
   created_at: string,
   completed_at: string | null,
 }
 
+export type Turn = {
+  id: number,
+  rareness_score: number | null,
+  speed_score: number | null,
+  word1: string,
+  word2: string,
+  created_at: string,
+  completed_at: string | null,
+  submissions: Submission[],
+}
+
 export default function GameState({
   playerState,
   startTurn,
   submitAnswer,
-  previousRounds,
-  currentRound,
-  thisLower,
-  completedRound
+  previousTurns,
+  currentTurn,
+  // thisLower,
+  completedTurn
 } : GameStateProps) {
 
   const [answer, setAnswer] = useState("");
@@ -43,28 +60,38 @@ export default function GameState({
     };
   }
 
-  const prevRounds = (previousRounds || []).map((round, idx) =>
+  const prevTurns = (previousTurns || []).map((turn, idx) =>
     <li key={idx}>
       <b>Round {idx + 1}. </b>
-      <br />- Score: {(round.similarity_score || 0) + (round.rareness_score || 0)} (Similarity: {(round.similarity_score || 0)}, Rareness: {(round.rareness_score || 0)})
-      <br />- Words: {round.word1}, {round.word2}
-      <br />- Your submission: {thisLower? round.link1:round.link2}, Their submission: {thisLower? round.link2:round.link1}
+      <br />- Score: {(turn.rareness_score || 0) + (turn.speed_score || 0)} (Rareness: {(turn.rareness_score || 0)}, Speed: {(turn.speed_score || 0)})
+      <br />- Words: {turn.word1}, {turn.word2}
+      {/* <br />- Your submission: {thisLower? round.link1:round.link2}, Their submission: {thisLower? round.link2:round.link1} */}
     </li>
   ).reverse();
 
-  const justCompletedRound = completedRound && (
+  const justCompletedTurn = completedTurn && (
   <div>
     <b>Round complete! </b>
-    <br />- Score: {(completedRound.similarity_score || 0) + (completedRound.rareness_score || 0)} (Similarity: {(completedRound.similarity_score || 0)}, Rareness: {(completedRound.rareness_score || 0)})
-    <br />- Words: {completedRound.word1}, {completedRound.word2}
-    <br />- Your submission: {thisLower? completedRound.link1:completedRound.link2}, Their submission: {thisLower? completedRound.link2:completedRound.link1}
+    <br />- Score: {(completedTurn.rareness_score || 0) + (completedTurn.speed_score || 0)} (Rareness: {(completedTurn.rareness_score || 0)}, Speed: {(completedTurn.speed_score || 0)})
+    <br />- Words: {completedTurn.word1}, {completedTurn.word2}
+    {/* <br />- Your submission: {thisLower? completedRound.link1:completedRound.link2}, Their submission: {thisLower? completedRound.link2:completedRound.link1} */}
   </div>);
 
+  const thisTurn = currentTurn && (
+    <div>
+      {currentTurn.submissions.map((submission, idx) =>
+        submission.link1 && submission.link2 && (
+          <div key={idx}>
+            <b>Submission {idx+1}: </b>{submission.link1} {submission.link2}
+          </div>
+      ))}
+    </div>
+  );
 
   // TODO: loading state
   return (
     <div>
-      {previousRounds == null || previousRounds.length == 0 && completedRound == null &&
+      {previousTurns == null || previousTurns.length == 0 && completedTurn == null &&
       <div>
         <li>
           This is a game of making connections between words <b>while being on a similar wavelength as your partner</b>.
@@ -110,7 +137,8 @@ export default function GameState({
   { (playerState == PlayerState.Playing ) &&
     <div>
       <li className="mb-2">
-        Your words are: {currentRound?.word1} and {currentRound?.word2}.
+        Your starting words are: {currentTurn?.word1} and {currentTurn?.word2}.
+        {thisTurn}
       </li>
       <form onSubmit={handleSubmit}>
         <input
@@ -134,8 +162,8 @@ export default function GameState({
   { (playerState == PlayerState.Waiting ) &&
       <li className="mb-2">Waiting for your partner to complete this round. The page will update when they submit!</li>
   }
-  {justCompletedRound}
-  {previousRounds?.length>0 && <div><b>Previous Rounds:</b> {prevRounds}</div>}
+  {justCompletedTurn}
+  {previousTurns?.length>0 && <div><b>Previous Rounds:</b> {prevTurns}</div>}
   </div>
   );
 }
