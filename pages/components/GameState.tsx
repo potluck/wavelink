@@ -94,23 +94,17 @@ export default function GameState({
       {previousTurns == null || previousTurns.length == 0 && completedTurn == null &&
       <div>
         <li>
-          This is a game of making connections between words <b>while being on a similar wavelength as your partner</b>.
+          This is a game of making connections between words <b>with your partner</b>.
         </li>
         <br />
         <li>
-          Rounds are quick! Spend less than 20 seconds for a round. In each round, you receive 2 words.
+          In each round, you receive 2 words. You and your partner will each submit a single word that connects those clues.
         </li>
         <br />
+        <li>If the words don't match, you can try again. Now, you'll be trying to connect the two words you just submitted.</li>
+        <br />
         <li>
-          You and your partner will each submit a single word that connects those clues. Your mission is:
-        </li>
-        <li>&nbsp;</li>
-        <li>
-          1) Submit the same word as your partner.
-        </li>
-        <li>&nbsp;</li>
-        <li>
-          2) Submit a more uncommon word. This gets you bonus points, but only if you and your partner submit the same word!
+          You get up to 5 tries to connect!
         </li>
         <br />
         </div>
