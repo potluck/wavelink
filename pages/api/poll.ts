@@ -16,10 +16,22 @@ export default async function handler(
     return;
   }
   setInterval(async () => {
-    const {rows} = await sql`SELECT r.*, p.word1, p.word2 FROM rounds r
-      JOIN pairs p on r.pair_id = p.id
-      where r.game_id = ${gameId}
-        and r.completed_at > now() - interval '10 seconds';`;
+    const {rows} = await sql`
+      SELECT
+        t.id as turn_id,
+        t.speed_score,
+        t.rareness_score,
+        t.completed_at as turn_completed_at,
+        s.link1,
+        s.link2,
+        s.counter,
+        p.word1,
+        p.word2
+      FROM turns t
+      JOIN submissions s on s.turn_id = t.id
+      JOIN pairs p on t.pair_id = p.id
+      where t.game_id = ${gameId}
+        and s.completed_at > now() - interval '10 seconds';`;
     if (rows.length > 0) {
       res.write(`data: ${JSON.stringify(rows)}\n\n`);
     }

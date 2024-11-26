@@ -123,7 +123,10 @@ export default function GameState({
         Start new round
       </button>
   }
-    { (playerState == PlayerState.RoundToPlay ) &&
+    { (playerState == PlayerState.RoundToPlayNoMatch) &&
+      <div>Your submission didn&apos;t match your partner&apos;s submission. Try again!</div>
+    }
+    { (playerState == PlayerState.RoundToPlay || playerState == PlayerState.RoundToPlayNoMatch) &&
       <div>
         It&apos;s your turn.
       <button

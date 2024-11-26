@@ -6,6 +6,7 @@ export enum PlayerState {
   NeedTeammate,
   NoRound,
   RoundToPlay,
+  RoundToPlayNoMatch,
   Playing,
   Waiting
 }
@@ -149,7 +150,7 @@ export default function Page() {
       callAPIRetrieveTurns(gameId)
         .then((turns) => {
           const {prevTurns, currTurn} = processTurns(turns?.rows || []);
-          console.log("any curr turn pots? ", currTurn);
+          // console.log("any curr turn pots? ", currTurn);
           setPreviousTurns(prevTurns);
           setCurrentTurn(currTurn);
 
@@ -166,24 +167,45 @@ export default function Page() {
 
         })}, [router.query.players, thisPlayerHasLowerID, gameId]);
 
-      // useEffect(() => {
-      //   const eventSource = new EventSource(`/api/poll?gameId=${gameId}`);
+      useEffect(() => {
+        const eventSource = new EventSource(`/api/poll?gameId=${gameId}`);
 
-      //   eventSource.onmessage = (event) => {
-      //     const data = JSON.parse(event.data);
-      //     const justCompletedRound = data && data.length>0? data[0] : null;
-      //     if (justCompletedRound?.id == currentRoundRef.current?.id) {
-      //       setCompletedRound(justCompletedRound);
-      //       setPlayerState(PlayerState.NoRound);
-      //     }
-      //   };
-      //   eventSource.onerror = function(e){
-      //     console.log("error pots: "+e.type+" "+eventSource.readyState);
-      // };
-      //   return () => {
-      //     eventSource.close();
-      //   };
-      // }, [gameId, thisPlayerHasLowerID]);
+        eventSource.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          const justCompletedSubmission = data && data.length>0? data[0] : null;
+          // console.log("got data: ", data, justCompletedSubmission, currentTurnRef.current);
+          if ((justCompletedSubmission?.turn_id == currentTurnRef.current?.id) && justCompletedSubmission?.counter + 1 >= (currentTurnRef.current?.submissions.length || 0)) {
+            setPlayerState(PlayerState.RoundToPlayNoMatch);
+            const lastSubmission = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 1];
+            // console.log("last submission: ", lastSubmission);
+            if (lastSubmission) {
+              lastSubmission.link1 = justCompletedSubmission.link1;
+              lastSubmission.link2 = justCompletedSubmission.link2;
+              lastSubmission.completed_at = new Date().toISOString();
+            }
+            if (justCompletedSubmission.turn_completed_at != null) {
+              // console.log("completed turn");
+              setCompletedTurn(justCompletedSubmission);
+              setPlayerState(PlayerState.NoRound);
+            } else if (lastSubmission){
+              const newSubmission = {
+                ...lastSubmission,
+                completed_at: null,
+                counter: lastSubmission.counter + 1,
+                link1: null,
+                link2: null,
+              };
+              currentTurnRef.current?.submissions.push(newSubmission);
+            }
+          }
+        };
+        eventSource.onerror = function(e){
+          console.log("error pots: "+e.type+" "+eventSource.readyState);
+      };
+        return () => {
+          eventSource.close();
+        };
+      }, [gameId, thisPlayerHasLowerID]);
 
   function startTurn() {
     if (playerState == PlayerState.NoRound) {
@@ -194,7 +216,7 @@ export default function Page() {
         setCurrentTurn(currTurn);
       });
       setPlayerState(PlayerState.Playing);
-    } else if (playerState == PlayerState.RoundToPlay) {
+    } else if (playerState == PlayerState.RoundToPlay || playerState == PlayerState.RoundToPlayNoMatch) {
       setPlayerState(PlayerState.Playing);
     }
   }
@@ -203,8 +225,10 @@ export default function Page() {
     if (submission.length < 2) {
       return false;
     }
+    // TODO: check to make sure submission doesn't match previous words / submissions
+
     callAPISubmitAnswer(currentTurn?.id || 0, submission, thisPlayerHasLowerID)
-      .then(({submissionCompleted, turnCompleted, rarenessScore, speedScore /*, link1, link2*/}) => {
+      .then(({submissionCompleted, turnCompleted, rarenessScore, speedScore, link1, link2}) => {
         if (turnCompleted) {
           const newTurn:Turn = {
             id: currentTurn?.id || 0,
@@ -214,12 +238,26 @@ export default function Page() {
             word2: currentTurn?.word2 || "",
             created_at: currentTurn?.created_at || "",
             completed_at: "",
-            submissions: []
+            submissions: [] // TODO: add submissions to completed turn
           };
           setCompletedTurn(newTurn);
           setPlayerState(PlayerState.NoRound);
         } else if (submissionCompleted) {
-          setPlayerState(PlayerState.RoundToPlay);
+          setPlayerState(PlayerState.RoundToPlayNoMatch);
+          const lastSubmission = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 1];
+          if (lastSubmission) {
+            lastSubmission.link1 = link1;
+            lastSubmission.link2 = link2;
+            lastSubmission.completed_at = new Date().toISOString();
+            const newSubmission = {
+              ...lastSubmission,
+              completed_at: null,
+              counter: lastSubmission.counter + 1,
+              link1: null,
+              link2: null,
+            };
+            currentTurnRef.current?.submissions.push(newSubmission);
+          }
         } else {
           setPlayerState(PlayerState.Waiting);
         }
