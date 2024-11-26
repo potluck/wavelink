@@ -101,7 +101,7 @@ export default function GameState({
           In each round, you receive 2 words. You and your partner will each submit a single word that connects those clues.
         </li>
         <br />
-        <li>If the words don't match, you can try again. Now, you'll be trying to connect the two words you just submitted.</li>
+        <li>If the words don&apos;t match, you can try again. Now, you&apos;ll be trying to connect the two words you just submitted.</li>
         <br />
         <li>
           You get up to 5 tries to connect!
