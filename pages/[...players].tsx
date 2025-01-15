@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import GameState, { Submission, Turn } from './components/GameState';
 
 export enum PlayerState {
@@ -101,27 +101,24 @@ const processTurns = (subs: Submission[]): { prevTurns: Turn[], currTurn: Turn |
 export default function Page() {
   const router = useRouter();
 
-  const players = !Array.isArray(router.query.players) ? (router.query.players ? [router.query.players] : []) : router.query.players;
-
-  const player1 = players[0];
-  const player2 = players.length > 1 ? players[1] : "No teammate set";
-
-
   // TODO: if only 1 player here:
   //  is this user the first player? (via auth, cache)
   //  if not: Potluck has invited you to play Wavelink. What's your name?
   //  redirect / add to URL
 
   // TODO: make sure player2 is a real player
+  const [playerState, setPlayerState] = useState(PlayerState.NeedTeammate);
+  const [isLoading, setIsLoading] = useState(true);
+  const [players, setPlayers] = useState<string[]>([]);
+  const [player1, setPlayer1] = useState<string>("");
+  const [player2, setPlayer2] = useState<string>("");
 
-  const [playerState, setPlayerState] = React.useState(PlayerState.NeedTeammate);
-
-  const [previousTurns, setPreviousTurns] = React.useState<Turn[]>([]);
-  const [currentTurn, setCurrentTurn] = React.useState<Turn | null>(null);
-  const [completedTurn, setCompletedTurn] = React.useState<Turn | null>(null);
-  const currentTurnRef = React.useRef<Turn | null>(null);
-  const [gameId, setGameId] = React.useState<number>(0);
-  const [thisPlayerHasLowerID, setThisPlayerLower] = React.useState<boolean>(false);
+  const [previousTurns, setPreviousTurns] = useState<Turn[]>([]);
+  const [currentTurn, setCurrentTurn] = useState<Turn | null>(null);
+  const [completedTurn, setCompletedTurn] = useState<Turn | null>(null);
+  const currentTurnRef = useRef<Turn | null>(null);
+  const [gameId, setGameId] = useState<number>(0);
+  const [thisPlayerHasLowerID, setThisPlayerLower] = useState<boolean>(false);
 
   if (playerState == PlayerState.NeedTeammate && players.length > 1) {
     // TODO: clean this up
@@ -132,42 +129,52 @@ export default function Page() {
   }, [currentTurn]);
 
   useEffect(() => {
-    callAPICreateOrRetrieveGame(player1, player2)
-      .then((games) => {
-        if (games.rows != null && games.rows.length > 0) {
-          const game = games.rows[0];
-          setGameId(game.id);
-          if (game.lowerusername.toString().toLowerCase() == player1.toLowerCase()) {
-            setThisPlayerLower(true);
-          } else {
-            setThisPlayerLower(false);
+    async function fetchGameData(player1l: string, player2l: string) {
+      callAPICreateOrRetrieveGame(player1l, player2l)
+        .then((games) => {
+          if (games.rows != null && games.rows.length > 0) {
+            const game = games.rows[0];
+            setGameId(game.id);
+            if (game.lowerusername.toString().toLowerCase() == player1l.toLowerCase()) {
+              setThisPlayerLower(true);
+            } else {
+              setThisPlayerLower(false);
+            }
+            fetchTurnsData(game.id);
           }
-        }
-      })
-  }, [router.query.players, player1, player2, thisPlayerHasLowerID]);
+        })
+    }
 
+    async function fetchTurnsData(gameIdl: number) {
+      callAPIRetrieveTurns(gameIdl)
+        .then((turns) => {
+          const { prevTurns, currTurn } = processTurns(turns?.rows || []);
+          // console.log("any curr turn pots? ", currTurn);
+          setPreviousTurns(prevTurns);
+          setCurrentTurn(currTurn);
 
-  useEffect(() => {
-    callAPIRetrieveTurns(gameId)
-      .then((turns) => {
-        const { prevTurns, currTurn } = processTurns(turns?.rows || []);
-        // console.log("any curr turn pots? ", currTurn);
-        setPreviousTurns(prevTurns);
-        setCurrentTurn(currTurn);
-
-        if (currTurn !== null) {
-          const latestSub = currTurn.submissions[currTurn.submissions.length - 1];
-          if ((thisPlayerHasLowerID && !!(latestSub?.link1)) || (!thisPlayerHasLowerID && !!latestSub.link2)) {
-            setPlayerState(PlayerState.Waiting);
+          if (currTurn !== null) {
+            const latestSub = currTurn.submissions[currTurn.submissions.length - 1];
+            if ((thisPlayerHasLowerID && !!(latestSub?.link1)) || (!thisPlayerHasLowerID && !!latestSub.link2)) {
+              setPlayerState(PlayerState.Waiting);
+            } else {
+              setPlayerState(PlayerState.RoundToPlay);
+            }
           } else {
-            setPlayerState(PlayerState.RoundToPlay);
+            setPlayerState(PlayerState.NoRound);
           }
-        } else {
-          setPlayerState(PlayerState.NoRound);
-        }
+          setIsLoading(false);
+        })
+    }
 
-      })
-  }, [router.query.players, thisPlayerHasLowerID, gameId]);
+    if (router.isReady && router.query.players) {
+      const queryPlayers = router.query.players as string[];
+      setPlayers(queryPlayers);
+      setPlayer1(queryPlayers[0]);
+      setPlayer2(queryPlayers.length > 1 ? queryPlayers[1] : "No teammate set");
+      fetchGameData(queryPlayers[0], queryPlayers.length > 1 ? queryPlayers[1] : "");
+    }
+  }, [router.isReady, router.query.players]);
 
   useEffect(() => {
     const eventSource = new EventSource(`/api/poll?gameId=${gameId}`);
@@ -296,17 +303,17 @@ export default function Page() {
           <li className="mb-2">
             You&apos;re playing with: {player2}
           </li>
-
-          <GameState
-            playerState={playerState}
-            startTurn={startTurn}
-            previousTurns={previousTurns}
-            currentTurn={currentTurn}
-            submitAnswer={submitAnswer}
-            thisLower={thisPlayerHasLowerID}
-            completedTurn={completedTurn}
-          />
-
+          {isLoading ? <div>Loading...</div> : (
+            <GameState
+              playerState={playerState}
+              startTurn={startTurn}
+              previousTurns={previousTurns}
+              currentTurn={currentTurn}
+              submitAnswer={submitAnswer}
+              thisLower={thisPlayerHasLowerID}
+              completedTurn={completedTurn}
+            />
+          )}
         </ul>
       </main>
     </div>
