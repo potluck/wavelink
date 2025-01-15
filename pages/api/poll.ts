@@ -16,7 +16,7 @@ export default async function handler(
     return;
   }
   setInterval(async () => {
-    const {rows} = await sql`
+    const { rows } = await sql`
       SELECT
         t.id as turn_id,
         t.speed_score,

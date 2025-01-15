@@ -1,14 +1,14 @@
 // Submit a player's answer for a turn
 import { sql } from '@vercel/postgres';
 import { NextApiResponse, NextApiRequest } from 'next';
-import {stemmer} from 'stemmer'
-import {distance} from 'fastest-levenshtein';
-import {words} from 'popular-english-words';
- 
+import { stemmer } from 'stemmer'
+import { distance } from 'fastest-levenshtein';
+import { words } from 'popular-english-words';
+
 
 function computeRareness(word: string) {
   const rank = words.getWordRank(word);
-  if (rank < 500 ) {
+  if (rank < 500) {
     return 1;
   } else if (rank < 2000) {
     return 2;
@@ -25,12 +25,12 @@ export default async function handler(
 ) {
   try {
     const turnId = request.query.turnId as string;
-    const submission = (request.query.submission as string).replace(/[.,/#!$%^&*;:{}=\_`~()]/g,"");
+    const submission = (request.query.submission as string).replace(/[.,/#!$%^&*;:{}=\_`~()]/g, "");
     const thisLower = request.query.thisLower as string;
     if (!turnId || !submission || !thisLower) throw new Error('Missing param');
 
 
-    const {rows} = await sql`
+    const { rows } = await sql`
       SELECT *
       FROM turns t 
       JOIN submissions s ON t.id = s.turn_id
@@ -47,7 +47,7 @@ export default async function handler(
       if ((thisLower == "true" && row.link1 == null) || (thisLower == "false" && row.link2 == null)) {
         // completed = true;
         counter = row.counter;
-        otherLink = thisLower == "true"? row.link2 : row.link1;
+        otherLink = thisLower == "true" ? row.link2 : row.link1;
         if (otherLink != null) {
           submissionCompleted = true;
           if (distance(stemmer(submission), stemmer(otherLink)) <= 1) {
@@ -76,7 +76,7 @@ export default async function handler(
         SET completed_at = NOW(), speed_score=${speedScore}, rareness_score=${rarenessScore} 
         WHERE id=${turnId};
       `;
-    } else if (thisLower == "true" && !turnCompleted){
+    } else if (thisLower == "true" && !turnCompleted) {
       await sql`
         UPDATE turns 
         SET updated_at = NOW()
@@ -99,7 +99,7 @@ export default async function handler(
           WHERE turn_id=${turnId} and counter=${counter};
         `;
       }
-    } else if (thisLower == "false" && turnCompleted){
+    } else if (thisLower == "false" && turnCompleted) {
       await sql`
         UPDATE submissions 
         SET link2=${submission}, completed_at = NOW()
@@ -110,7 +110,7 @@ export default async function handler(
         SET completed_at = NOW(), speed_score=${speedScore}, rareness_score=${rarenessScore} 
         WHERE id=${turnId};
       `;
-    } else if (thisLower == "false" && !turnCompleted){
+    } else if (thisLower == "false" && !turnCompleted) {
       await sql`
         UPDATE turns 
         SET updated_at = NOW()
@@ -135,12 +135,12 @@ export default async function handler(
       }
     }
     return response.status(200).json({
-      turnCompleted: turnCompleted, 
-      submissionCompleted: submissionCompleted, 
-      speedScore: speedScore, 
-      rarenessScore: rarenessScore, 
-      link1: thisLower == "true"? submission : otherLink, 
-      link2:  thisLower == "true"? otherLink : submission
+      turnCompleted: turnCompleted,
+      submissionCompleted: submissionCompleted,
+      speedScore: speedScore,
+      rarenessScore: rarenessScore,
+      link1: thisLower == "true" ? submission : otherLink,
+      link2: thisLower == "true" ? otherLink : submission
     });
   } catch (error) {
     return response.status(500).json({ error });

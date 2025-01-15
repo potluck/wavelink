@@ -52,8 +52,8 @@ const callAPISubmitAnswer = async (turnId: number, submission: string, thisPlaye
 }
 
 
-const processTurns = (subs : Submission[]) : {prevTurns: Turn[], currTurn: Turn | null} => {
-  const prevTurns : Turn[] = [];
+const processTurns = (subs: Submission[]): { prevTurns: Turn[], currTurn: Turn | null } => {
+  const prevTurns: Turn[] = [];
   let currTurn = null;
   for (const sub of subs) {
     if (sub.turn_completed_at == null) {
@@ -95,13 +95,13 @@ const processTurns = (subs : Submission[]) : {prevTurns: Turn[], currTurn: Turn 
     currTurn.submissions.sort((a, b) => a.counter - b.counter);
   }
 
-  return {prevTurns, currTurn};
+  return { prevTurns, currTurn };
 }
 
 export default function Page() {
   const router = useRouter();
 
-  const players = !Array.isArray(router.query.players)? (router.query.players? [router.query.players] : []): router.query.players;
+  const players = !Array.isArray(router.query.players) ? (router.query.players ? [router.query.players] : []) : router.query.players;
 
   const player1 = players[0];
   const player2 = players.length > 1 ? players[1] : "No teammate set";
@@ -129,7 +129,7 @@ export default function Page() {
   }
   useEffect(() => {
     currentTurnRef.current = currentTurn;
-}, [currentTurn]);
+  }, [currentTurn]);
 
   useEffect(() => {
     callAPICreateOrRetrieveGame(player1, player2)
@@ -142,95 +142,97 @@ export default function Page() {
           } else {
             setThisPlayerLower(false);
           }
-      }
-      })}, [router.query.players, player1, player2, thisPlayerHasLowerID]);
+        }
+      })
+  }, [router.query.players, player1, player2, thisPlayerHasLowerID]);
 
 
-    useEffect(() => {
-      callAPIRetrieveTurns(gameId)
-        .then((turns) => {
-          const {prevTurns, currTurn} = processTurns(turns?.rows || []);
-          // console.log("any curr turn pots? ", currTurn);
-          setPreviousTurns(prevTurns);
-          setCurrentTurn(currTurn);
+  useEffect(() => {
+    callAPIRetrieveTurns(gameId)
+      .then((turns) => {
+        const { prevTurns, currTurn } = processTurns(turns?.rows || []);
+        // console.log("any curr turn pots? ", currTurn);
+        setPreviousTurns(prevTurns);
+        setCurrentTurn(currTurn);
 
-          if (currTurn !== null) {
-            const latestSub = currTurn.submissions[currTurn.submissions.length - 1];
-            if ((thisPlayerHasLowerID && !!(latestSub?.link1)) || (!thisPlayerHasLowerID && !!latestSub.link2)) {
-              setPlayerState(PlayerState.Waiting);
-            } else {
-              setPlayerState(PlayerState.RoundToPlay);
-            }
+        if (currTurn !== null) {
+          const latestSub = currTurn.submissions[currTurn.submissions.length - 1];
+          if ((thisPlayerHasLowerID && !!(latestSub?.link1)) || (!thisPlayerHasLowerID && !!latestSub.link2)) {
+            setPlayerState(PlayerState.Waiting);
           } else {
-            setPlayerState(PlayerState.NoRound);
+            setPlayerState(PlayerState.RoundToPlay);
           }
+        } else {
+          setPlayerState(PlayerState.NoRound);
+        }
 
-        })}, [router.query.players, thisPlayerHasLowerID, gameId]);
+      })
+  }, [router.query.players, thisPlayerHasLowerID, gameId]);
 
-      useEffect(() => {
-        const eventSource = new EventSource(`/api/poll?gameId=${gameId}`);
+  useEffect(() => {
+    const eventSource = new EventSource(`/api/poll?gameId=${gameId}`);
 
-        eventSource.onmessage = (event) => {
-          const data = JSON.parse(event.data);
-          const justCompletedSubmission = data && data.length>0? data[0] : null;
-          // console.log("got data: ", data, justCompletedSubmission, currentTurnRef.current);
-          if ((justCompletedSubmission?.turn_id == currentTurnRef.current?.id) && justCompletedSubmission?.counter + 1 >= (currentTurnRef.current?.submissions.length || 0)) {
-            setPlayerState(PlayerState.RoundToPlayNoMatch);
-            const lastSubmission = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 1];
-            // console.log("last submission: ", lastSubmission);
-            if (lastSubmission) {
-              lastSubmission.link1 = justCompletedSubmission.link1;
-              lastSubmission.link2 = justCompletedSubmission.link2;
-              lastSubmission.completed_at = new Date().toISOString();
-            }
-            if (justCompletedSubmission.turn_completed_at != null) {
-              // console.log("completed turn");
-              setCompletedTurn(justCompletedSubmission);
-              setPlayerState(PlayerState.NoRound);
-            } else if (lastSubmission){
-              const newSubmission = {
-                ...lastSubmission,
-                completed_at: null,
-                counter: lastSubmission.counter + 1,
-                link1: null,
-                link2: null,
-              };
-              currentTurnRef.current?.submissions.push(newSubmission);
-            }
-          }
-        };
-        eventSource.onerror = function(e){
-          console.log("error pots: "+e.type+" "+eventSource.readyState);
-      };
-        return () => {
-          eventSource.close();
-        };
-      }, [gameId, thisPlayerHasLowerID]);
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      const justCompletedSubmission = data && data.length > 0 ? data[0] : null;
+      // console.log("got data: ", data, justCompletedSubmission, currentTurnRef.current);
+      if ((justCompletedSubmission?.turn_id == currentTurnRef.current?.id) && justCompletedSubmission?.counter + 1 >= (currentTurnRef.current?.submissions.length || 0)) {
+        setPlayerState(PlayerState.RoundToPlayNoMatch);
+        const lastSubmission = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 1];
+        // console.log("last submission: ", lastSubmission);
+        if (lastSubmission) {
+          lastSubmission.link1 = justCompletedSubmission.link1;
+          lastSubmission.link2 = justCompletedSubmission.link2;
+          lastSubmission.completed_at = new Date().toISOString();
+        }
+        if (justCompletedSubmission.turn_completed_at != null) {
+          // console.log("completed turn");
+          setCompletedTurn(justCompletedSubmission);
+          setPlayerState(PlayerState.NoRound);
+        } else if (lastSubmission) {
+          const newSubmission = {
+            ...lastSubmission,
+            completed_at: null,
+            counter: lastSubmission.counter + 1,
+            link1: null,
+            link2: null,
+          };
+          currentTurnRef.current?.submissions.push(newSubmission);
+        }
+      }
+    };
+    eventSource.onerror = function (e) {
+      console.log("error pots: " + e.type + " " + eventSource.readyState);
+    };
+    return () => {
+      eventSource.close();
+    };
+  }, [gameId, thisPlayerHasLowerID]);
 
   function startTurn() {
     if (playerState == PlayerState.NoRound) {
       callAPICreateTurn(gameId)
-      .then((turn) => {
-        console.log("anything pots?2 ", turn);
-        const {currTurn} = processTurns([turn]);
-        setCurrentTurn(currTurn);
-      });
+        .then((turn) => {
+          console.log("anything pots?2 ", turn);
+          const { currTurn } = processTurns([turn]);
+          setCurrentTurn(currTurn);
+        });
       setPlayerState(PlayerState.Playing);
     } else if (playerState == PlayerState.RoundToPlay || playerState == PlayerState.RoundToPlayNoMatch) {
       setPlayerState(PlayerState.Playing);
     }
   }
 
-  function submitAnswer(submission : string) {
+  function submitAnswer(submission: string) {
     if (submission.length < 2) {
       return false;
     }
     // TODO: check to make sure submission doesn't match previous words / submissions
 
     callAPISubmitAnswer(currentTurn?.id || 0, submission, thisPlayerHasLowerID)
-      .then(({submissionCompleted, turnCompleted, rarenessScore, speedScore, link1, link2}) => {
+      .then(({ submissionCompleted, turnCompleted, rarenessScore, speedScore, link1, link2 }) => {
         if (turnCompleted) {
-          const newTurn:Turn = {
+          const newTurn: Turn = {
             id: currentTurn?.id || 0,
             rareness_score: rarenessScore,
             speed_score: speedScore,
@@ -262,7 +264,7 @@ export default function Page() {
           setPlayerState(PlayerState.Waiting);
         }
       })
-      return true;
+    return true;
   }
 
   if (players.length == 0) {
@@ -277,25 +279,25 @@ export default function Page() {
 
     return (
       <div className={`grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}>
-        Hey {player1}. 
+        Hey {player1}.
         <br />TODO: Grab all your opponents
         <br />Send your link to a friend to play.
-      </div>  
+      </div>
     );
   }
 
-  return  (
-  <div className={`grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}>
-    <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-      <ul className="list-inside text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-        <li className="mb-2">
-          Hi <b>{player1}</b>. Welcome to Wavelink!
-        </li>
-        <li className="mb-2">
-          You&apos;re playing with: {player2}
-        </li>
+  return (
+    <div className={`grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}>
+      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
+        <ul className="list-inside text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
+          <li className="mb-2">
+            Hi <b>{player1}</b>. Welcome to Wavelink!
+          </li>
+          <li className="mb-2">
+            You&apos;re playing with: {player2}
+          </li>
 
-        <GameState
+          <GameState
             playerState={playerState}
             startTurn={startTurn}
             previousTurns={previousTurns}
@@ -303,10 +305,10 @@ export default function Page() {
             submitAnswer={submitAnswer}
             thisLower={thisPlayerHasLowerID}
             completedTurn={completedTurn}
-        />
+          />
 
-    </ul>
-    </main>
-  </div>
+        </ul>
+      </main>
+    </div>
   );
 }
