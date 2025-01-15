@@ -130,22 +130,20 @@ export default function Page() {
 
   useEffect(() => {
     async function fetchGameData(player1l: string, player2l: string) {
+      let thisLower = false;
       callAPICreateOrRetrieveGame(player1l, player2l)
         .then((games) => {
           if (games.rows != null && games.rows.length > 0) {
             const game = games.rows[0];
             setGameId(game.id);
-            if (game.lowerusername.toString().toLowerCase() == player1l.toLowerCase()) {
-              setThisPlayerLower(true);
-            } else {
-              setThisPlayerLower(false);
-            }
-            fetchTurnsData(game.id);
+            thisLower = game.lowerusername.toString().toLowerCase() == player1l.toLowerCase();
+            setThisPlayerLower(thisLower);
+            fetchTurnsData(game.id, thisLower);
           }
         })
     }
 
-    async function fetchTurnsData(gameIdl: number) {
+    async function fetchTurnsData(gameIdl: number, thisLower: boolean) {
       callAPIRetrieveTurns(gameIdl)
         .then((turns) => {
           const { prevTurns, currTurn } = processTurns(turns?.rows || []);
@@ -155,7 +153,7 @@ export default function Page() {
 
           if (currTurn !== null) {
             const latestSub = currTurn.submissions[currTurn.submissions.length - 1];
-            if ((thisPlayerHasLowerID && !!(latestSub?.link1)) || (!thisPlayerHasLowerID && !!latestSub.link2)) {
+            if ((thisLower && !!(latestSub?.link1)) || (!thisLower && !!latestSub.link2)) {
               setPlayerState(PlayerState.Waiting);
             } else {
               setPlayerState(PlayerState.RoundToPlay);
