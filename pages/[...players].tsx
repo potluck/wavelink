@@ -169,6 +169,7 @@ export default function Page() {
       const eventSource = new EventSource(`/api/poll?gameId=${gameIdl}`);
 
       eventSource.onmessage = (event) => {
+        console.log("got data: ", event.data);
         const data = JSON.parse(event.data);
         const justCompletedSubmission = data && data.length > 0 ? data[0] : null;
         // console.log("got data: ", data, justCompletedSubmission, currentTurnRef.current);
@@ -198,7 +199,7 @@ export default function Page() {
         }
       };
       eventSource.onerror = function (e) {
-        console.log("error pots: " + e.type + " " + eventSource.readyState);
+        console.log("eventsource error pots: " + e.type + " " + eventSource.readyState);
       };
       return () => {
         eventSource.close();
