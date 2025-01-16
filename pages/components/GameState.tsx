@@ -77,21 +77,32 @@ export default function GameState({
       {/* <br />- Your submission: {thisLower? completedRound.link1:completedRound.link2}, Their submission: {thisLower? completedRound.link2:completedRound.link1} */}
     </div>);
 
-  const thisTurn = currentTurn && (
+  let lastLink1 = "";
+  let lastLink2 = "";
+  const thisTurn = currentTurn && currentTurn.submissions.length > 0 && (
     <div>
-      {currentTurn.submissions.map((submission, idx) =>
-        submission.link1 && submission.link2 && (
-          <div key={idx}>
-            <b>Submission {idx + 1}: </b>{submission.link1} {submission.link2}
-          </div>
-        ))}
+      {currentTurn.submissions.map((submission, idx) => {
+        if (submission.link1 && submission.link2) {
+          lastLink1 = submission.link1;
+          lastLink2 = submission.link2;
+        }
+        return (
+          submission.link1 && submission.link2 && (
+            <div key={idx}>
+              <b>Submission {idx + 1}: </b>{submission.link1} {submission.link2}
+            </div>
+          )
+        )
+      })}
+      {lastLink1 && lastLink2 && (
+        <div>Now think of a word that connects <b>{lastLink1}</b> and <b>{lastLink2}</b>!</div>
+      )}
     </div>
   );
 
-  // TODO: loading state
   return (
     <div>
-      {previousTurns == null || previousTurns.length == 0 && completedTurn == null && currentTurn?.submissions.length == 0 &&
+      {previousTurns == null || (previousTurns.length == 0 && completedTurn == null && lastLink1 == "" && lastLink2 == "") &&
         <div>
           <div>
             Wavelink is a word association game. In each round, you and your partner receive 2 starting words.
@@ -147,8 +158,7 @@ export default function GameState({
           <div className="mb-2">
             Your starting words {currentTurn?.submissions.length == 0 ? "are: " : "were: "} <b>{currentTurn?.word1}</b> and <b>{currentTurn?.word2}</b>.
             <br />
-            Think of a word that connects them!
-            {thisTurn}
+            {currentTurn?.submissions.length == 0 ? "Think of a word that connects them!" : thisTurn}
           </div>
           <form onSubmit={handleSubmit}>
             <input

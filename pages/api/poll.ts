@@ -34,7 +34,7 @@ export default async function handler(
         and s.completed_at > now() - interval '15 seconds'
       ORDER BY s.completed_at DESC;`;
     if (rows.length > 0) {
-      console.log("sending data: ", rows);
+      // console.log("sending data: ", rows);
       res.write(`data: ${JSON.stringify(rows)}\n\n`);
     }
     else {
