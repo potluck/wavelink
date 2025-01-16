@@ -72,8 +72,7 @@ export default function GameState({
   const justCompletedTurn = completedTurn && (
     <div>
       <b>Round complete! </b>
-      <br />- Score: {(completedTurn.rareness_score || 0) + (completedTurn.speed_score || 0)} (Rareness: {(completedTurn.rareness_score || 0)}, Speed: {(completedTurn.speed_score || 0)})
-      <br />- Words: {completedTurn.word1}, {completedTurn.word2}
+      {completedTurn.speed_score || 0 > 0 ? <div className="text-green-500">Congrats! You won this round!</div> : <div className="text-red-500">Unfortunately, you did not win this round. Try again!</div>}
       {/* <br />- Your submission: {thisLower? completedRound.link1:completedRound.link2}, Their submission: {thisLower? completedRound.link2:completedRound.link1} */}
     </div>);
 
@@ -156,7 +155,7 @@ export default function GameState({
       {(playerState == PlayerState.Playing) &&
         <div>
           <div className="mb-2">
-            Your starting words {currentTurn?.submissions.length == 0 ? "are: " : "were: "} <b>{currentTurn?.word1}</b> and <b>{currentTurn?.word2}</b>.
+            Your starting words {lastLink1 && lastLink2 ? "were: " : "are: "} <b>{currentTurn?.word1}</b> and <b>{currentTurn?.word2}</b>.
             <br />
             {currentTurn?.submissions.length == 0 ? "Think of a word that connects them!" : thisTurn}
           </div>

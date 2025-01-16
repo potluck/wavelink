@@ -120,6 +120,8 @@ export default function Page() {
   const [currentTurn, setCurrentTurn] = useState<Turn | null>(null);
   const [completedTurn, setCompletedTurn] = useState<Turn | null>(null);
   const currentTurnRef = useRef<Turn | null>(null);
+  const previousTurnsRef = useRef<Turn[]>([]);
+  const playerStateRef = useRef<PlayerState>(PlayerState.NeedTeammate);
   const [gameId, setGameId] = useState<number>(0);
   const [thisPlayerHasLowerID, setThisPlayerLower] = useState<boolean>(false);
 
@@ -130,6 +132,14 @@ export default function Page() {
   useEffect(() => {
     currentTurnRef.current = currentTurn;
   }, [currentTurn]);
+
+  useEffect(() => {
+    previousTurnsRef.current = previousTurns;
+  }, [previousTurns]);
+
+  useEffect(() => {
+    playerStateRef.current = playerState;
+  }, [playerState]);
 
   useEffect(() => {
     async function fetchGameData(player1l: string, player2l: string) {
@@ -172,11 +182,14 @@ export default function Page() {
       const eventSource = new EventSource(`/api/poll?gameId=${gameIdl}`);
 
       eventSource.onmessage = (event) => {
-        console.log("got data: ", event.data);
+        if (event.data && event.data.length > 2) {
+          console.log("got data: ", event.data);
+        }
         const data = JSON.parse(event.data);
         const justCompletedSubmission = data && data.length > 0 ? data[0] : null;
         // console.log("got data: ", data, justCompletedSubmission, currentTurnRef.current);
-        if ((justCompletedSubmission?.turn_id == currentTurnRef.current?.id) && justCompletedSubmission?.counter + 1 >= (currentTurnRef.current?.submissions.length || 0)) {
+        if ((justCompletedSubmission?.turn_id == currentTurnRef.current?.id) && justCompletedSubmission?.counter + 1 >= (currentTurnRef.current?.submissions.length || 0)
+          && playerStateRef.current == PlayerState.Waiting) {
           setPlayerState(PlayerState.RoundToPlayNoMatch);
           const lastSubmission = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 1];
           // console.log("last submission: ", lastSubmission);
@@ -188,6 +201,7 @@ export default function Page() {
           if (justCompletedSubmission.turn_completed_at != null) {
             // console.log("completed turn");
             setCompletedTurn(justCompletedSubmission);
+            setPreviousTurns([...previousTurnsRef.current, justCompletedSubmission]);
             setPlayerState(PlayerState.NoRound);
           } else if (lastSubmission) {
             const newSubmission = {
@@ -225,10 +239,12 @@ export default function Page() {
           console.log("anything pots?2 ", turn);
           const { currTurn } = processTurns([turn]);
           setCurrentTurn(currTurn);
+          setPlayerState(PlayerState.Playing);
+          setCompletedTurn(null);
         });
-      setPlayerState(PlayerState.Playing);
     } else if (playerState == PlayerState.RoundToPlay || playerState == PlayerState.RoundToPlayNoMatch) {
       setPlayerState(PlayerState.Playing);
+      setCompletedTurn(null);
     }
   }
 
@@ -253,6 +269,7 @@ export default function Page() {
           };
           setCompletedTurn(newTurn);
           setPlayerState(PlayerState.NoRound);
+          setPreviousTurns([...previousTurnsRef.current, newTurn]);
         } else if (submissionCompleted) {
           setPlayerState(PlayerState.RoundToPlayNoMatch);
           const lastSubmission = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 1];
