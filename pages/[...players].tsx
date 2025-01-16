@@ -257,6 +257,23 @@ export default function Page() {
     callAPISubmitAnswer(currentTurn?.id || 0, submission, thisPlayerHasLowerID)
       .then(({ submissionCompleted, turnCompleted, rarenessScore, speedScore, link1, link2 }) => {
         if (turnCompleted) {
+          if (currentTurn) {
+            currentTurn.submissions.push({
+              link1: link1,
+              link2: link2,
+              turn_id: currentTurn.id,
+              rareness_score: rarenessScore,
+              speed_score: speedScore,
+              word1: currentTurn.word1,
+              word2: currentTurn.word2,
+              turn_created_at: currentTurn.created_at,
+              turn_completed_at: "",
+              id: submissionCompleted.id,
+              counter: submissionCompleted.counter,
+              created_at: submissionCompleted.created_at,
+              completed_at: submissionCompleted.completed_at,
+            });
+          }
           const newTurn: Turn = {
             id: currentTurn?.id || 0,
             rareness_score: rarenessScore,
@@ -265,7 +282,7 @@ export default function Page() {
             word2: currentTurn?.word2 || "",
             created_at: currentTurn?.created_at || "",
             completed_at: "",
-            submissions: [] // TODO: add submissions to completed turn
+            submissions: currentTurn?.submissions || []
           };
           setCompletedTurn(newTurn);
           setPlayerState(PlayerState.NoRound);
@@ -326,7 +343,6 @@ export default function Page() {
               previousTurns={previousTurns}
               currentTurn={currentTurn}
               submitAnswer={submitAnswer}
-              thisLower={thisPlayerHasLowerID}
               completedTurn={completedTurn}
             />
           )}

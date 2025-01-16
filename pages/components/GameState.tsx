@@ -7,7 +7,6 @@ type GameStateProps = {
   submitAnswer: (submission: string) => boolean,
   previousTurns: Turn[],
   currentTurn: Turn | null,
-  thisLower: boolean
   completedTurn: Turn | null,
 }
 
@@ -46,7 +45,6 @@ export default function GameState({
   submitAnswer,
   previousTurns,
   currentTurn,
-  // thisLower,
   completedTurn
 }: GameStateProps) {
 
@@ -99,9 +97,9 @@ export default function GameState({
   const justCompletedTurn = completedTurn && (
     <div>
       <b>Round complete! </b>
-      {completedTurn.speed_score || 0 > 0 ? <div className="text-green-500">Congrats! You won this round!</div> : <div className="text-red-500">Unfortunately, you did not win this round. Try again!</div>}
-      {(completedTurn.speed_score || 0 > 0 && lastLink1 === lastLink2) && (<div className="text-green-500">You and your partner both submitted <b>{lastLink1}</b>!</div>)}
-      {(completedTurn.speed_score || 0 > 0 && lastLink1 !== lastLink2) && (<div className="text-green-500">You and your partner submitted <b>{lastLink1}</b> and <b>{lastLink2}</b>!</div>)}
+      {completedTurn.speed_score || 0 > 0 ? <div className="text-green-500">Congrats! You won this round in {6 - (completedTurn.speed_score || 0)} tries!</div> : <div className="text-red-500">Unfortunately, you did not win this round. Try again!</div>}
+      {((completedTurn.speed_score || 0) > 0 && lastLink1 === lastLink2) && (<div className="text-green-500">You and your partner both submitted <b>{lastLink1}</b>!</div>)}
+      {((completedTurn.speed_score || 0) > 0 && lastLink1 !== lastLink2) && (<div className="text-green-500">You and your partner submitted <b>{lastLink1}</b> and <b>{lastLink2}</b>!</div>)}
       {/* <br />- Your submission: {thisLower? completedRound.link1:completedRound.link2}, Their submission: {thisLower? completedRound.link2:completedRound.link1} */}
     </div>);
 
