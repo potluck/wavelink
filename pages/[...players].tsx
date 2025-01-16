@@ -199,7 +199,7 @@ export default function Page() {
         }
       };
       eventSource.onerror = function (e) {
-        console.log("eventsource error pots: " + e.type + " " + eventSource.readyState);
+        console.log("eventsource error pots: " + e.type + " " + e);
       };
       return () => {
         eventSource.close();
