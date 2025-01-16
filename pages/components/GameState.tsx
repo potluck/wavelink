@@ -60,15 +60,21 @@ export default function GameState({
   }
 
   const prevTurns = (previousTurns || []).map((turn, idx) =>
-    <li key={idx}>
-      <b>Round {idx + 1}. </b>
-      <br />- Score: {(turn.rareness_score || 0) + (turn.speed_score || 0)} {((turn.rareness_score || 0) + (turn.speed_score || 0)) > 0 ?
+    <div key={idx}>
+      <span className="text-orange-500"><b>Round {idx + 1}. </b></span>
+      <br />Score: <b>{(turn.rareness_score || 0) + (turn.speed_score || 0)}</b> {((turn.rareness_score || 0) + (turn.speed_score || 0)) > 0 ?
         <span>
           (Rareness: {(turn.rareness_score || 0)}, Speed: {(turn.speed_score || 0)})
         </span> : ""}
-      <br />- Words: {turn.word1}, {turn.word2}
-      {/* <br />- Your submission: {thisLower? round.link1:round.link2}, Their submission: {thisLower? round.link2:round.link1} */}
-    </li>
+      <br />Words: {turn.word1}, {turn.word2}
+      {turn.submissions.map((submission, idx) => {
+        return (
+          <div className="pl-4" key={idx}>
+            <u>Submission {idx + 1}:</u> {submission.link1} <b>|</b> {submission.link2}
+          </div>
+        )
+      })}
+    </div>
   ).reverse();
 
   let lastLink1 = "";
