@@ -313,8 +313,6 @@ export default function Page() {
     return true;
   }
 
-  console.log("Yo pots, submission are : ", currentTurn?.submissions);
-
   if (players.length == 0) {
     return (
       <div className={`${nunito.className} grid grid-rows-[5px_1fr_20px] items-center justify-items-center min-h-screen p-2 pb-20 gap-6 sm:p-8`}>
