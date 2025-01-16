@@ -91,7 +91,7 @@ export default function GameState({
   // TODO: loading state
   return (
     <div>
-      {previousTurns == null || previousTurns.length == 0 && completedTurn == null &&
+      {previousTurns == null || previousTurns.length == 0 && completedTurn == null && currentTurn?.submissions.length == 0 &&
         <div>
           <div>
             Wavelink is a word association game. In each round, you and your partner receive 2 starting words.
@@ -129,7 +129,7 @@ export default function GameState({
         </button>
       }
       {(playerState == PlayerState.RoundToPlayNoMatch) &&
-        <div>Your submission didn&apos;t match your partner&apos;s submission. Try again!</div>
+        <div className="text-purple-500">Your submission didn&apos;t match your partner&apos;s submission. Try again!</div>
       }
       {(playerState == PlayerState.RoundToPlay || playerState == PlayerState.RoundToPlayNoMatch) &&
         <div>
@@ -145,7 +145,9 @@ export default function GameState({
       {(playerState == PlayerState.Playing) &&
         <div>
           <div className="mb-2">
-            Your starting words are: {currentTurn?.word1} and {currentTurn?.word2}.
+            Your starting words {currentTurn?.submissions.length == 0 ? "are: " : "were: "} <b>{currentTurn?.word1}</b> and <b>{currentTurn?.word2}</b>.
+            <br />
+            Think of a word that connects them!
             {thisTurn}
           </div>
           <form onSubmit={handleSubmit}>
@@ -168,7 +170,7 @@ export default function GameState({
         <div className="mb-2">Send your link to a friend to play.</div>
       }
       {(playerState == PlayerState.Waiting) &&
-        <div className="mb-2">Waiting for your partner to complete this round. The page will update when they submit!</div>
+        <div className="mb-2 text-purple-500"><b>Status: </b>Waiting for your partner to complete this round. The page will auto-update when they submit!</div>
       }
       {justCompletedTurn}
       {previousTurns?.length > 0 && <div><b>Previous Rounds:</b> {prevTurns}</div>}
