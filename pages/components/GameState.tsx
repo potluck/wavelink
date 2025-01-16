@@ -51,6 +51,7 @@ export default function GameState({
 }: GameStateProps) {
 
   const [answer, setAnswer] = useState("");
+  const [showPreviousRounds, setShowPreviousRounds] = useState(false);
 
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -63,18 +64,14 @@ export default function GameState({
   const prevTurns = (previousTurns || []).map((turn, idx) =>
     <li key={idx}>
       <b>Round {idx + 1}. </b>
-      <br />- Score: {(turn.rareness_score || 0) + (turn.speed_score || 0)} (Rareness: {(turn.rareness_score || 0)}, Speed: {(turn.speed_score || 0)})
+      <br />- Score: {(turn.rareness_score || 0) + (turn.speed_score || 0)} {((turn.rareness_score || 0) + (turn.speed_score || 0)) > 0 ?
+        <span>
+          (Rareness: {(turn.rareness_score || 0)}, Speed: {(turn.speed_score || 0)})
+        </span> : ""}
       <br />- Words: {turn.word1}, {turn.word2}
       {/* <br />- Your submission: {thisLower? round.link1:round.link2}, Their submission: {thisLower? round.link2:round.link1} */}
     </li>
   ).reverse();
-
-  const justCompletedTurn = completedTurn && (
-    <div>
-      <b>Round complete! </b>
-      {completedTurn.speed_score || 0 > 0 ? <div className="text-green-500">Congrats! You won this round!</div> : <div className="text-red-500">Unfortunately, you did not win this round. Try again!</div>}
-      {/* <br />- Your submission: {thisLower? completedRound.link1:completedRound.link2}, Their submission: {thisLower? completedRound.link2:completedRound.link1} */}
-    </div>);
 
   let lastLink1 = "";
   let lastLink2 = "";
@@ -98,6 +95,15 @@ export default function GameState({
       )}
     </div>
   );
+
+  const justCompletedTurn = completedTurn && (
+    <div>
+      <b>Round complete! </b>
+      {completedTurn.speed_score || 0 > 0 ? <div className="text-green-500">Congrats! You won this round!</div> : <div className="text-red-500">Unfortunately, you did not win this round. Try again!</div>}
+      {(completedTurn.speed_score || 0 > 0 && lastLink1 === lastLink2) && (<div className="text-green-500">You and your partner both submitted <b>{lastLink1}</b>!</div>)}
+      {(completedTurn.speed_score || 0 > 0 && lastLink1 !== lastLink2) && (<div className="text-green-500">You and your partner submitted <b>{lastLink1}</b> and <b>{lastLink2}</b>!</div>)}
+      {/* <br />- Your submission: {thisLower? completedRound.link1:completedRound.link2}, Their submission: {thisLower? completedRound.link2:completedRound.link1} */}
+    </div>);
 
   return (
     <div>
@@ -182,7 +188,17 @@ export default function GameState({
         <div className="mb-2 text-purple-500"><b>Status: </b>Waiting for your partner to complete this round. The page will auto-update when they submit!</div>
       }
       {justCompletedTurn}
-      {previousTurns?.length > 0 && <div><b>Previous Rounds:</b> {prevTurns}</div>}
+      {previousTurns?.length > 0 && (
+        <div className="mt-4">
+          <button
+            onClick={() => setShowPreviousRounds(!showPreviousRounds)}
+            className="text-blue-500 hover:text-blue-700 underline cursor-pointer flex items-center gap-1"
+          >
+            <b>{showPreviousRounds ? 'Hide' : 'See'} Previous Rounds {showPreviousRounds ? '▼' : '▶'}</b>
+          </button>
+          {showPreviousRounds && <div className="mt-2">{prevTurns}</div>}
+        </div>
+      )}
     </div>
   );
 }
