@@ -31,7 +31,8 @@ export default async function handler(
       JOIN submissions s on s.turn_id = t.id
       JOIN pairs p on t.pair_id = p.id
       where t.game_id = ${gameId}
-        and s.completed_at > now() - interval '15 seconds';`;
+        and s.completed_at > now() - interval '15 seconds'
+      ORDER BY s.completed_at DESC;`;
     if (rows.length > 0) {
       console.log("sending data: ", rows);
       res.write(`data: ${JSON.stringify(rows)}\n\n`);

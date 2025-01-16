@@ -199,13 +199,7 @@ export default function Page() {
         }
       };
       eventSource.onerror = function (e) {
-        console.log("eventsource error pots: " + e.type + " " + e.target?.toString() + " " + e.currentTarget?.toString() + " " + e.isTrusted);
-        try {
-          const err = e as ErrorEvent;
-          console.log("eventsource error pots: " + err.message + err.lineno);
-        } catch (e2) {
-          console.log("eventsource error pots: ", e2);
-        }
+        console.log("eventsource error: " + e.type);
       };
       return () => {
         eventSource.close();
