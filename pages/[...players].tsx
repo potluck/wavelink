@@ -162,7 +162,47 @@ export default function Page() {
             setPlayerState(PlayerState.NoRound);
           }
           setIsLoading(false);
+          setupPolling(gameIdl, thisLower);
         })
+    }
+    async function setupPolling(gameIdl: number, thisLower: boolean) {
+      const eventSource = new EventSource(`/api/poll?gameId=${gameIdl}`);
+
+      eventSource.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        const justCompletedSubmission = data && data.length > 0 ? data[0] : null;
+        // console.log("got data: ", data, justCompletedSubmission, currentTurnRef.current);
+        if ((justCompletedSubmission?.turn_id == currentTurnRef.current?.id) && justCompletedSubmission?.counter + 1 >= (currentTurnRef.current?.submissions.length || 0)) {
+          setPlayerState(PlayerState.RoundToPlayNoMatch);
+          const lastSubmission = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 1];
+          // console.log("last submission: ", lastSubmission);
+          if (lastSubmission) {
+            lastSubmission.link1 = justCompletedSubmission.link1;
+            lastSubmission.link2 = justCompletedSubmission.link2;
+            lastSubmission.completed_at = new Date().toISOString();
+          }
+          if (justCompletedSubmission.turn_completed_at != null) {
+            // console.log("completed turn");
+            setCompletedTurn(justCompletedSubmission);
+            setPlayerState(PlayerState.NoRound);
+          } else if (lastSubmission) {
+            const newSubmission = {
+              ...lastSubmission,
+              completed_at: null,
+              counter: lastSubmission.counter + 1,
+              link1: null,
+              link2: null,
+            };
+            currentTurnRef.current?.submissions.push(newSubmission);
+          }
+        }
+      };
+      eventSource.onerror = function (e) {
+        console.log("error pots: " + e.type + " " + eventSource.readyState);
+      };
+      return () => {
+        eventSource.close();
+      };
     }
 
     if (router.isReady && router.query.players) {
@@ -173,46 +213,6 @@ export default function Page() {
       fetchGameData(queryPlayers[0], queryPlayers.length > 1 ? queryPlayers[1] : "");
     }
   }, [router.isReady, router.query.players]);
-
-  useEffect(() => {
-    const eventSource = new EventSource(`/api/poll?gameId=${gameId}`);
-
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      const justCompletedSubmission = data && data.length > 0 ? data[0] : null;
-      // console.log("got data: ", data, justCompletedSubmission, currentTurnRef.current);
-      if ((justCompletedSubmission?.turn_id == currentTurnRef.current?.id) && justCompletedSubmission?.counter + 1 >= (currentTurnRef.current?.submissions.length || 0)) {
-        setPlayerState(PlayerState.RoundToPlayNoMatch);
-        const lastSubmission = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 1];
-        // console.log("last submission: ", lastSubmission);
-        if (lastSubmission) {
-          lastSubmission.link1 = justCompletedSubmission.link1;
-          lastSubmission.link2 = justCompletedSubmission.link2;
-          lastSubmission.completed_at = new Date().toISOString();
-        }
-        if (justCompletedSubmission.turn_completed_at != null) {
-          // console.log("completed turn");
-          setCompletedTurn(justCompletedSubmission);
-          setPlayerState(PlayerState.NoRound);
-        } else if (lastSubmission) {
-          const newSubmission = {
-            ...lastSubmission,
-            completed_at: null,
-            counter: lastSubmission.counter + 1,
-            link1: null,
-            link2: null,
-          };
-          currentTurnRef.current?.submissions.push(newSubmission);
-        }
-      }
-    };
-    eventSource.onerror = function (e) {
-      console.log("error pots: " + e.type + " " + eventSource.readyState);
-    };
-    return () => {
-      eventSource.close();
-    };
-  }, [gameId, thisPlayerHasLowerID]);
 
   function startTurn() {
     if (playerState == PlayerState.NoRound) {
