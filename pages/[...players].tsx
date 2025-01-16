@@ -2,6 +2,8 @@ import { useRouter } from 'next/router'
 import React, { useEffect, useRef, useState } from 'react';
 import GameState, { Submission, Turn } from './components/GameState';
 import { Nunito } from 'next/font/google'
+import Share from './components/Share';
+import Link from 'next/link'
 
 const nunito = Nunito({ subsets: ['latin'] })
 
@@ -93,7 +95,6 @@ const processTurns = (subs: Submission[]): { prevTurns: Turn[], currTurn: Turn |
     }
   }
 
-  // TODO: sort submissions by counter
   if (currTurn != null) {
     currTurn.submissions.sort((a, b) => a.counter - b.counter);
   }
@@ -238,7 +239,9 @@ export default function Page() {
       setPlayers(queryPlayers);
       setPlayer1(queryPlayers[0]);
       setPlayer2(queryPlayers.length > 1 ? queryPlayers[1] : "No teammate set");
-      fetchGameData(queryPlayers[0], queryPlayers.length > 1 ? queryPlayers[1] : "");
+      if (queryPlayers.length > 1) {
+        fetchGameData(queryPlayers[0], queryPlayers[1]);
+      }
     }
   }, [router.isReady, router.query.players]);
 
@@ -321,36 +324,34 @@ export default function Page() {
   }
 
   if (players.length == 1) {
-
-    return (
-      <div className={`${nunito.className} grid grid-rows-[5px_1fr_20px] items-center justify-items-center min-h-screen p-2 pb-20 gap-6 sm:p-8`}>
-        Hey {player1}.
-        <br />TODO: Grab all your opponents
-        <br />Send your link to a friend to play.
-      </div>
-    );
+    return <Share player1={player1} />;
   }
 
   return (
     <div className={`${nunito.className} grid grid-rows-[5px_1fr_20px] items-center justify-items-center min-h-screen p-2 pb-20 gap-6 sm:p-8`}>
       <main className="flex flex-col gap-4 row-start-2 items-center sm:items-start">
         <h1 className="text-4xl font-bold text-center w-full">Wavelink &nbsp;&nbsp;🌊&thinsp;🔗</h1>
-          <div className="mb-2">
-            Hi <b>{player1}</b>. You&apos;re playing with: {player2}
+        <div className="mb-2">
+          Hi <b>{player1}</b>. You&apos;re playing with: {player2}
+        </div>
+        {isLoading ? <div>Loading...</div> : (<div>
+          <GameState
+            playerState={playerState}
+            startTurn={startTurn}
+            previousTurns={previousTurns}
+            currentTurn={currentTurn}
+            submitAnswer={submitAnswer}
+            completedTurn={completedTurn}
+          />
+          <div className="mb-2 mt-6">
+            <Link href={`/${player1}`} className="text-blue-600 hover:text-blue-800 underline">Invite other friends or play against the AI</Link>
           </div>
-          {isLoading ? <div>Loading...</div> : (
-            <GameState
-              playerState={playerState}
-              startTurn={startTurn}
-              previousTurns={previousTurns}
-              currentTurn={currentTurn}
-              submitAnswer={submitAnswer}
-              completedTurn={completedTurn}
-            />
-          )}
+        </div>
+        )}
+
       </main>
       <footer className="row-start-3 text-sm">
-        <a href="/help" className="text-blue-600 hover:text-blue-800 underline">How to play</a>
+        <Link href="/help" className="text-blue-600 hover:text-blue-800 underline">How to play</Link>
       </footer>
     </div>
   );
