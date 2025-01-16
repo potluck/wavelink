@@ -93,19 +93,30 @@ export default function GameState({
     <div>
       {previousTurns == null || previousTurns.length == 0 && completedTurn == null &&
         <div>
-          <li>
-            This is a game of making connections between words <b>with your partner</b>.
-          </li>
+          <div>
+            Wavelink is a word association game. In each round, you and your partner receive 2 starting words.
+          </div>
           <br />
-          <li>
-            In each round, you receive 2 words. You and your partner will each submit a single word that connects those clues.
-          </li>
+          <div>
+            You respond by submitting a word that connects those words. For example:
+          </div>
           <br />
-          <li>If the words don&apos;t match, you can try again. Now, you&apos;ll be trying to connect the two words you just submitted.</li>
+          <div>
+            <b>Fire</b> and <b>Water</b> might yield <b>Element</b> or <b>Steam</b>.
+          </div>
           <br />
-          <li>
-            You get up to 5 tries to connect!
-          </li>
+          <div>
+            If you and your partner submit matching words, you win the round!
+          </div>
+          <br />
+          <div>
+            Otherwise, you try again. Now, you&apos;ll both be trying to connect the two words you just submitted.
+            For example, if you submitted <b>Element</b> and your partner submitted <b>Steam</b>, you might try <b>Gas</b>.
+          </div>
+          <br />
+          <div>
+            You get up to 5 tries to connect per round!
+          </div>
           <br />
         </div>
       }
@@ -133,16 +144,16 @@ export default function GameState({
       }
       {(playerState == PlayerState.Playing) &&
         <div>
-          <li className="mb-2">
+          <div className="mb-2">
             Your starting words are: {currentTurn?.word1} and {currentTurn?.word2}.
             {thisTurn}
-          </li>
+          </div>
           <form onSubmit={handleSubmit}>
             <input
               value={answer}
               onChange={e => setAnswer(e.target.value)}
               className={"block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"}
-              placeholder={"Input wavelink..."}
+              placeholder={"Input link..."}
             />
             <button
               type="submit"
@@ -154,10 +165,10 @@ export default function GameState({
         </div>
       }
       {(playerState == PlayerState.NeedTeammate) &&
-        <li className="mb-2">Send your link to a friend to play.</li>
+        <div className="mb-2">Send your link to a friend to play.</div>
       }
       {(playerState == PlayerState.Waiting) &&
-        <li className="mb-2">Waiting for your partner to complete this round. The page will update when they submit!</li>
+        <div className="mb-2">Waiting for your partner to complete this round. The page will update when they submit!</div>
       }
       {justCompletedTurn}
       {previousTurns?.length > 0 && <div><b>Previous Rounds:</b> {prevTurns}</div>}
