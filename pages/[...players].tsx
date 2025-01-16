@@ -200,8 +200,18 @@ export default function Page() {
           }
           if (justCompletedSubmission.turn_completed_at != null) {
             // console.log("completed turn");
-            setCompletedTurn(justCompletedSubmission);
-            setPreviousTurns([...previousTurnsRef.current, justCompletedSubmission]);
+            const newTurn: Turn = {
+              id: currentTurnRef.current?.id || 0,
+              rareness_score: justCompletedSubmission.rareness_score,
+              speed_score: justCompletedSubmission.speed_score,
+              word1: currentTurnRef.current?.word1 || "",
+              word2: currentTurnRef.current?.word2 || "",
+              created_at: currentTurnRef.current?.created_at || "",
+              completed_at: "",
+              submissions: currentTurnRef.current?.submissions || []
+            };
+            setCompletedTurn(newTurn);
+            setPreviousTurns([...previousTurnsRef.current, newTurn]);
             setPlayerState(PlayerState.NoRound);
           } else if (lastSubmission) {
             const newSubmission = {
@@ -236,7 +246,6 @@ export default function Page() {
     if (playerState == PlayerState.NoRound) {
       callAPICreateTurn(gameId)
         .then((turn) => {
-          console.log("anything pots?2 ", turn);
           const { currTurn } = processTurns([turn]);
           setCurrentTurn(currTurn);
           setPlayerState(PlayerState.Playing);
@@ -258,21 +267,12 @@ export default function Page() {
       .then(({ submissionCompleted, turnCompleted, rarenessScore, speedScore, link1, link2 }) => {
         if (turnCompleted) {
           if (currentTurn) {
-            currentTurn.submissions.push({
-              link1: link1,
-              link2: link2,
-              turn_id: currentTurn.id,
-              rareness_score: rarenessScore,
-              speed_score: speedScore,
-              word1: currentTurn.word1,
-              word2: currentTurn.word2,
-              turn_created_at: currentTurn.created_at,
-              turn_completed_at: "",
-              id: submissionCompleted.id,
-              counter: submissionCompleted.counter,
-              created_at: submissionCompleted.created_at,
-              completed_at: submissionCompleted.completed_at,
-            });
+            const lastSubmission = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 1];
+            if (lastSubmission) {
+              lastSubmission.link1 = link1;
+              lastSubmission.link2 = link2;
+              lastSubmission.completed_at = new Date().toISOString();
+            }
           }
           const newTurn: Turn = {
             id: currentTurn?.id || 0,
@@ -309,6 +309,8 @@ export default function Page() {
       })
     return true;
   }
+
+  console.log("Yo pots, submission are : ", currentTurn?.submissions);
 
   if (players.length == 0) {
     return (

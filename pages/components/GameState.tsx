@@ -67,7 +67,7 @@ export default function GameState({
           (Rareness: {(turn.rareness_score || 0)}, Speed: {(turn.speed_score || 0)})
         </span> : ""}
       <br />Words: {turn.word1}, {turn.word2}
-      {turn.submissions.map((submission, idx) => {
+      {turn.submissions?.map((submission, idx) => {
         return (
           <div className="pl-4" key={idx}>
             <u>Submission {idx + 1}:</u> {submission.link1} <b>|</b> {submission.link2}

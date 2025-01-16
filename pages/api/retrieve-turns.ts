@@ -26,7 +26,7 @@ export default async function handler(
     JOIN pairs p on t.pair_id = p.id 
     LEFT JOIN submissions s on t.id = s.turn_id
     where t.game_id = ${gameId}
-    order by t.id asc;`;
+    order by t.id asc, s.counter asc;`;
   
   return response.status(200).json({ rows });
 }
