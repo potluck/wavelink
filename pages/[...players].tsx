@@ -162,10 +162,10 @@ export default function Page() {
             setPlayerState(PlayerState.NoRound);
           }
           setIsLoading(false);
-          setupPolling(gameIdl, thisLower);
+          setupPolling(gameIdl);
         })
     }
-    async function setupPolling(gameIdl: number, thisLower: boolean) {
+    async function setupPolling(gameIdl: number) {
       const eventSource = new EventSource(`/api/poll?gameId=${gameIdl}`);
 
       eventSource.onmessage = (event) => {
