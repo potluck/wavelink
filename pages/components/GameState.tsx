@@ -113,7 +113,7 @@ export default function GameState({
 
   return (
     <div className="max-w-md">
-      {previousTurns == null || (previousTurns.length == 0 && completedTurn == null && lastLink1 == "" && lastLink2 == "") &&
+      {previousTurns == null || (previousTurns.length == 0 && completedTurn == null && lastLink1 == "" && lastLink2 == "" && playerState !== PlayerState.Waiting) &&
         <Explainer />
       }
       {(playerState == PlayerState.NoRound) &&

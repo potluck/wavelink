@@ -333,7 +333,7 @@ export default function Page() {
       <main className="flex flex-col gap-4 row-start-2 items-center sm:items-start">
         <h1 className="text-4xl font-bold text-center w-full">Wavelink &nbsp;&nbsp;🌊&thinsp;🔗</h1>
         <div className="mb-2">
-          Hi <b>{player1}</b>. You&apos;re playing with: {player2}
+          Hi <b>{player1}</b>. You&apos;re playing with: <b>{player2}</b>
         </div>
         {isLoading ? <div>Loading...</div> : loadingError ? <div>{loadingError} <InviteLink player1={player1} /></div> : (<div>
           <GameState
