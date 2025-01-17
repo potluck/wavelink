@@ -1,11 +1,88 @@
 import { Nunito } from 'next/font/google'
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 
 const nunito = Nunito({ subsets: ['latin'] })
 
-export default function Share({ player1 }: { player1: string }) {
+const callAPIRetrieveAllGamesToRespondTo = async (userId: number) => {
+  try {
+    const res = await fetch(`/api/retrieve-all-games-to-respond-to/?userId=${userId}`);
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.log(err);
+  }
+
+}
+
+const callAPIRetrieveAllGames = async (userId: number) => {
+  try {
+    const res = await fetch(`/api/retrieve-all-games/?userId=${userId}`);
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+
+const callAPIRetrieveUser = async (slug: string) => {
+  try {
+    const res = await fetch(`/api/retrieve-user/?slug=${slug}`);
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+// Add interface for game type
+interface Game {
+  id: number;
+  other_player: string;
+}
+
+export default function Share({ player1, gamesToRespondTo, userId1 }: { player1: string, gamesToRespondTo: Game[], userId1: number }) {
   const [copied, setCopied] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
+  const [userId, setUserId] = useState<number>(userId1);
+  const [allGameIDsToRespondTo, setAllGameIDsToRespondTo] = useState<number[]>(gamesToRespondTo.map((game: Game) => game.id));
+  const [allGames, setAllGames] = useState<Game[]>([]);
+  const [allGamesToRespondTo, setAllGamesToRespondTo] = useState<Game[]>([]);
+  const [showAllGames, setShowAllGames] = useState(false);
+
+  const slug = player1.toLowerCase().replace(/ /g, '-');
+
+  useEffect(() => {
+    if (userId1 == 0) {
+      callAPIRetrieveUser(slug).then((data) => {
+        setUserId(data.rows[0].id);
+        console.log("user: ", data);
+
+        callAPIRetrieveAllGamesToRespondTo(data.rows[0].id).then((data) => {
+          console.log("games to respond to: ", data);
+          setAllGameIDsToRespondTo(data.rows.map((game: Game) => game.id));
+        });
+      });
+    }
+  }, [userId1]);
+
+
+  useEffect(() => {
+    if (userId > 0) {
+      callAPIRetrieveAllGames(userId).then((data) => {
+        console.log("all games: ", data);
+        setAllGames(data.rows as Game[]);
+      });
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    if (allGames.length > 0 && allGameIDsToRespondTo.length > 0) {
+      setAllGamesToRespondTo(allGames.filter((game: Game) => allGameIDsToRespondTo.includes(game.id)));
+    }
+  }, [allGames, allGameIDsToRespondTo]);
+
 
   useEffect(() => {
     setShareUrl(`${window.location.origin}/${player1}/invite`);
@@ -36,8 +113,36 @@ export default function Share({ player1 }: { player1: string }) {
           </button>
         </div>
         <p className="text-gray-700">You will be notified here of games where it&apos;s your turn to play.</p>
-        <p className="text-gray-700">TODO: Grab all your opponents</p>
-        <p className="text-gray-700">TODO: Play against the AI</p>
+        {allGamesToRespondTo.length > 0 ?
+          (<>
+            <p className="text-gray-700"><b>It&apos;s your turn:</b></p>
+            {allGamesToRespondTo.map((game) => (
+              <div key={game.id}>
+                <Link href={`/${player1}/${game.other_player}`} className="text-gray-700 hover:text-blue-500">
+                  - With {game.other_player}
+                </Link>
+              </div>
+            ))}
+          </>
+          ) : null}
+        <button
+          onClick={() => setShowAllGames(!showAllGames)}
+          className="text-gray-700 hover:text-blue-500 flex items-center gap-2"
+        >
+          {showAllGames ? '▼' : '▶'} All of your games ({allGames.length})
+        </button>
+
+        {showAllGames && (
+          <div className="pl-4">
+            {allGames.map((game) => (
+              <div key={game.id}>
+                <Link href={`/${player1}/${game.other_player}`} className="text-gray-700 hover:text-blue-500">
+                  Game with {game.other_player}
+                </Link>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

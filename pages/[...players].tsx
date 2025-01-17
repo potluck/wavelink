@@ -8,6 +8,11 @@ import Invited from './components/Invited';
 
 const nunito = Nunito({ subsets: ['latin'] })
 
+interface Game {
+  id: number;
+  other_player: string;
+}
+
 export enum PlayerState {
   NeedTeammate,
   NoRound,
@@ -57,9 +62,9 @@ const callAPISubmitAnswer = async (turnId: number, submission: string, thisPlaye
   }
 }
 
-const callAPIRetrieveGamesToRespondTo = async (userId: number, gameId: number) => {
+const callAPIRetrieveGamesToRespondTo = async (userId: number) => {
   try {
-    const res = await fetch(`/api/retrieve-other-games-to-respond-to/?userId=${userId}&gameId=${gameId}`);
+    const res = await fetch(`/api/retrieve-all-games-to-respond-to/?userId=${userId}`);
     const data = await res.json();
     return data;
   } catch (err) {
@@ -112,12 +117,12 @@ const processTurns = (subs: Submission[]): { prevTurns: Turn[], currTurn: Turn |
   return { prevTurns, currTurn };
 }
 
-const InviteLink = ({ player1, gamesToRespondTo }: { player1: string, gamesToRespondTo: number }) => (
+const InviteLink = ({ player1, numOtherGamesToRespondTo }: { player1: string, numOtherGamesToRespondTo: number }) => (
   <div className="mb-2 mt-6">
     <Link href={`/${player1}`} className="text-blue-600 hover:text-blue-800 underline">
-      {gamesToRespondTo > 0 ?
+      {numOtherGamesToRespondTo > 0 ?
         (<>
-          <b>You have {gamesToRespondTo} other games to respond to!</b>
+          <b>You have {numOtherGamesToRespondTo} other {numOtherGamesToRespondTo === 1 ? 'game' : 'games'} to respond to!</b>
           <br />
           In addition, you can invite other friends or play against the AI.
         </>)
@@ -135,8 +140,9 @@ export default function Page() {
   const [players, setPlayers] = useState<string[]>([]);
   const [player1, setPlayer1] = useState<string>("");
   const [player2, setPlayer2] = useState<string>("");
-  // const [userId1, setUserId1] = useState<number>(0);
-  const [gamesToRespondTo, setGamesToRespondTo] = useState<number>(0);
+  const [userId1, setUserId1] = useState<number>(0);
+  const [gamesToRespondTo, setGamesToRespondTo] = useState<Game[]>([]);
+  const [numOtherGamesToRespondTo, setNumOtherGamesToRespondTo] = useState<number>(0);
 
   const [previousTurns, setPreviousTurns] = useState<Turn[]>([]);
   const [currentTurn, setCurrentTurn] = useState<Turn | null>(null);
@@ -170,7 +176,7 @@ export default function Page() {
           if (games.rows != null && games.rows.length > 0) {
             const game = games.rows[0];
             setGameId(game.id);
-            // setUserId1(games.userId1);
+            setUserId1(games.userId1);
             setThisPlayerLower(games.thisLower);
             fetchTurnsData(game.id, games.thisLower);
             fetchGamesToRespondTo(games.userId1, game.id);
@@ -259,11 +265,12 @@ export default function Page() {
     }
 
     async function fetchGamesToRespondTo(userId: number, gameId: number) {
-      callAPIRetrieveGamesToRespondTo(userId, gameId)
+      callAPIRetrieveGamesToRespondTo(userId)
         .then((games) => {
           console.log("games to respond to: ", games);
           if (games?.rows != null && games.rows.length > 0) {
-            setGamesToRespondTo(games.rows.length);
+            setGamesToRespondTo(games.rows);
+            setNumOtherGamesToRespondTo(games.rows.filter((game: Game) => game.id != gameId).length);
           }
         })
     }
@@ -347,8 +354,9 @@ export default function Page() {
     return true;
   }
 
+  console.log("HEY POTS: ", gamesToRespondTo);
   if (players.length == 1) {
-    return <Share player1={player1} />;
+    return <Share player1={player1} gamesToRespondTo={gamesToRespondTo} userId1={userId1} />;
   }
 
   if (players.length == 2 && players[1].toLowerCase() == "invite") {
@@ -362,7 +370,7 @@ export default function Page() {
         <div className="mb-2">
           Hi <b>{player1}</b>. You&apos;re playing with: <b>{player2}</b>
         </div>
-        {isLoading ? <div>Loading...</div> : loadingError ? <div>{loadingError} <InviteLink player1={player1} gamesToRespondTo={gamesToRespondTo} /></div> : (<div>
+        {isLoading ? <div>Loading...</div> : loadingError ? <div>{loadingError} <InviteLink player1={player1} numOtherGamesToRespondTo={numOtherGamesToRespondTo} /></div> : (<div>
           <GameState
             playerState={playerState}
             startTurn={startTurn}
@@ -371,7 +379,7 @@ export default function Page() {
             submitAnswer={submitAnswer}
             completedTurn={completedTurn}
           />
-          <InviteLink player1={player1} gamesToRespondTo={gamesToRespondTo} />
+          <InviteLink player1={player1} numOtherGamesToRespondTo={numOtherGamesToRespondTo} />
         </div>
         )}
 
