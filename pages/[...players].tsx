@@ -57,6 +57,15 @@ const callAPISubmitAnswer = async (turnId: number, submission: string, thisPlaye
   }
 }
 
+const callAPIRetrieveGamesToRespondTo = async (userId: number, gameId: number) => {
+  try {
+    const res = await fetch(`/api/retrieve-other-games-to-respond-to/?userId=${userId}&gameId=${gameId}`);
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.log(err);
+  }
+}
 
 const processTurns = (subs: Submission[]): { prevTurns: Turn[], currTurn: Turn | null } => {
   const prevTurns: Turn[] = [];
@@ -103,10 +112,16 @@ const processTurns = (subs: Submission[]): { prevTurns: Turn[], currTurn: Turn |
   return { prevTurns, currTurn };
 }
 
-const InviteLink = ({ player1 }: { player1: string }) => (
+const InviteLink = ({ player1, gamesToRespondTo }: { player1: string, gamesToRespondTo: number }) => (
   <div className="mb-2 mt-6">
     <Link href={`/${player1}`} className="text-blue-600 hover:text-blue-800 underline">
-      Invite other friends or play against the AI
+      {gamesToRespondTo > 0 ?
+        (<>
+          <b>You have {gamesToRespondTo} other games to respond to!</b>
+          <br />
+          In addition, you can invite other friends or play against the AI.
+        </>)
+        : "Invite other friends or play against the AI"}
     </Link>
   </div>
 );
@@ -120,6 +135,8 @@ export default function Page() {
   const [players, setPlayers] = useState<string[]>([]);
   const [player1, setPlayer1] = useState<string>("");
   const [player2, setPlayer2] = useState<string>("");
+  // const [userId1, setUserId1] = useState<number>(0);
+  const [gamesToRespondTo, setGamesToRespondTo] = useState<number>(0);
 
   const [previousTurns, setPreviousTurns] = useState<Turn[]>([]);
   const [currentTurn, setCurrentTurn] = useState<Turn | null>(null);
@@ -148,15 +165,15 @@ export default function Page() {
 
   useEffect(() => {
     async function fetchGameData(player1l: string, player2l: string) {
-      let thisLower = false;
       callAPICreateOrRetrieveGame(player1l, player2l)
         .then((games) => {
           if (games.rows != null && games.rows.length > 0) {
             const game = games.rows[0];
             setGameId(game.id);
-            thisLower = game.lowerusername.toString().toLowerCase() == player1l.toLowerCase();
-            setThisPlayerLower(thisLower);
-            fetchTurnsData(game.id, thisLower);
+            // setUserId1(games.userId1);
+            setThisPlayerLower(games.thisLower);
+            fetchTurnsData(game.id, games.thisLower);
+            fetchGamesToRespondTo(games.userId1, game.id);
           } else if (games.error) {
             setIsLoading(false);
             setLoadingError(games.error);
@@ -239,6 +256,16 @@ export default function Page() {
       return () => {
         eventSource.close();
       };
+    }
+
+    async function fetchGamesToRespondTo(userId: number, gameId: number) {
+      callAPIRetrieveGamesToRespondTo(userId, gameId)
+        .then((games) => {
+          console.log("games to respond to: ", games);
+          if (games?.rows != null && games.rows.length > 0) {
+            setGamesToRespondTo(games.rows.length);
+          }
+        })
     }
 
     if (router.isReady && router.query.players) {
@@ -335,7 +362,7 @@ export default function Page() {
         <div className="mb-2">
           Hi <b>{player1}</b>. You&apos;re playing with: <b>{player2}</b>
         </div>
-        {isLoading ? <div>Loading...</div> : loadingError ? <div>{loadingError} <InviteLink player1={player1} /></div> : (<div>
+        {isLoading ? <div>Loading...</div> : loadingError ? <div>{loadingError} <InviteLink player1={player1} gamesToRespondTo={gamesToRespondTo} /></div> : (<div>
           <GameState
             playerState={playerState}
             startTurn={startTurn}
@@ -344,7 +371,7 @@ export default function Page() {
             submitAnswer={submitAnswer}
             completedTurn={completedTurn}
           />
-          <InviteLink player1={player1} />
+          <InviteLink player1={player1} gamesToRespondTo={gamesToRespondTo} />
         </div>
         )}
 

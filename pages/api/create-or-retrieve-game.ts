@@ -27,22 +27,23 @@ export default async function handler(
 
     let userId1 = user1[0].id;
     let userId2 = user2[0].id;
+    let thisLower = true;
 
     if (userId1 > userId2) {
       const temp = userId1;
       userId1 = userId2;
       userId2 = temp;
+      thisLower = false;
     }
 
-    const { rows: game } = await sql`SELECT g.*, u.name as lowerUserName FROM games g join users u on u.id = g.user_id1 where g.user_id1=${userId1} and g.user_id2=${userId2};`;
+    const { rows: game } = await sql`SELECT g.* FROM games g where g.user_id1=${userId1} and g.user_id2=${userId2};`;
 
     if (game.length == 1) {
-      return response.status(200).json({ rows: game });
+      return response.status(200).json({ rows: game, thisLower, userId1: thisLower ? userId1 : userId2 });
     }
 
-    await sql`INSERT INTO games (user_id1, user_id2) VALUES (${userId1}, ${userId2});`;
-    const { rows: gameTake2 } = await sql`SELECT g.*, u.name as lowerUserName FROM games g join users u on u.id = g.user_id1 where g.user_id1=${userId1} and g.user_id2=${userId2};`;
-    return response.status(200).json({ rows: gameTake2 });
+    const { rows: gameTake2 } = await sql`INSERT INTO games (user_id1, user_id2) VALUES (${userId1}, ${userId2}) returning *;`;
+    return response.status(200).json({ rows: gameTake2, thisLower, userId1: thisLower ? userId1 : userId2 });
   } catch (error) {
     console.log("got an error: ", error);
     return response.status(500).json({ error });
