@@ -354,7 +354,6 @@ export default function Page() {
     return true;
   }
 
-  console.log("HEY POTS: ", gamesToRespondTo);
   if (players.length == 1) {
     return <Share player1={player1} gamesToRespondTo={gamesToRespondTo} userId1={userId1} />;
   }

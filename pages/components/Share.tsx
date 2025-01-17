@@ -46,15 +46,14 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
   const [copied, setCopied] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [userId, setUserId] = useState<number>(userId1);
-  const [allGameIDsToRespondTo, setAllGameIDsToRespondTo] = useState<number[]>(gamesToRespondTo.map((game: Game) => game.id));
+  const [allGameIDsToRespondTo, setAllGameIDsToRespondTo] = useState<number[]>(gamesToRespondTo?.map((game: Game) => game.id) || []);
   const [allGames, setAllGames] = useState<Game[]>([]);
   const [allGamesToRespondTo, setAllGamesToRespondTo] = useState<Game[]>([]);
   const [showAllGames, setShowAllGames] = useState(false);
 
-  const slug = player1.toLowerCase().replace(/ /g, '-');
-
   useEffect(() => {
     if (userId1 == 0) {
+      const slug = player1?.toLowerCase().replace(/ /g, '-') || "";
       callAPIRetrieveUser(slug).then((data) => {
         setUserId(data.rows[0].id);
         console.log("user: ", data);
@@ -65,7 +64,7 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
         });
       });
     }
-  }, [userId1]);
+  }, [userId1, player1]);
 
 
   useEffect(() => {
