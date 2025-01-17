@@ -132,7 +132,7 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
           {showAllGames ? '▼' : '▶'} All of your games ({allGames.length})
         </button>
 
-        {showAllGames && (
+        {showAllGames && allGames.length > 0 && (
           <div className="pl-4">
             {allGames.map((game) => (
               <div key={game.id}>
