@@ -10,10 +10,10 @@ export default async function handler(
     const userName1 = request.query.userName1 as string;
     const userName2 = request.query.userName2 as string;
 
-    if (!userName1 || !userName2) throw new Error('Users 1 & 2');
-    const {rows: user1} = await sql`SELECT u.id FROM users u where u.name=${userName1};`;
+    if (!userName1 || !userName2) throw new Error('Users 1 & 2 required');
+    const {rows: user1} = await sql`SELECT u.id FROM users u where u.slug=${userName1.toLowerCase()};`;
 
-    const {rows: user2} = await sql`SELECT u.id FROM users u where u.name=${userName2};`;
+    const {rows: user2} = await sql`SELECT u.id FROM users u where u.slug=${userName2.toLowerCase()};`;
 
     if (user1?.length != 1 || user2?.length != 1) {return response.status(500).json({ error: "user not found" });}
 

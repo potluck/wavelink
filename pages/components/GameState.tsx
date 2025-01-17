@@ -112,7 +112,7 @@ export default function GameState({
     </div>);
 
   return (
-    <div>
+    <div className="max-w-md">
       {previousTurns == null || (previousTurns.length == 0 && completedTurn == null && lastLink1 == "" && lastLink2 == "") &&
         <Explainer />
       }

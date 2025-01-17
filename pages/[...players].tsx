@@ -106,12 +106,6 @@ const processTurns = (subs: Submission[]): { prevTurns: Turn[], currTurn: Turn |
 export default function Page() {
   const router = useRouter();
 
-  // TODO: if only 1 player here:
-  //  is this user the first player? (via auth, cache)
-  //  if not: Potluck has invited you to play Wavelink. What's your name?
-  //  redirect / add to URL
-
-  // TODO: make sure player2 is a real player
   const [playerState, setPlayerState] = useState(PlayerState.NeedTeammate);
   const [isLoading, setIsLoading] = useState(true);
   const [players, setPlayers] = useState<string[]>([]);
@@ -155,6 +149,8 @@ export default function Page() {
             setThisPlayerLower(thisLower);
             fetchTurnsData(game.id, thisLower);
           }
+        }).catch((err) => {
+          console.log("error fetching game data: ", err);
         })
     }
 

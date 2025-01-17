@@ -5,6 +5,17 @@ import Explainer from './Explainer';
 
 const nunito = Nunito({ subsets: ['latin'] })
 
+// create user via API
+async function callAPICreateUser(userName: string) {
+  const response = await fetch(`/api/create-user?userName=${encodeURIComponent(userName)}`);
+  if (!response.ok) {
+    throw new Error('Failed to create user');
+  }
+  return response.json();
+}
+
+// TODO: If we have the user in the cookie, tell them that.
+
 
 export default function Invited({ player1 }: { player1: string }) {
   const [name, setName] = useState("");
@@ -19,7 +30,12 @@ export default function Invited({ player1 }: { player1: string }) {
         <p className="text-gray-700">Enter your name below to play.</p>
         <form onSubmit={(e) => {
           e.preventDefault();
-          router.push(`/${name}/${player1}`);
+          const slug = name.replace(/ /g, '-');
+          callAPICreateUser(name).then(() => {
+            router.push(`/${slug}/${player1}`);
+          }).catch((err) => {
+            console.error("error creating user: ", err);
+          });
         }} className="space-y-4">
           <input
             type="text"
