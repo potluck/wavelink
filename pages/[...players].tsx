@@ -23,7 +23,7 @@ const callAPICreateOrRetrieveGame = async (userName1: string, userName2: string)
     const data = await res.json();
     return data;
   } catch (err) {
-    console.log(err);
+    return err;
   }
 }
 
@@ -103,11 +103,20 @@ const processTurns = (subs: Submission[]): { prevTurns: Turn[], currTurn: Turn |
   return { prevTurns, currTurn };
 }
 
+const InviteLink = ({ player1 }: { player1: string }) => (
+  <div className="mb-2 mt-6">
+    <Link href={`/${player1}`} className="text-blue-600 hover:text-blue-800 underline">
+      Invite other friends or play against the AI
+    </Link>
+  </div>
+);
+
 export default function Page() {
   const router = useRouter();
 
   const [playerState, setPlayerState] = useState(PlayerState.NeedTeammate);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadingError, setLoadingError] = useState<string | null>(null);
   const [players, setPlayers] = useState<string[]>([]);
   const [player1, setPlayer1] = useState<string>("");
   const [player2, setPlayer2] = useState<string>("");
@@ -148,9 +157,10 @@ export default function Page() {
             thisLower = game.lowerusername.toString().toLowerCase() == player1l.toLowerCase();
             setThisPlayerLower(thisLower);
             fetchTurnsData(game.id, thisLower);
+          } else if (games.error) {
+            setIsLoading(false);
+            setLoadingError(games.error);
           }
-        }).catch((err) => {
-          console.log("error fetching game data: ", err);
         })
     }
 
@@ -325,7 +335,7 @@ export default function Page() {
         <div className="mb-2">
           Hi <b>{player1}</b>. You&apos;re playing with: {player2}
         </div>
-        {isLoading ? <div>Loading...</div> : (<div>
+        {isLoading ? <div>Loading...</div> : loadingError ? <div>{loadingError} <InviteLink player1={player1} /></div> : (<div>
           <GameState
             playerState={playerState}
             startTurn={startTurn}
@@ -334,9 +344,7 @@ export default function Page() {
             submitAnswer={submitAnswer}
             completedTurn={completedTurn}
           />
-          <div className="mb-2 mt-6">
-            <Link href={`/${player1}`} className="text-blue-600 hover:text-blue-800 underline">Invite other friends or play against the AI</Link>
-          </div>
+          <InviteLink player1={player1} />
         </div>
         )}
 
