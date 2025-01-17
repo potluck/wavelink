@@ -1,5 +1,6 @@
 import { FormEvent, useState } from "react";
 import { PlayerState } from "../[...players]";
+import Explainer from "./Explainer";
 
 type GameStateProps = {
   playerState: PlayerState,
@@ -113,37 +114,11 @@ export default function GameState({
   return (
     <div>
       {previousTurns == null || (previousTurns.length == 0 && completedTurn == null && lastLink1 == "" && lastLink2 == "") &&
-        <div>
-          <div>
-            Wavelink is a word association game. In each round, you and your partner receive 2 starting words.
-          </div>
-          <br />
-          <div>
-            You respond by submitting a word that connects those words. For example:
-          </div>
-          <br />
-          <div>
-            <b>Fire</b> and <b>Water</b> might yield <b>Element</b> or <b>Steam</b>.
-          </div>
-          <br />
-          <div>
-            If you and your partner submit matching words, you win the round!
-          </div>
-          <br />
-          <div>
-            Otherwise, you try again. Now, you&apos;ll both be trying to connect the two words you just submitted.
-            For example, if you submitted <b>Element</b> and your partner submitted <b>Steam</b>, you might try <b>Gas</b>.
-          </div>
-          <br />
-          <div>
-            You get up to 5 tries to connect per round!
-          </div>
-          <br />
-        </div>
+        <Explainer />
       }
       {(playerState == PlayerState.NoRound) &&
         <button
-          className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 mx-auto"
+          className="mt-4 rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 mx-auto"
           onClick={startTurn}
         >
           Start new round
@@ -156,7 +131,7 @@ export default function GameState({
         <div>
           It&apos;s your turn.
           <button
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 mx-auto"
+            className="mt-4 rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 mx-auto"
             onClick={startTurn}
           >
             Play round.
@@ -168,20 +143,21 @@ export default function GameState({
           <div className="mb-2">
             Your starting words {lastLink1 && lastLink2 ? "were: " : "are: "} <b>{currentTurn?.word1}</b> and <b>{currentTurn?.word2}</b>.
             <br />
-            {currentTurn?.submissions.length == 0 ? "Think of a word that connects them!" : thisTurn}
+            <br />
+            {lastLink1 === "" && lastLink2 === "" ? "Think of a word that connects them!" : thisTurn}
           </div>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <input
               value={answer}
               onChange={e => setAnswer(e.target.value)}
-              className={"block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"}
-              placeholder={"Input link..."}
+              className="block w-full px-4 py-3 text-base text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 transition-colors"
+              placeholder="Enter link..."
             />
             <button
               type="submit"
-              className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 mx-auto"
+              className="w-full sm:w-auto rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-6 transition-colors duration-200 flex items-center justify-center"
             >
-              Submit
+              Submit Answer
             </button>
           </form>
         </div>
@@ -190,7 +166,7 @@ export default function GameState({
         <div className="mb-2">Send your link to a friend to play.</div>
       }
       {(playerState == PlayerState.Waiting) &&
-        <div className="mb-2 text-purple-500"><b>Status: </b>Waiting for your partner to complete this round. The page will auto-update when they submit!</div>
+        <div className="mb-2 text-purple-500 max-w-md"><b>Status: </b>Waiting for your partner to complete this round. The page will auto-update when they submit!</div>
       }
       {justCompletedTurn}
       {previousTurns?.length > 0 && (

@@ -1,9 +1,10 @@
 import { useRouter } from 'next/router'
 import React, { useEffect, useRef, useState } from 'react';
-import GameState, { Submission, Turn } from './components/GameState';
 import { Nunito } from 'next/font/google'
-import Share from './components/Share';
 import Link from 'next/link'
+import GameState, { Submission, Turn } from './components/GameState';
+import Share from './components/Share';
+import Invite from './components/Invite';
 
 const nunito = Nunito({ subsets: ['latin'] })
 
@@ -239,7 +240,7 @@ export default function Page() {
       setPlayers(queryPlayers);
       setPlayer1(queryPlayers[0]);
       setPlayer2(queryPlayers.length > 1 ? queryPlayers[1] : "No teammate set");
-      if (queryPlayers.length > 1) {
+      if (queryPlayers.length > 1 && queryPlayers[1].toLowerCase() != "invite") {
         fetchGameData(queryPlayers[0], queryPlayers[1]);
       }
     }
@@ -313,16 +314,12 @@ export default function Page() {
     return true;
   }
 
-  if (players.length == 0) {
-    return (
-      <div className={`${nunito.className} grid grid-rows-[5px_1fr_20px] items-center justify-items-center min-h-screen p-2 pb-20 gap-6 sm:p-8`}>
-        Loading...
-      </div>
-    );
-  }
-
   if (players.length == 1) {
     return <Share player1={player1} />;
+  }
+
+  if (players.length == 2 && players[1].toLowerCase() == "invite") {
+    return <Invite player1={player1} />;
   }
 
   return (
