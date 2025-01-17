@@ -4,7 +4,7 @@ import { Nunito } from 'next/font/google'
 import Link from 'next/link'
 import GameState, { Submission, Turn } from './components/GameState';
 import Share from './components/Share';
-import Invite from './components/Invite';
+import Invited from './components/Invited';
 
 const nunito = Nunito({ subsets: ['latin'] })
 
@@ -319,7 +319,7 @@ export default function Page() {
   }
 
   if (players.length == 2 && players[1].toLowerCase() == "invite") {
-    return <Invite player1={player1} />;
+    return <Invited player1={player1} />;
   }
 
   return (

@@ -1,10 +1,15 @@
 import { Nunito } from 'next/font/google'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const nunito = Nunito({ subsets: ['latin'] })
 
 export default function Share({ player1 }: { player1: string }) {
   const [copied, setCopied] = useState(false);
+  const [shareUrl, setShareUrl] = useState('');
+
+  useEffect(() => {
+    setShareUrl(`${window.location.origin}/${player1}/invite`);
+  }, [player1]);
 
   return (
     <div className={`${nunito.className} grid grid-rows-[auto_1fr_auto] items-center justify-items-center min-h-screen p-2 pb-20 gap-6 sm:p-8 max-w-5xl mx-auto w-full`}>
@@ -16,12 +21,12 @@ export default function Share({ player1 }: { player1: string }) {
           <input
             type="text"
             readOnly
-            value={`${window.location.origin}/${player1}/invite`}
+            value={shareUrl}
             className="flex-1 p-2 border rounded-md bg-gray-50 text-gray-600 min-w-[280px]"
           />
           <button
             onClick={() => {
-              navigator.clipboard.writeText(`${window.location.origin}/${player1}/invite`);
+              navigator.clipboard.writeText(shareUrl);
               setCopied(true);
               setTimeout(() => setCopied(false), 2000);
             }}
@@ -30,7 +35,7 @@ export default function Share({ player1 }: { player1: string }) {
             {copied ? 'Copied!' : 'Copy'}
           </button>
         </div>
-        <p className="text-gray-700">You'll be notified here of games where it's your turn to play.</p>
+        <p className="text-gray-700">You will be notified here of games where it&apos;s your turn to play.</p>
         <p className="text-gray-700">TODO: Grab all your opponents</p>
         <p className="text-gray-700">TODO: Play against the AI</p>
       </div>
