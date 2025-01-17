@@ -118,7 +118,7 @@ export default function GameState({
       }
       {(playerState == PlayerState.NoRound) &&
         <button
-          className="mt-4 rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 mx-auto"
+          className="mb-4 rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 mx-auto"
           onClick={startTurn}
         >
           Start new round
@@ -131,7 +131,7 @@ export default function GameState({
         <div>
           It&apos;s your turn.
           <button
-            className="mt-4 rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 mx-auto"
+            className="mt-4 mb-4 rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 mx-auto"
             onClick={startTurn}
           >
             Play round.
@@ -175,7 +175,7 @@ export default function GameState({
             onClick={() => setShowPreviousRounds(!showPreviousRounds)}
             className="text-blue-500 hover:text-blue-700 underline cursor-pointer flex items-center gap-1"
           >
-            <b>{showPreviousRounds ? 'Hide' : 'See'} Previous Rounds {showPreviousRounds ? '▼' : '▶'}</b>
+            <b>{showPreviousRounds ? 'Hide' : 'See'} Previous Rounds {showPreviousRounds ? '▲' : '▼'}</b>
           </button>
           {showPreviousRounds && <div className="mt-2">{prevTurns}</div>}
         </div>
