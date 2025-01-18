@@ -221,7 +221,6 @@ export default function Page() {
         // console.log("got data: ", data, justCompletedSubmission, currentTurnRef.current);
         if ((justCompletedSubmission?.turn_id == currentTurnRef.current?.id) && justCompletedSubmission?.counter + 1 >= (currentTurnRef.current?.submissions.length || 0)
           && playerStateRef.current == PlayerState.Waiting) {
-          setPlayerState(PlayerState.RoundToPlayNoMatch);
           const lastSubmission = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 1];
           // console.log("last submission: ", lastSubmission);
           if (lastSubmission) {
@@ -244,6 +243,7 @@ export default function Page() {
             setCompletedTurn(newTurn);
             setPreviousTurns([...previousTurnsRef.current, newTurn]);
             setPlayerState(PlayerState.NoRound);
+            document.title = "(1) Wavelink - a Pots production";
           } else if (lastSubmission) {
             const newSubmission = {
               ...lastSubmission,
@@ -253,6 +253,8 @@ export default function Page() {
               link2: null,
             };
             currentTurnRef.current?.submissions.push(newSubmission);
+            setPlayerState(PlayerState.RoundToPlayNoMatch);
+            document.title = "(1) Wavelink - a Pots production";
           }
         }
       };
@@ -288,6 +290,7 @@ export default function Page() {
 
   function startTurn() {
     if (playerState == PlayerState.NoRound) {
+      document.title = "Wavelink - a Pots production";
       callAPICreateTurn(gameId)
         .then((turn) => {
           const { currTurn } = processTurns([turn]);
@@ -296,6 +299,7 @@ export default function Page() {
           setCompletedTurn(null);
         });
     } else if (playerState == PlayerState.RoundToPlay || playerState == PlayerState.RoundToPlayNoMatch) {
+      document.title = "Wavelink - a Pots production";
       setPlayerState(PlayerState.Playing);
       setCompletedTurn(null);
     }
