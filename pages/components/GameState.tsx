@@ -118,7 +118,7 @@ export default function GameState({
       }
       {(playerState == PlayerState.NoRound) &&
         <button
-          className="mb-4 rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 mx-auto"
+          className="mb-6 rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 mx-auto"
           onClick={startTurn}
         >
           Start new round
@@ -127,11 +127,13 @@ export default function GameState({
       {(playerState == PlayerState.RoundToPlayNoMatch) &&
         <div className="text-purple-500">Your submission didn&apos;t match your partner&apos;s submission. Try again!</div>
       }
+      {(playerState == PlayerState.RoundToPlay) &&
+        <div>It&apos;s your turn.</div>
+      }
       {(playerState == PlayerState.RoundToPlay || playerState == PlayerState.RoundToPlayNoMatch) &&
         <div>
-          It&apos;s your turn.
           <button
-            className="mt-4 mb-4 rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 mx-auto"
+            className="mt-6 mb-6 rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 mx-auto"
             onClick={startTurn}
           >
             Play round.
