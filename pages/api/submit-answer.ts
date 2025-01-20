@@ -138,7 +138,6 @@ export default async function handler(
       turnCompleted: turnCompleted,
       submissionCompleted: submissionCompleted,
       speedScore: speedScore,
-      rarenessScore: rarenessScore,
       link1: thisLower == "true" ? submission : otherLink,
       link2: thisLower == "true" ? otherLink : submission
     });

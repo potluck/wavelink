@@ -14,7 +14,6 @@ type GameStateProps = {
 export type Submission = {
   // turn info:
   turn_id: number,
-  rareness_score: number | null,
   speed_score: number | null,
   word1: string,
   word2: string,
@@ -31,7 +30,6 @@ export type Submission = {
 
 export type Turn = {
   id: number,
-  rareness_score: number | null,
   speed_score: number | null,
   word1: string,
   word2: string,
@@ -39,6 +37,29 @@ export type Turn = {
   completed_at: string | null,
   submissions: Submission[],
 }
+
+const analzePreviousTurns = (previousTurns: Turn[]) => {
+  let currentStreak = 0;
+  let maxStreak = 0;
+  let oneShotCount = 0;
+
+  for (const turn of previousTurns) {
+    if (turn.completed_at) {
+      currentStreak++;
+      if (turn.submissions.length === 1) {
+        oneShotCount++;
+      }
+      if (currentStreak > maxStreak) {
+        maxStreak = currentStreak;
+      }
+    } else {
+      currentStreak = 0;
+    }
+  }
+
+  return { currentStreak, maxStreak, oneShotCount };
+}
+
 
 export default function GameState({
   playerState,
@@ -60,13 +81,11 @@ export default function GameState({
     };
   }
 
+  const { currentStreak, maxStreak, oneShotCount } = analzePreviousTurns(previousTurns);
   const prevTurns = (previousTurns || []).map((turn, idx) =>
     <div key={idx}>
       <span className="text-orange-500"><b>Round {idx + 1}. </b></span>
-      <br />Score: <b>{(turn.rareness_score || 0) + (turn.speed_score || 0)}</b> {((turn.rareness_score || 0) + (turn.speed_score || 0)) > 0 ?
-        <span>
-          (Rareness: {(turn.rareness_score || 0)}, Speed: {(turn.speed_score || 0)})
-        </span> : ""}
+      <br />Score: <b>{(turn.speed_score || 0)}</b>
       <br />Words: {turn.word1}, {turn.word2}
       {turn.submissions?.map((submission, idx) => {
         return (
@@ -173,6 +192,15 @@ export default function GameState({
       {justCompletedTurn}
       {previousTurns?.length > 0 && (
         <div className="mt-4">
+          {maxStreak > 0 && (
+            <div className="mb-2">
+              Current streak: {currentStreak}
+              <br />
+              Max streak: {maxStreak}
+              <br />
+              Number of one-shot wins: {oneShotCount}
+            </div>
+          )}
           <button
             onClick={() => setShowPreviousRounds(!showPreviousRounds)}
             className="text-blue-500 hover:text-blue-700 underline cursor-pointer flex items-center gap-1"

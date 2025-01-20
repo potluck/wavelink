@@ -80,7 +80,6 @@ const processTurns = (subs: Submission[]): { prevTurns: Turn[], currTurn: Turn |
       if (currTurn == null) {
         currTurn = {
           id: sub.turn_id,
-          rareness_score: sub.rareness_score,
           speed_score: sub.speed_score,
           word1: sub.word1,
           word2: sub.word2,
@@ -96,7 +95,6 @@ const processTurns = (subs: Submission[]): { prevTurns: Turn[], currTurn: Turn |
       if (foundTurn == null) {
         prevTurns.push({
           id: sub.turn_id,
-          rareness_score: sub.rareness_score,
           speed_score: sub.speed_score,
           word1: sub.word1,
           word2: sub.word2,
@@ -232,7 +230,6 @@ export default function Page() {
             // console.log("completed turn");
             const newTurn: Turn = {
               id: currentTurnRef.current?.id || 0,
-              rareness_score: justCompletedSubmission.rareness_score,
               speed_score: justCompletedSubmission.speed_score,
               word1: currentTurnRef.current?.word1 || "",
               word2: currentTurnRef.current?.word2 || "",
@@ -312,7 +309,7 @@ export default function Page() {
     // TODO: check to make sure submission doesn't match previous words / submissions
 
     callAPISubmitAnswer(currentTurn?.id || 0, submission, thisPlayerHasLowerID)
-      .then(({ submissionCompleted, turnCompleted, rarenessScore, speedScore, link1, link2 }) => {
+      .then(({ submissionCompleted, turnCompleted, speedScore, link1, link2 }) => {
         if (turnCompleted) {
           if (currentTurn) {
             const lastSubmission = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 1];
@@ -324,7 +321,6 @@ export default function Page() {
           }
           const newTurn: Turn = {
             id: currentTurn?.id || 0,
-            rareness_score: rarenessScore,
             speed_score: speedScore,
             word1: currentTurn?.word1 || "",
             word2: currentTurn?.word2 || "",
