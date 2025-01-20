@@ -5,7 +5,7 @@ import Explainer from "./Explainer";
 type GameStateProps = {
   playerState: PlayerState,
   startTurn: () => void,
-  submitAnswer: (submission: string) => boolean,
+  submitAnswer: (submission: string) => { success: boolean, error: string | null },
   previousTurns: Turn[],
   currentTurn: Turn | null,
   completedTurn: Turn | null,
@@ -73,13 +73,18 @@ export default function GameState({
 
   const [answer, setAnswer] = useState("");
   const [showPreviousRounds, setShowPreviousRounds] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (submitAnswer(answer.trim())) {
+    const { success, error } = submitAnswer(answer.trim());
+    if (success) {
       setAnswer("");
-    };
+      setError(null);
+    } else {
+      setError(error);
+    }
   }
 
   const { currentStreak, maxStreak, oneShotCount } = analyzePreviousTurns(previousTurns);
@@ -168,6 +173,7 @@ export default function GameState({
             <br />
             {lastLink1 === "" && lastLink2 === "" ? "Think of a word that connects them!" : thisTurn}
           </div>
+          {error && <div className="text-red-500">{error}</div>}
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <input
               value={answer}

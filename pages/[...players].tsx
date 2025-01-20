@@ -302,11 +302,37 @@ export default function Page() {
     }
   }
 
+  function checkAgainstPrevious(submission: string) {
+    const submissions = currentTurnRef.current?.submissions || [];
+    const word1 = (currentTurnRef.current?.word1 || "").toLowerCase();
+    const word2 = (currentTurnRef.current?.word2 || "").toLowerCase();
+    if (word1 == submission || word2 == submission || (submission.length > 2 && (word1.indexOf(submission) != -1 || word2.indexOf(submission) != -1))
+      || (word1.length > 2 && submission.indexOf(word1) != -1) || (word2.length > 2 && submission.indexOf(word2) != -1)) {
+      return true;
+    }
+    for (const sub of submissions) {
+      if (!sub.link1 || !sub.link2) {
+        continue;
+      }
+      const sub1 = sub.link1.toLowerCase();
+      const sub2 = sub.link2.toLowerCase();
+      if (sub1 == submission || sub2 == submission || (submission.length > 2 && (sub1.indexOf(submission) != -1 || sub2.indexOf(submission) != -1))
+        || (sub1.length > 2 && submission.indexOf(sub1) != -1) || (sub2.length > 2 && submission.indexOf(sub2) != -1)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   function submitAnswer(submission: string) {
     if (submission.length < 2) {
-      return false;
+      return { success: false, error: "Submission must be at least 2 characters" };
     }
     // TODO: check to make sure submission doesn't match previous words / submissions
+    const matchesPrevious = checkAgainstPrevious(submission.toLowerCase());
+    if (matchesPrevious) {
+      return { success: false, error: "Can't repeat previous words or submissions" };
+    }
 
     callAPISubmitAnswer(currentTurn?.id || 0, submission, thisPlayerHasLowerID)
       .then(({ submissionCompleted, turnCompleted, speedScore, link1, link2 }) => {
@@ -351,7 +377,7 @@ export default function Page() {
           setPlayerState(PlayerState.Waiting);
         }
       })
-    return true;
+    return { success: true, error: null };
   }
 
   if (players.length == 1) {
