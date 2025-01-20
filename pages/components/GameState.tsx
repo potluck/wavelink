@@ -77,7 +77,7 @@ export default function GameState({
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (submitAnswer(answer)) {
+    if (submitAnswer(answer.trim())) {
       setAnswer("");
     };
   }
