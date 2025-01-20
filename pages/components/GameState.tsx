@@ -42,11 +42,13 @@ const analyzePreviousTurns = (previousTurns: Turn[]) => {
   let currentStreak = 0;
   let maxStreak = 0;
   let oneShotCount = 0;
+  let totalScore = 0;
 
   for (const idx in previousTurns) {
     const turn = previousTurns[idx];
     if (turn.speed_score || 0 > 0) {
       currentStreak++;
+      totalScore += turn.speed_score || 0;
       if (turn.submissions.length === 1) {
         oneShotCount++;
       }
@@ -58,7 +60,7 @@ const analyzePreviousTurns = (previousTurns: Turn[]) => {
     }
   }
 
-  return { currentStreak, maxStreak, oneShotCount };
+  return { currentStreak, maxStreak, oneShotCount, totalScore };
 }
 
 
@@ -87,7 +89,7 @@ export default function GameState({
     }
   }
 
-  const { currentStreak, maxStreak, oneShotCount } = analyzePreviousTurns(previousTurns);
+  const { currentStreak, maxStreak, oneShotCount, totalScore } = analyzePreviousTurns(previousTurns);
   const prevTurns = (previousTurns || []).map((turn, idx) =>
     <div key={idx}>
       <span className="text-orange-500"><b>Round {idx + 1}. </b></span>
@@ -206,6 +208,8 @@ export default function GameState({
               Max streak: {maxStreak}
               <br />
               Number of one-shot wins: {oneShotCount}
+              <br />
+              Total score: {totalScore}
             </div>
           )}
           <button
