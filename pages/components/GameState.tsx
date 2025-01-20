@@ -38,12 +38,13 @@ export type Turn = {
   submissions: Submission[],
 }
 
-const analzePreviousTurns = (previousTurns: Turn[]) => {
+const analyzePreviousTurns = (previousTurns: Turn[]) => {
   let currentStreak = 0;
   let maxStreak = 0;
   let oneShotCount = 0;
 
-  for (const turn of previousTurns) {
+  for (const idx in previousTurns) {
+    const turn = previousTurns[idx];
     if (turn.speed_score || 0 > 0) {
       currentStreak++;
       if (turn.submissions.length === 1) {
@@ -81,7 +82,7 @@ export default function GameState({
     };
   }
 
-  const { currentStreak, maxStreak, oneShotCount } = analzePreviousTurns(previousTurns);
+  const { currentStreak, maxStreak, oneShotCount } = analyzePreviousTurns(previousTurns);
   const prevTurns = (previousTurns || []).map((turn, idx) =>
     <div key={idx}>
       <span className="text-orange-500"><b>Round {idx + 1}. </b></span>
