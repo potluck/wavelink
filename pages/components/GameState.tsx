@@ -44,7 +44,7 @@ const analzePreviousTurns = (previousTurns: Turn[]) => {
   let oneShotCount = 0;
 
   for (const turn of previousTurns) {
-    if (turn.completed_at) {
+    if (turn.speed_score || 0 > 0) {
       currentStreak++;
       if (turn.submissions.length === 1) {
         oneShotCount++;
