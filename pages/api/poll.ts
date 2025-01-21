@@ -1,3 +1,4 @@
+// poll the database for new submissions for a given game to enable realtime frontend updates
 import { NextApiResponse, NextApiRequest } from 'next';
 import { sql } from '@vercel/postgres';
 
@@ -10,7 +11,6 @@ export default async function handler(
   res.setHeader("Connection", "keep-alive");
   res.setHeader('Content-Encoding', 'none');
 
-  // Example: Polling the database every 5 seconds
   const gameId = req.query.gameId as string;
   if (gameId == "0") {
     return;

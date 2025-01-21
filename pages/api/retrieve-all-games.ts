@@ -1,4 +1,4 @@
-// given a game, retrieve all the rounds
+// retrieve all games for a user
 import { sql } from '@vercel/postgres';
 import { NextApiResponse, NextApiRequest } from 'next';
 
