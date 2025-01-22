@@ -22,7 +22,7 @@ export default function PasskeyModal({ inputPassKey }: PasskeyModalProps) {
           <>
             <h2 className="text-xl font-bold mb-4">Enjoying Wavelink? Create a passkey!</h2>
             <p className="mb-4">
-              Creating a passkey will allow seamless access to your games across devices. It's easier than a password!
+              Creating a passkey will allow seamless access to your games across devices.
             </p>
             <div className="flex justify-end gap-3">
               <button
