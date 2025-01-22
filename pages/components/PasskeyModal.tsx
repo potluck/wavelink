@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 type PasskeyModalProps = {
   inputPassKey: (passkey: string | null) => void
@@ -9,11 +9,11 @@ export default function PasskeyModal({ inputPassKey }: PasskeyModalProps) {
   const [agreeToSetKey, setAgreeToSetKey] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleClose = (passkey: string | null) => {
+  const handleClose = useCallback((passkey: string | null) => {
     inputPassKey(passkey);
     setAgreeToSetKey(false);
     setError(null);
-  };
+  }, [inputPassKey]);
 
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
@@ -24,7 +24,7 @@ export default function PasskeyModal({ inputPassKey }: PasskeyModalProps) {
 
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
-  }, []);
+  }, [handleClose]);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -34,6 +34,9 @@ export default function PasskeyModal({ inputPassKey }: PasskeyModalProps) {
             <h2 className="text-xl font-bold mb-4 dark:text-white">Enjoying Wavelink? Create a passkey!</h2>
             <p className="mb-4 dark:text-gray-300">
               Creating a passkey will allow seamless access to your games across devices.
+            </p>
+            <p className="mb-4 dark:text-gray-300">
+              Faster than a password - only takes 5 seconds.
             </p>
             <div className="flex justify-end gap-3">
               <button
