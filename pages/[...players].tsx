@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Nunito } from 'next/font/google'
 import Link from 'next/link'
 import GameState, { Submission, Turn } from './components/GameState';
+import PasskeyModal from './components/PasskeyModal';
 import Share from './components/Share';
 import Invited from './components/Invited';
 
@@ -36,6 +37,16 @@ const callAPICreateTurn = async (gameId: number) => {
     const res = await fetch(`/api/create-new-turn/?gameId=${gameId}`);
     const data = await res.json();
     return data.rows[0];
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+const callAPISavePasskey = async (userId: number, passkey: string) => {
+  try {
+    const res = await fetch(`/api/save-passkey/?userId=${userId}&passkey=${passkey}`);
+    const data = await res.json();
+    return data;
   } catch (err) {
     console.log(err);
   }
@@ -143,12 +154,17 @@ export default function Page() {
   const [playerState, setPlayerState] = useState(PlayerState.NoRound);
   const [isLoading, setIsLoading] = useState(true);
   const [loadingError, setLoadingError] = useState<string | null>(null);
+
   const [players, setPlayers] = useState<string[]>([]);
   const [player1, setPlayer1] = useState<string>("");
   const [player2, setPlayer2] = useState<string>("");
   const [userId1, setUserId1] = useState<number>(0);
+  const [userHasPasskey, setUserHasPasskey] = useState<boolean>(false);
   const [gamesToRespondTo, setGamesToRespondTo] = useState<Game[]>([]);
   const [numOtherGamesToRespondTo, setNumOtherGamesToRespondTo] = useState<number>(0);
+  const [gameId, setGameId] = useState<number>(0);
+  const [thisPlayerHasLowerID, setThisPlayerLower] = useState<boolean>(false);
+  const [showPasskeyModal, setShowPasskeyModal] = useState<boolean>(false);
 
   const [previousTurns, setPreviousTurns] = useState<Turn[]>([]);
   const [currentTurn, setCurrentTurn] = useState<Turn | null>(null);
@@ -156,8 +172,6 @@ export default function Page() {
   const currentTurnRef = useRef<Turn | null>(null);
   const previousTurnsRef = useRef<Turn[]>([]);
   const playerStateRef = useRef<PlayerState>(PlayerState.NoRound);
-  const [gameId, setGameId] = useState<number>(0);
-  const [thisPlayerHasLowerID, setThisPlayerLower] = useState<boolean>(false);
 
   useEffect(() => {
     currentTurnRef.current = currentTurn;
@@ -178,9 +192,9 @@ export default function Page() {
           if (games.rows != null && games.rows.length > 0) {
 
             const gameUserId1 = games.userId1;
-            const userHasPasskey = games.userHasPasskey;
+            const gameUserHasPasskey = games.userHasPasskey;
             const localUserId = getUserFromLocalStorage();
-            if (!userHasPasskey) {
+            if (!gameUserHasPasskey) {
               if (localUserId == gameUserId1) {
                 // No-op. All good. Game user matches local storage
               } else if (localUserId == null) {
@@ -205,6 +219,7 @@ export default function Page() {
               }
             }
 
+            setUserHasPasskey(gameUserHasPasskey);
             setUserId1(gameUserId1);
 
             const game = games.rows[0];
@@ -317,6 +332,18 @@ export default function Page() {
     }
   }, [router.isReady, router.query.players]);
 
+
+  useEffect(() => {
+    if (completedTurn && !userHasPasskey) {
+      const timeoutId = setTimeout(() => {
+        setShowPasskeyModal(true);
+      }, 3000);
+
+      // Cleanup function to clear the timeout if the component unmounts
+      return () => clearTimeout(timeoutId);
+    }
+  }, [completedTurn, userHasPasskey]);
+
   function startTurn() {
     if (playerState == PlayerState.NoRound) {
       document.title = "Wavelink - a Pots production";
@@ -332,6 +359,15 @@ export default function Page() {
       setPlayerState(PlayerState.Playing);
       setCompletedTurn(null);
     }
+  }
+
+  function setUserPasskey(passkey: string | null) {
+    if (passkey) {
+      callAPISavePasskey(userId1, passkey);
+      setUserHasPasskey(true);
+    }
+    setShowPasskeyModal(false);
+    return;
   }
 
   function checkAgainstPrevious(submission: string) {
@@ -427,6 +463,7 @@ export default function Page() {
         <div className="mb-2">
           Hi <b>{player1}</b>. You&apos;re playing with: <b>{player2}</b>
         </div>
+        {showPasskeyModal && <PasskeyModal inputPassKey={setUserPasskey} />}
         {isLoading ? <div>Loading...</div> : loadingError ? <div>{loadingError} <InviteLink player1={player1} numOtherGamesToRespondTo={numOtherGamesToRespondTo} /></div> : (<div>
           <GameState
             playerState={playerState}
