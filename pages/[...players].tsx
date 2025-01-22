@@ -115,6 +115,15 @@ const processTurns = (subs: Submission[]): { prevTurns: Turn[], currTurn: Turn |
   return { prevTurns, currTurn };
 }
 
+const saveUserToLocalStorage = (userId: number) => {
+  localStorage.setItem('wavelink-userId', userId.toString());
+}
+
+const getUserFromLocalStorage = () => {
+  const userId = localStorage.getItem('wavelink-userId');
+  return userId ? parseInt(userId) : null;
+}
+
 const InviteLink = ({ player1, numOtherGamesToRespondTo }: { player1: string, numOtherGamesToRespondTo: number }) => (
   <div className="mb-2 mt-6">
     <Link href={`/${player1}`} className="text-blue-600 hover:text-blue-800 underline">
@@ -175,6 +184,8 @@ export default function Page() {
             const game = games.rows[0];
             setGameId(game.id);
             setUserId1(games.userId1);
+            console.log("Yo pots, just checking user ID 1: ", getUserFromLocalStorage());
+            saveUserToLocalStorage(games.userId1);
             setThisPlayerLower(games.thisLower);
             fetchTurnsData(game.id, games.thisLower);
             fetchGamesToRespondTo(games.userId1, game.id);
@@ -189,7 +200,7 @@ export default function Page() {
       callAPIRetrieveTurns(gameIdl)
         .then((turns) => {
           const { prevTurns, currTurn } = processTurns(turns?.rows || []);
-          // console.log("any curr turn pots? ", currTurn);
+          console.log("Yo pots, just checking user ID 2: ", getUserFromLocalStorage());
           setPreviousTurns(prevTurns);
           setCurrentTurn(currTurn);
 
@@ -266,7 +277,6 @@ export default function Page() {
     async function fetchGamesToRespondTo(userId: number, gameId: number) {
       callAPIRetrieveGamesToRespondTo(userId)
         .then((games) => {
-          console.log("games to respond to: ", games);
           if (games?.rows != null && games.rows.length > 0) {
             setGamesToRespondTo(games.rows);
             setNumOtherGamesToRespondTo(games.rows.filter((game: Game) => game.id != gameId).length);
