@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type PasskeyModalProps = {
   inputPassKey: (passkey: string | null) => void
@@ -14,6 +14,17 @@ export default function PasskeyModal({ inputPassKey }: PasskeyModalProps) {
     setAgreeToSetKey(false);
     setError(null);
   };
+
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        handleClose(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, []);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
