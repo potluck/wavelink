@@ -11,8 +11,8 @@ export default async function handler(
     const userName2 = request.query.userName2 as string;
 
     if (!userName1 || !userName2) throw new Error('Users 1 & 2 required');
-    let { rows: user1 } = await sql`SELECT u.id FROM users u where u.slug=${userName1.toLowerCase()};`;
-    let { rows: user2 } = await sql`SELECT u.id FROM users u where u.slug=${userName2.toLowerCase()};`;
+    let { rows: user1 } = await sql`SELECT u.id, u.passkey FROM users u where u.slug=${userName1.toLowerCase()};`;
+    let { rows: user2 } = await sql`SELECT u.id, u.passkey FROM users u where u.slug=${userName2.toLowerCase()};`;
     let newUserCreated = false;
 
     if (user1?.length == 0 && user2?.length > 0) {
@@ -45,12 +45,22 @@ export default async function handler(
     if (!newUserCreated) {
       const { rows: game } = await sql`SELECT g.* FROM games g where g.user_id1=${userId1} and g.user_id2=${userId2};`;
       if (game.length > 0) {
-        return response.status(200).json({ rows: game, thisLower, userId1: thisLower ? userId1 : userId2 });
+        return response.status(200).json({
+          rows: game,
+          thisLower,
+          userId1: thisLower ? userId1 : userId2,
+          userHasPasskey: (thisLower ? user1[0].passkey : user2[0].passkey) != null
+        });
       }
     }
 
     const { rows: gameTake2 } = await sql`INSERT INTO games (user_id1, user_id2) VALUES (${userId1}, ${userId2}) returning *;`;
-    return response.status(200).json({ rows: gameTake2, thisLower, userId1: thisLower ? userId1 : userId2 });
+    return response.status(200).json({
+      rows: gameTake2,
+      thisLower,
+      userId1: thisLower ? userId1 : userId2,
+      userHasPasskey: (thisLower ? user1[0].passkey : user2[0].passkey) != null
+    });
   } catch (error) {
     console.log("got an error: ", error);
     return response.status(500).json({ error });

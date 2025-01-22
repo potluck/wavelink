@@ -176,11 +176,39 @@ export default function Page() {
       callAPICreateOrRetrieveGame(player1l, player2l)
         .then((games) => {
           if (games.rows != null && games.rows.length > 0) {
+
+            const gameUserId1 = games.userId1;
+            const userHasPasskey = games.userHasPasskey;
+            const localUserId = getUserFromLocalStorage();
+            if (!userHasPasskey) {
+              if (localUserId == gameUserId1) {
+                // No-op. All good. Game user matches local storage
+              } else if (localUserId == null) {
+                // no passkey, no local user. Save the user to local storage
+                saveUserToLocalStorage(gameUserId1);
+              } else {
+                // User doesn't match local storage.
+                // TODO: Notify user that we're switching from saved user
+                console.log("local User ID didn't match game User Id: ", localUserId, gameUserId1);
+                saveUserToLocalStorage(gameUserId1);
+              }
+            } else {
+              if (localUserId == gameUserId1) {
+                // No-op. All good. Game user matches local storage
+              } else if (localUserId == null) {
+                // TODO: Ask user to confirm passkey
+                saveUserToLocalStorage(gameUserId1);
+              } else {
+                // TODO: Ask user to confirm passkey. Notify that we're switching from saved user
+                console.log("local User ID didn't match game User ID w/ passkey: ", localUserId, gameUserId1);
+                saveUserToLocalStorage(gameUserId1);
+              }
+            }
+
+            setUserId1(gameUserId1);
+
             const game = games.rows[0];
             setGameId(game.id);
-            setUserId1(games.userId1);
-            console.log("Yo pots, just checking user ID 1: ", getUserFromLocalStorage());
-            saveUserToLocalStorage(games.userId1);
             setThisPlayerLower(games.thisLower);
             fetchTurnsData(game.id, games.thisLower);
             fetchGamesToRespondTo(games.userId1, game.id);
@@ -195,7 +223,6 @@ export default function Page() {
       callAPIRetrieveTurns(gameIdl)
         .then((turns) => {
           const { prevTurns, currTurn } = processTurns(turns?.rows || []);
-          console.log("Yo pots, just checking user ID 2: ", getUserFromLocalStorage());
           setPreviousTurns(prevTurns);
           setCurrentTurn(currTurn);
 
