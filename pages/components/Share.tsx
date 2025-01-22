@@ -88,60 +88,62 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
   }, [player1]);
 
   return (
-    <div className={`${nunito.className} grid grid-rows-[auto_1fr_auto] items-center justify-items-center min-h-screen p-2 pb-20 gap-6 sm:p-8 max-w-5xl mx-auto w-full`}>
-      <h1 className="text-4xl font-bold text-center w-full">Wavelink &nbsp;&nbsp;🌊&thinsp;🔗</h1>
-      <div className="space-y-4">
-        <p className="text-gray-700">Hi, {player1}!</p>
-        <p className="text-gray-700">Send your link to a friend to play:</p>
-        <div className="flex gap-2 items-center w-full max-w-xl">
-          <input
-            type="text"
-            readOnly
-            value={shareUrl}
-            className="flex-1 p-2 border rounded-md bg-gray-50 text-gray-600 min-w-[280px]"
-          />
-          <button
-            onClick={() => {
-              navigator.clipboard.writeText(shareUrl);
-              setCopied(true);
-              setTimeout(() => setCopied(false), 2000);
-            }}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-          >
-            {copied ? 'Copied!' : 'Copy'}
-          </button>
-        </div>
-        <p className="text-gray-700">You will be notified here of games where it&apos;s your turn to play.</p>
-        {allGamesToRespondTo.length > 0 ?
-          (<>
-            <p className="text-gray-700"><b>It&apos;s your turn:</b></p>
-            {allGamesToRespondTo.map((game) => (
-              <div key={game.id}>
-                <Link href={`/${player1}/${game.other_player}`} className="text-gray-700 hover:text-blue-500">
-                  - With {game.other_player}
-                </Link>
-              </div>
-            ))}
-          </>
-          ) : null}
-        <button
-          onClick={() => setShowAllGames(!showAllGames)}
-          className="text-gray-700 hover:text-blue-500 flex items-center gap-2"
-        >
-          {showAllGames ? '▼' : '▶'} All of your games ({allGames.length})
-        </button>
-
-        {showAllGames && allGames.length > 0 && (
-          <div className="pl-4">
-            {allGames.map((game) => (
-              <div key={game.id}>
-                <Link href={`/${player1}/${game.other_player}`} className="text-gray-700 hover:text-blue-500">
-                  Game with {game.other_player}
-                </Link>
-              </div>
-            ))}
+    <div className="min-h-screen">
+      <div className={`${nunito.className} grid grid-rows-[auto_1fr_auto] items-center justify-items-center p-2 pb-20 gap-6 sm:p-8 max-w-5xl mx-auto w-full`}>
+        <h1 className="text-4xl font-bold text-center w-full dark:text-white">Wavelink &nbsp;&nbsp;🌊&thinsp;🔗</h1>
+        <div className="space-y-4">
+          <p className="text-gray-700 dark:text-gray-300">Hi, {player1}!</p>
+          <p className="text-gray-700 dark:text-gray-300">Send your link to a friend to play:</p>
+          <div className="flex gap-2 items-center w-full max-w-xl">
+            <input
+              type="text"
+              readOnly
+              value={shareUrl}
+              className="flex-1 p-2 border rounded-md bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 min-w-[280px]"
+            />
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(shareUrl);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+              }}
+              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors dark:bg-blue-600 dark:hover:bg-blue-700"
+            >
+              {copied ? 'Copied!' : 'Copy'}
+            </button>
           </div>
-        )}
+          <p className="text-gray-700 dark:text-gray-300">You will be notified here of games where it&apos;s your turn to play.</p>
+          {allGamesToRespondTo.length > 0 ?
+            (<>
+              <p className="text-gray-700 dark:text-gray-300"><b>It&apos;s your turn:</b></p>
+              {allGamesToRespondTo.map((game) => (
+                <div key={game.id}>
+                  <Link href={`/${player1}/${game.other_player}`} className="text-gray-700 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400">
+                    - With {game.other_player}
+                  </Link>
+                </div>
+              ))}
+            </>
+            ) : null}
+          <button
+            onClick={() => setShowAllGames(!showAllGames)}
+            className="text-gray-700 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400 flex items-center gap-2"
+          >
+            {showAllGames ? '▼' : '▶'} All of your games ({allGames.length})
+          </button>
+
+          {showAllGames && allGames.length > 0 && (
+            <div className="pl-4">
+              {allGames.map((game) => (
+                <div key={game.id}>
+                  <Link href={`/${player1}/${game.other_player}`} className="text-gray-700 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400">
+                    Game with {game.other_player}
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
