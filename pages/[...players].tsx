@@ -14,7 +14,6 @@ interface Game {
 }
 
 export enum PlayerState {
-  NeedTeammate,
   NoRound,
   RoundToPlay,
   RoundToPlayNoMatch,
@@ -141,7 +140,7 @@ const InviteLink = ({ player1, numOtherGamesToRespondTo }: { player1: string, nu
 export default function Page() {
   const router = useRouter();
 
-  const [playerState, setPlayerState] = useState(PlayerState.NeedTeammate);
+  const [playerState, setPlayerState] = useState(PlayerState.NoRound);
   const [isLoading, setIsLoading] = useState(true);
   const [loadingError, setLoadingError] = useState<string | null>(null);
   const [players, setPlayers] = useState<string[]>([]);
@@ -156,14 +155,10 @@ export default function Page() {
   const [completedTurn, setCompletedTurn] = useState<Turn | null>(null);
   const currentTurnRef = useRef<Turn | null>(null);
   const previousTurnsRef = useRef<Turn[]>([]);
-  const playerStateRef = useRef<PlayerState>(PlayerState.NeedTeammate);
+  const playerStateRef = useRef<PlayerState>(PlayerState.NoRound);
   const [gameId, setGameId] = useState<number>(0);
   const [thisPlayerHasLowerID, setThisPlayerLower] = useState<boolean>(false);
 
-  if (playerState == PlayerState.NeedTeammate && players.length > 1) {
-    // TODO: clean this up
-    setPlayerState(PlayerState.NoRound);
-  }
   useEffect(() => {
     currentTurnRef.current = currentTurn;
   }, [currentTurn]);
@@ -338,7 +333,7 @@ export default function Page() {
     if (submission.length < 2) {
       return { success: false, error: "Submission must be at least 2 characters" };
     }
-    // TODO: check to make sure submission doesn't match previous words / submissions
+
     const matchesPrevious = checkAgainstPrevious(submission.toLowerCase());
     if (matchesPrevious) {
       return { success: false, error: "Can't repeat previous words or submissions" };

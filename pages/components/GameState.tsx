@@ -196,9 +196,6 @@ export default function GameState({
           </form>
         </div>
       }
-      {(playerState == PlayerState.NeedTeammate) &&
-        <div className="mb-2">Send your link to a friend to play.</div>
-      }
       {(playerState == PlayerState.Waiting) &&
         <div className="mb-2 text-purple-500 max-w-md"><b>Status: </b>Waiting for your partner to complete this round. The page will auto-update when they submit!</div>
       }
