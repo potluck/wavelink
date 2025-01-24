@@ -2,9 +2,13 @@ import { Nunito } from 'next/font/google'
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Explainer from './Explainer';
+import ConfirmPasskeyModal from './ConfirmPasskeyModal';
 
 const nunito = Nunito({ subsets: ['latin'] })
-
+const getUserFromLocalStorage = () => {
+  const userId = localStorage.getItem('wavelink-userId');
+  return userId ? parseInt(userId) : null;
+}
 // create user via API
 async function callAPICreateOrRetrieveUser(userName: string) {
   const response = await fetch(`/api/create-or-retrieve-user?userName=${encodeURIComponent(userName)}`);
@@ -21,20 +25,26 @@ export default function Invited({ player1 }: { player1: string }) {
   const [name, setName] = useState("");
   const router = useRouter();
   const [showExplainer, setShowExplainer] = useState(false);
+  const [showPasskeyModal, setShowPasskeyModal] = useState(false);
+  const [retrievedUserId, setRetrievedUserId] = useState<number | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const slug = name.replace(/ /g, '-');
+    const localUserId = getUserFromLocalStorage();
     try {
       const { user, retrievedUser, userHasPasskey } = await callAPICreateOrRetrieveUser(name);
-      //TODO - logic here!!!
-      if (retrievedUser) {
+      console.log("got user: ", user, retrievedUser, userHasPasskey);
+      console.log("localUserId: ", localUserId);
+      // existing user who is already in a game, who is not in local storage
+      if (retrievedUser && retrievedUser.id !== localUserId && user.game_id) {
         if (userHasPasskey) {
+          setShowPasskeyModal(true);
+          setRetrievedUserId(user.id);
         } else {
-          router.push(`/${slug}/${player1}`);
+          router.push(`/${user.slug}/${player1}`);
         }
-      } else {
-        router.push(`/${slug}/${player1}`);
+      } else { // created new user
+        router.push(`/${user.slug}/${player1}`);
       }
       
     } catch (err) {
@@ -44,6 +54,17 @@ export default function Invited({ player1 }: { player1: string }) {
 
   return (
     <div className={`${nunito.className} grid grid-rows-[auto_1fr_auto] items-center justify-items-center min-h-screen p-2 pb-20 gap-6 sm:p-8`}>
+      {showPasskeyModal && (
+        <ConfirmPasskeyModal
+          userId={retrievedUserId || 0}
+          onConfirm={(confirmed) => {
+            if (confirmed) {
+              router.push(`/${name.replace(/ /g, '-')}/${player1}`);
+            }
+            setShowPasskeyModal(false);
+          }}
+        />
+      )}
       <h1 className="text-4xl font-bold text-center max-w-md">Wavelink &nbsp;&nbsp;🌊&thinsp;🔗</h1>
       <div className="space-y-4">
         <p className="text-gray-700">Hi there, welcome to Wavelink!</p>

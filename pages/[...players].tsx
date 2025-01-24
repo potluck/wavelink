@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Nunito } from 'next/font/google'
 import Link from 'next/link'
 import GameState, { Submission, Turn } from './components/GameState';
-import PasskeyModal from './components/PasskeyModal';
+import SetPasskeyModal from './components/SetPasskeyModal';
 import Share from './components/Share';
 import Invited from './components/Invited';
 
@@ -465,7 +465,7 @@ export default function Page() {
         <div className="mb-2">
           Hi <b>{player1}</b>. You&apos;re playing with: <b>{player2}</b>
         </div>
-        {showPasskeyModal && <PasskeyModal inputPassKey={setUserPasskey} />}
+        {showPasskeyModal && <SetPasskeyModal inputPassKey={setUserPasskey} />}
         {isLoading ? <div>Loading...</div> : loadingError ? <div>{loadingError} <InviteLink player1={player1} numOtherGamesToRespondTo={numOtherGamesToRespondTo} /></div> : (<div>
           <GameState
             playerState={playerState}

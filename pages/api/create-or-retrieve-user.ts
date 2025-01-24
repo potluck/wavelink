@@ -8,7 +8,7 @@ export default async function handler(
   try {
     const userName = request.query.userName as string;
     if (!userName) throw new Error('User name required');
-    let slug = userName.toLowerCase().replace(/ /g, '-');
+    const slug = userName.toLowerCase().replace(/ /g, '-');
     const {rows: existingUsers} = await sql`
       SELECT u.id, u.passkey, u.slug, u2.name as other_player, g.id as game_id
       FROM users u
