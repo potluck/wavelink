@@ -210,7 +210,7 @@ export default function GameState({
               <br />
               Number of one-shot wins: {oneShotCount}
               <br />
-              Total: {numWins} wins in {numTurns} rounds for {totalScore} points
+              Total: {numWins} {numWins === 1 ? "win" : "wins"} in {numTurns} {numTurns === 1 ? "round" : "rounds"} for {totalScore} {totalScore === 1 ? "point" : "points"}
             </div>
           )}
           <button
