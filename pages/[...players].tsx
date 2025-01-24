@@ -329,7 +329,7 @@ export default function Page() {
       setPlayers(queryPlayers);
       setPlayer1(queryPlayers[0]);
       setPlayer2(queryPlayers.length > 1 ? queryPlayers[1] : "No teammate set");
-      if (queryPlayers.length > 1 && queryPlayers[1].toLowerCase() != "invite") {
+      if (queryPlayers.length > 1 && queryPlayers[1].toLowerCase() != "invite" && queryPlayers[1] !== queryPlayers[0]) {
         fetchGameData(queryPlayers[0], queryPlayers[1]);
       }
     }
@@ -455,7 +455,8 @@ export default function Page() {
     return { success: true, error: null };
   }
 
-  if (players.length == 1) {
+  if (players.length == 1 || (players.length == 2 && players[0].toLowerCase() == players[1].toLowerCase())) {
+    router.push(`/${players[0]}`);
     return <Share player1={player1} gamesToRespondTo={gamesToRespondTo} userId1={userId1} />;
   }
 
