@@ -83,7 +83,7 @@ export default function Invited({ player1 }: { player1: string }) {
       <h1 className="text-4xl font-bold text-center max-w-md">Wavelink &nbsp;&nbsp;🌊&thinsp;🔗</h1>
       <div className="space-y-4">
         <p className="text-gray-700">Hi there, welcome to Wavelink!</p>
-        <p className="text-gray-700">You&apos;ve been invited to play with {player1}!</p>
+        <p className="text-gray-700">You&apos;ve been invited to play with <b>{player1}</b>!</p>
         <p className="text-gray-700">Enter your name below to play.</p>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
