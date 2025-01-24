@@ -149,7 +149,7 @@ export default function GameState({
       }
       {(playerState == PlayerState.NoRound) &&
         <button
-          className="mb-6 rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 mx-auto"
+          className="mb-6 rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:bg-blue-600 dark:hover:bg-blue-700 hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 mx-auto dark:text-white"
           onClick={startTurn}
         >
           Start new round

@@ -136,7 +136,7 @@ const getUserFromLocalStorage = () => {
 }
 
 const InviteLink = ({ player1, numOtherGamesToRespondTo }: { player1: string, numOtherGamesToRespondTo: number }) => (
-  <div className="mb-2 mt-6">
+  <div className="mb-2 mt-6 text-center">
     <Link href={`/${player1}`} className="text-blue-600 hover:text-blue-800 underline">
       {numOtherGamesToRespondTo > 0 ?
         (<>
