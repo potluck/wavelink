@@ -6,13 +6,9 @@ import GameState, { Submission, Turn } from './components/GameState';
 import SetPasskeyModal from './components/SetPasskeyModal';
 import Share from './components/Share';
 import Invited from './components/Invited';
+import { GameToRespondTo } from './components/Share';
 
 const nunito = Nunito({ subsets: ['latin'] })
-
-interface Game {
-  id: number;
-  other_player: string;
-}
 
 export enum PlayerState {
   NoRound,
@@ -165,7 +161,7 @@ export default function Page() {
   const [player2, setPlayer2] = useState<string>("");
   const [userId1, setUserId1] = useState<number>(0);
   const [userHasPasskey, setUserHasPasskey] = useState<boolean>(false);
-  const [gamesToRespondTo, setGamesToRespondTo] = useState<Game[]>([]);
+  const [gamesToRespondTo, setGamesToRespondTo] = useState<GameToRespondTo[]>([]);
   const [numOtherGamesToRespondTo, setNumOtherGamesToRespondTo] = useState<number>(0);
   const [gameId, setGameId] = useState<number>(0);
   const [thisPlayerHasLowerID, setThisPlayerLower] = useState<boolean>(false);
@@ -323,7 +319,7 @@ export default function Page() {
         .then((games) => {
           if (games?.rows != null && games.rows.length > 0) {
             setGamesToRespondTo(games.rows);
-            setNumOtherGamesToRespondTo(games.rows.filter((game: Game) => game.id != gameId).length);
+            setNumOtherGamesToRespondTo(games.rows.filter((game: GameToRespondTo) => game.id != gameId).length);
           }
         })
     }

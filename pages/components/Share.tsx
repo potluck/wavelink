@@ -37,19 +37,19 @@ const callAPIRetrieveUser = async (slug: string) => {
 }
 
 // Add interface for game type
-interface Game {
+export interface GameToRespondTo {
   id: number;
   other_player: string;
   other_player_slug: string;
 }
 
-export default function Share({ player1, gamesToRespondTo, userId1 }: { player1: string, gamesToRespondTo: Game[], userId1: number }) {
+export default function Share({ player1, gamesToRespondTo, userId1 }: { player1: string, gamesToRespondTo: GameToRespondTo[], userId1: number }) {
   const [copied, setCopied] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [userId, setUserId] = useState<number>(userId1);
-  const [allGameIDsToRespondTo, setAllGameIDsToRespondTo] = useState<number[]>(gamesToRespondTo?.map((game: Game) => game.id) || []);
-  const [allGames, setAllGames] = useState<Game[]>([]);
-  const [allGamesToRespondTo, setAllGamesToRespondTo] = useState<Game[]>([]);
+  const [allGameIDsToRespondTo, setAllGameIDsToRespondTo] = useState<number[]>(gamesToRespondTo?.map((game: GameToRespondTo) => game.id) || []);
+  const [allGames, setAllGames] = useState<GameToRespondTo[]>([]);
+  const [allGamesToRespondTo, setAllGamesToRespondTo] = useState<GameToRespondTo[]>([]);
   const [showAllGames, setShowAllGames] = useState(false);
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
 
         callAPIRetrieveAllGamesToRespondTo(data.rows[0].id).then((data) => {
           console.log("games to respond to: ", data);
-          setAllGameIDsToRespondTo(data.rows.map((game: Game) => game.id));
+          setAllGameIDsToRespondTo(data.rows.map((game: GameToRespondTo) => game.id));
         });
       });
     }
@@ -72,14 +72,14 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
     if (userId > 0) {
       callAPIRetrieveAllGames(userId).then((data) => {
         console.log("all games: ", data);
-        setAllGames(data.rows as Game[]);
+        setAllGames(data.rows as GameToRespondTo[]);
       });
     }
   }, [userId]);
 
   useEffect(() => {
     if (allGames.length > 0 && allGameIDsToRespondTo.length > 0) {
-      setAllGamesToRespondTo(allGames.filter((game: Game) => allGameIDsToRespondTo.includes(game.id)));
+      setAllGamesToRespondTo(allGames.filter((game: GameToRespondTo) => allGameIDsToRespondTo.includes(game.id)));
     }
   }, [allGames, allGameIDsToRespondTo]);
 
