@@ -204,11 +204,15 @@ export default function GameState({
         <div className="mt-4">
           {maxStreak > 0 && (
             <div className="mb-2">
-              Current streak: {currentStreak}
+              Current streak: {currentStreak} <b>{currentStreak > 0 ? "🔥 Keep it going!" : ""}</b>
               <br />
               Max streak: {maxStreak}
-              <br />
-              Number of one-shot wins: {oneShotCount}
+              {oneShotCount > 0 && (
+                <>
+                  <br />
+                  Number of one-shot wins: {oneShotCount}
+                </>
+              )}
               <br />
               Total: {numWins} {numWins === 1 ? "win" : "wins"} in {numTurns} {numTurns === 1 ? "round" : "rounds"} for {totalScore} {totalScore === 1 ? "point" : "points"}
             </div>

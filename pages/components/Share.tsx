@@ -93,7 +93,7 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
         <h1 className="text-4xl font-bold text-center w-full dark:text-white">Wavelink &nbsp;&nbsp;🌊&thinsp;🔗</h1>
         <div className="space-y-4">
           <p className="text-gray-700 dark:text-gray-300">Hi, {player1}!</p>
-          <p className="text-gray-700 dark:text-gray-300">Send your link to a friend to play:</p>
+          <p className="text-gray-700 dark:text-gray-300">Send your invite link to a friend to play:</p>
           <div className="flex gap-2 items-center w-full max-w-xl">
             <input
               type="text"
