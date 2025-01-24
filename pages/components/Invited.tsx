@@ -55,6 +55,7 @@ export default function Invited({ player1 }: { player1: string }) {
           setShowPasskeyModal(true);
         } else { // no passkey, so just give it to them
           // TODO: Confirm this is you
+          console.log("other players: ", otherPlayers);
           router.push(`/${user.slug}/${player1}`);
         }
       } else { // created new user, or matched local storage, or existing user had no games
