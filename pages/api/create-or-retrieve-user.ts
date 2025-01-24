@@ -25,7 +25,7 @@ export default async function handler(
     }
 
     const {rows: user} = await sql`INSERT INTO users (name, slug) VALUES (${userName}, ${slug}) returning *;`;
-    return response.status(200).json({ user, retrievedUser: false, userHasPasskey: false });
+    return response.status(200).json({ user: user[0], retrievedUser: false, userHasPasskey: false });
   } catch (error) {
     return response.status(500).json({ error });
   }
