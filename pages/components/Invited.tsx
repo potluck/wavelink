@@ -35,7 +35,11 @@ export default function Invited({ player1 }: { player1: string }) {
 
     const localUser = getUserFromLocalStorage();
     if (localUser.userId && localUser.userSlug) {
-      router.push(`/${localUser.userSlug}/${player1}`);
+      if (localUser.userSlug === player1) {
+        router.push(`/${localUser.userSlug}`);
+      } else {
+        router.push(`/${localUser.userSlug}/${player1}`);
+      }
     }
   }, [router.isReady, router, player1]);
 
