@@ -202,6 +202,7 @@ export default function Page() {
                 saveUserToLocalStorage(gameUserId1);
               } else {
                 // User doesn't match local storage.
+                // TODO: Ask user to switch account.
                 // TODO: Notify user that we're switching from saved user
                 console.log("local User ID didn't match game User Id: ", localUserId, gameUserId1);
                 saveUserToLocalStorage(gameUserId1);
@@ -213,7 +214,8 @@ export default function Page() {
                 // TODO: Ask user to confirm passkey
                 saveUserToLocalStorage(gameUserId1);
               } else {
-                // TODO: Ask user to confirm passkey. Notify that we're switching from saved user
+                // TODO: Ask user to switch account & confirm passkey.
+                //  Notify that we're switching from saved user
                 console.log("local User ID didn't match game User ID w/ passkey: ", localUserId, gameUserId1);
                 saveUserToLocalStorage(gameUserId1);
               }

@@ -6,8 +6,8 @@ import Explainer from './Explainer';
 const nunito = Nunito({ subsets: ['latin'] })
 
 // create user via API
-async function callAPICreateUser(userName: string) {
-  const response = await fetch(`/api/create-user?userName=${encodeURIComponent(userName)}`);
+async function callAPICreateOrRetrieveUser(userName: string) {
+  const response = await fetch(`/api/create-or-retrieve-user?userName=${encodeURIComponent(userName)}`);
   if (!response.ok) {
     throw new Error('Failed to create user');
   }
@@ -21,6 +21,27 @@ export default function Invited({ player1 }: { player1: string }) {
   const [name, setName] = useState("");
   const router = useRouter();
   const [showExplainer, setShowExplainer] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const slug = name.replace(/ /g, '-');
+    try {
+      const { user, retrievedUser, userHasPasskey } = await callAPICreateOrRetrieveUser(name);
+      //TODO - logic here!!!
+      if (retrievedUser) {
+        if (userHasPasskey) {
+        } else {
+          router.push(`/${slug}/${player1}`);
+        }
+      } else {
+        router.push(`/${slug}/${player1}`);
+      }
+      
+    } catch (err) {
+      console.error("error creating user: ", err);
+    }
+  };
+
   return (
     <div className={`${nunito.className} grid grid-rows-[auto_1fr_auto] items-center justify-items-center min-h-screen p-2 pb-20 gap-6 sm:p-8`}>
       <h1 className="text-4xl font-bold text-center max-w-md">Wavelink &nbsp;&nbsp;🌊&thinsp;🔗</h1>
@@ -28,15 +49,7 @@ export default function Invited({ player1 }: { player1: string }) {
         <p className="text-gray-700">Hi there, welcome to Wavelink!</p>
         <p className="text-gray-700">You&apos;ve been invited to play with {player1}!</p>
         <p className="text-gray-700">Enter your name below to play.</p>
-        <form onSubmit={(e) => {
-          e.preventDefault();
-          const slug = name.replace(/ /g, '-');
-          callAPICreateUser(name).then(() => {
-            router.push(`/${slug}/${player1}`);
-          }).catch((err) => {
-            console.error("error creating user: ", err);
-          });
-        }} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
             placeholder="Your name"
