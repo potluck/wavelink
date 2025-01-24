@@ -127,7 +127,7 @@ export default function GameState({
         )
       })}
       {lastLink1 && lastLink2 && (
-        <div>Now think of a word that connects <b>{lastLink1}</b> and <b>{lastLink2}</b>!</div>
+        <div>Now think of a word (or two-word phrase) that connects <b>{lastLink1}</b> and <b>{lastLink2}</b>!</div>
       )}
     </div>
   );
@@ -177,7 +177,7 @@ export default function GameState({
             Your starting words {lastLink1 && lastLink2 ? "were: " : "are: "} <b>{currentTurn?.word1}</b> and <b>{currentTurn?.word2}</b>.
             <br />
             <br />
-            {lastLink1 === "" && lastLink2 === "" ? "Think of a word that connects them!" : thisTurn}
+            {lastLink1 === "" && lastLink2 === "" ? "Think of a word (or two-word phrase) that connects them!" : thisTurn}
           </div>
           {error && <div className="text-red-500">{error}</div>}
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">

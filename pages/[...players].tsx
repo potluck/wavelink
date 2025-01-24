@@ -404,6 +404,10 @@ export default function Page() {
       return { success: false, error: "Submission must be at least 2 characters" };
     }
 
+    if (submission.split(/\s+/).length > 2) {
+      return { success: false, error: "Submission must be a single word or two-word phrase" };
+    }
+
     const matchesPrevious = checkAgainstPrevious(submission.toLowerCase());
     if (matchesPrevious) {
       return { success: false, error: "Can't repeat previous words or submissions" };
