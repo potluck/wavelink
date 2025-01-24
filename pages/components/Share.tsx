@@ -40,6 +40,7 @@ const callAPIRetrieveUser = async (slug: string) => {
 interface Game {
   id: number;
   other_player: string;
+  other_player_slug: string;
 }
 
 export default function Share({ player1, gamesToRespondTo, userId1 }: { player1: string, gamesToRespondTo: Game[], userId1: number }) {
@@ -118,7 +119,7 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
               <p className="text-gray-700 dark:text-gray-300"><b>It&apos;s your turn:</b></p>
               {allGamesToRespondTo.map((game) => (
                 <div key={game.id}>
-                  <Link href={`/${player1}/${game.other_player}`} className="text-gray-700 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400">
+                  <Link href={`/${player1}/${game.other_player_slug}`} className="text-gray-700 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400">
                     - With {game.other_player}
                   </Link>
                 </div>
