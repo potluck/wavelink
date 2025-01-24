@@ -1,5 +1,5 @@
 import { Nunito } from 'next/font/google'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Explainer from './Explainer';
 import ConfirmPasskeyModal from './ConfirmPasskeyModal';
@@ -7,7 +7,11 @@ import ConfirmPasskeyModal from './ConfirmPasskeyModal';
 const nunito = Nunito({ subsets: ['latin'] })
 const getUserFromLocalStorage = () => {
   const userId = localStorage.getItem('wavelink-userId');
-  return userId ? parseInt(userId) : null;
+  const userSlug = localStorage.getItem('wavelink-userSlug');
+  return {
+    userId: userId ? parseInt(userId) : null,
+    userSlug: userSlug
+  };
 }
 // create user via API
 async function callAPICreateOrRetrieveUser(userName: string) {
@@ -18,8 +22,6 @@ async function callAPICreateOrRetrieveUser(userName: string) {
   return response.json();
 }
 
-// TODO: If we have the user in the cookie, tell them that.
-
 
 export default function Invited({ player1 }: { player1: string }) {
   const [name, setName] = useState("");
@@ -28,25 +30,37 @@ export default function Invited({ player1 }: { player1: string }) {
   const [showPasskeyModal, setShowPasskeyModal] = useState(false);
   const [retrievedUserId, setRetrievedUserId] = useState<number | null>(null);
 
+  useEffect(() => {
+    if (!router.isReady) return;
+
+    const localUser = getUserFromLocalStorage();
+    if (localUser.userId && localUser.userSlug) {
+      router.push(`/${localUser.userSlug}/${player1}`);
+    }
+  }, [router.isReady, router, player1]);
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const localUserId = getUserFromLocalStorage();
+    const localUser = getUserFromLocalStorage();
     try {
-      const { user, retrievedUser, userHasPasskey } = await callAPICreateOrRetrieveUser(name);
+      const { user, retrievedUser, userHasPasskey, otherPlayers } = await callAPICreateOrRetrieveUser(name);
       console.log("got user: ", user, retrievedUser, userHasPasskey);
-      console.log("localUserId: ", localUserId);
+      console.log("localUserId: ", localUser);
+
       // existing user who is already in a game, who is not in local storage
-      if (retrievedUser && retrievedUser.id !== localUserId && user.game_id) {
+      if (retrievedUser && retrievedUser.id !== localUser.userId && user.game_id) {
         if (userHasPasskey) {
-          setShowPasskeyModal(true);
           setRetrievedUserId(user.id);
-        } else {
+          setShowPasskeyModal(true);
+        } else { // no passkey, so just give it to them
+          // TODO: Confirm this is you
           router.push(`/${user.slug}/${player1}`);
         }
-      } else { // created new user
+      } else { // created new user, or matched local storage, or existing user had no games
         router.push(`/${user.slug}/${player1}`);
       }
-      
+
     } catch (err) {
       console.error("error creating user: ", err);
     }

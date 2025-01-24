@@ -125,13 +125,18 @@ const processTurns = (subs: Submission[]): { prevTurns: Turn[], currTurn: Turn |
   return { prevTurns, currTurn };
 }
 
-const saveUserToLocalStorage = (userId: number) => {
+const saveUserToLocalStorage = (userId: number, userName: string) => {
   localStorage.setItem('wavelink-userId', userId.toString());
+  localStorage.setItem('wavelink-userSlug', userName);
 }
 
 const getUserFromLocalStorage = () => {
   const userId = localStorage.getItem('wavelink-userId');
-  return userId ? parseInt(userId) : null;
+  const userSlug = localStorage.getItem('wavelink-userSlug');
+  return {
+    userId: userId ? parseInt(userId) : null,
+    userSlug: userSlug
+  };
 }
 
 const InviteLink = ({ player1, numOtherGamesToRespondTo }: { player1: string, numOtherGamesToRespondTo: number }) => (
@@ -193,31 +198,31 @@ export default function Page() {
 
             const gameUserId1 = games.userId1;
             const gameUserHasPasskey = games.userHasPasskey;
-            const localUserId = getUserFromLocalStorage();
+            const localUser = getUserFromLocalStorage();
             if (!gameUserHasPasskey) {
-              if (localUserId == gameUserId1) {
+              if (localUser.userId == gameUserId1) {
                 // No-op. All good. Game user matches local storage
-              } else if (localUserId == null) {
+              } else if (localUser.userId == null) {
                 // no passkey, no local user. Save the user to local storage
-                saveUserToLocalStorage(gameUserId1);
+                saveUserToLocalStorage(gameUserId1, player1l);
               } else {
                 // User doesn't match local storage.
                 // TODO: Ask user to switch account.
                 // TODO: Notify user that we're switching from saved user
-                console.log("local User ID didn't match game User Id: ", localUserId, gameUserId1);
-                saveUserToLocalStorage(gameUserId1);
+                console.log("local User ID didn't match game User Id: ", localUser.userId, gameUserId1);
+                saveUserToLocalStorage(gameUserId1, player1l);
               }
             } else {
-              if (localUserId == gameUserId1) {
+              if (localUser.userId == gameUserId1) {
                 // No-op. All good. Game user matches local storage
-              } else if (localUserId == null) {
+              } else if (localUser.userId == null) {
                 // TODO: Ask user to confirm passkey
-                saveUserToLocalStorage(gameUserId1);
+                saveUserToLocalStorage(gameUserId1, player1l);
               } else {
                 // TODO: Ask user to switch account & confirm passkey.
                 //  Notify that we're switching from saved user
-                console.log("local User ID didn't match game User ID w/ passkey: ", localUserId, gameUserId1);
-                saveUserToLocalStorage(gameUserId1);
+                console.log("local User ID didn't match game User ID w/ passkey: ", localUser.userId, gameUserId1);
+                saveUserToLocalStorage(gameUserId1, player1l);
               }
             }
 

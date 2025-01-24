@@ -18,7 +18,10 @@ export default async function handler(
       `;
     if (existingUsers.length > 0) {
       const passkey = existingUsers[0].passkey;
-      return response.status(200).json({ user: existingUsers[0], retrievedUser: true, userHasPasskey: passkey != null });
+      const otherPlayers = existingUsers
+        .filter(row => row.other_player != null)
+        .map(row => row.other_player);
+      return response.status(200).json({ user: existingUsers[0], retrievedUser: true, userHasPasskey: passkey != null, otherPlayers });
     }
 
     const {rows: user} = await sql`INSERT INTO users (name, slug) VALUES (${userName}, ${slug}) returning *;`;
