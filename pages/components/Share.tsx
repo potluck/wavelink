@@ -137,7 +137,7 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
             <div className="pl-4">
               {allGames.map((game) => (
                 <div key={game.id}>
-                  <Link href={`/${player1}/${game.other_player}`} className="text-gray-700 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400">
+                  <Link href={`/${player1}/${game.other_player_slug}`} className="text-gray-700 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400">
                     Game with {game.other_player}
                   </Link>
                 </div>
