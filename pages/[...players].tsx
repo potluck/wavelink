@@ -362,7 +362,7 @@ export default function Page() {
         fetchGameData(queryPlayers[0], queryPlayers[1]);
       }
     }
-  }, [router.isReady, router.query.players]);
+  }, [router.isReady, router.query.players, router]);
 
 
   useEffect(() => {
