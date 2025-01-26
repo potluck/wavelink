@@ -49,6 +49,7 @@ export default async function handler(
           rows: game,
           thisLower,
           userId1: thisLower ? userId1 : userId2,
+          userId2: thisLower ? userId2 : userId1,
           userHasPasskey: (thisLower ? user1[0].passkey : user2[0].passkey) != null
         });
       }
@@ -59,6 +60,7 @@ export default async function handler(
       rows: gameTake2,
       thisLower,
       userId1: thisLower ? userId1 : userId2,
+      userId2: thisLower ? userId2 : userId1,
       userHasPasskey: (thisLower ? user1[0].passkey : user2[0].passkey) != null
     });
   } catch (error) {

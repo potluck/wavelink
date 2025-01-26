@@ -190,7 +190,6 @@ export default function Page() {
 
   useEffect(() => {
     async function fetchGameData(player1l: string, player2l: string) {
-      // TODO: Check local user against player name before getting the game.
       callAPICreateOrRetrieveGame(player1l, player2l)
         .then((games) => {
           if (games.rows != null && games.rows.length > 0) {
@@ -198,12 +197,17 @@ export default function Page() {
             const gameUserId1 = games.userId1;
             const gameUserHasPasskey = games.userHasPasskey;
             const localUser = getUserFromLocalStorage();
+            console.log("yo pots: ", localUser, games)
             if (!gameUserHasPasskey) {
               if (localUser.userId == gameUserId1) {
                 // No-op. All good. Game user matches local storage
               } else if (localUser.userId == null) {
                 // no passkey, no local user. Save the user to local storage
                 saveUserToLocalStorage(gameUserId1, player1l);
+              } else if (localUser.userId == games.userId2) {
+                // local user matches user 2
+                router.push(`/${player2l}/${player1l}`);
+                return;
               } else {
                 // User doesn't match local storage.
                 // TODO: Ask user to switch account.
@@ -216,6 +220,11 @@ export default function Page() {
                 // No-op. All good. Game user matches local storage
               } else if (localUser.userId == null) {
                 setShowConfirmPasskeyModal(true);
+                // TODO: Do I want to return here? If I do, I need to make sure I can still trigger the subsequent API calls
+              } else if (localUser.userId == games.userId2) {
+                // local user matches user 2
+                router.push(`/${player2l}/${player1l}`);
+                return;
               } else {
                 // TODO: Ask user to switch account & confirm passkey.
                 //  Notify that we're switching from saved user

@@ -73,8 +73,6 @@ export default function Invited({ player1 }: { player1: string }) {
     }
     try {
       const { user, retrievedUser, userHasPasskey, otherPlayers } = await callAPICreateOrRetrieveUser(sanitizedName);
-      console.log("got user: ", user, retrievedUser, userHasPasskey);
-      console.log("localUserId: ", localUser);
 
       // existing user who is already in a game, who is not in local storage
       if (retrievedUser && user.id !== localUser.userId && user.game_id) {
