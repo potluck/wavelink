@@ -231,7 +231,9 @@ export default function GameState({
         </div>
       }
       {(playerState == PlayerState.Waiting) &&
-        <div className="mb-2 text-purple-500 max-w-md"><b>Status: </b>Waiting for your partner to complete this round. The page will auto-update when they submit!</div>
+        <div className="mb-2 text-purple-500 max-w-md"><b>Status: </b>Waiting for your partner to complete this round.
+        <br /><br />
+        The page will auto-update when they submit, but you can also refresh the page to reload.</div>
       }
       {justCompletedTurn}
       {previousTurns?.length > 0 && (
