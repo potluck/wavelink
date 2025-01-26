@@ -6,6 +6,7 @@ import GameState, { Submission, Turn } from './components/GameState';
 import SetPasskeyModal from './components/SetPasskeyModal';
 import Share from './components/Share';
 import Invited from './components/Invited';
+import ConfirmPasskeyModal from './components/ConfirmPasskeyModal';
 import { GameToRespondTo } from './components/Share';
 
 const nunito = Nunito({ subsets: ['latin'] })
@@ -166,6 +167,7 @@ export default function Page() {
   const [gameId, setGameId] = useState<number>(0);
   const [thisPlayerHasLowerID, setThisPlayerLower] = useState<boolean>(false);
   const [showPasskeyModal, setShowPasskeyModal] = useState<boolean>(false);
+  const [showConfirmPasskeyModal, setShowConfirmPasskeyModal] = useState<boolean>(false);
 
   const [previousTurns, setPreviousTurns] = useState<Turn[]>([]);
   const [currentTurn, setCurrentTurn] = useState<Turn | null>(null);
@@ -213,8 +215,7 @@ export default function Page() {
               if (localUser.userId == gameUserId1) {
                 // No-op. All good. Game user matches local storage
               } else if (localUser.userId == null) {
-                // TODO: Ask user to confirm passkey
-                saveUserToLocalStorage(gameUserId1, player1l);
+                setShowConfirmPasskeyModal(true);
               } else {
                 // TODO: Ask user to switch account & confirm passkey.
                 //  Notify that we're switching from saved user
@@ -475,6 +476,21 @@ export default function Page() {
           Hi <b>{player1}</b>. You&apos;re playing with: <b>{player2}</b>
         </div>
         {showPasskeyModal && <SetPasskeyModal inputPassKey={setUserPasskey} />}
+        {showConfirmPasskeyModal &&
+          <ConfirmPasskeyModal
+            userId={userId1}
+            userName={player1}
+            onConfirm={(confirmed) => {
+              if (confirmed) {
+                setShowConfirmPasskeyModal(false);
+                saveUserToLocalStorage(userId1, player1);
+              } else {
+                setShowConfirmPasskeyModal(false);
+                router.push(`/${player2}/invite`);
+              }
+            }}
+          />
+        }
         {isLoading ? <div>Loading...</div> : loadingError ? <div>{loadingError} <InviteLink player1={player1} numOtherGamesToRespondTo={numOtherGamesToRespondTo} /></div> : (<div>
           <GameState
             playerState={playerState}
