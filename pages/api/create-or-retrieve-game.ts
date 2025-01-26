@@ -50,7 +50,7 @@ export default async function handler(
           thisLower,
           userId1: thisLower ? userId1 : userId2,
           userId2: thisLower ? userId2 : userId1,
-          userHasPasskey: (thisLower ? user1[0].passkey : user2[0].passkey) != null
+          userHasPasskey: (user1[0].passkey) != null
         });
       }
     }
@@ -61,7 +61,7 @@ export default async function handler(
       thisLower,
       userId1: thisLower ? userId1 : userId2,
       userId2: thisLower ? userId2 : userId1,
-      userHasPasskey: (thisLower ? user1[0].passkey : user2[0].passkey) != null
+      userHasPasskey: (user1[0].passkey) != null
     });
   } catch (error) {
     console.log("got an error: ", error);
