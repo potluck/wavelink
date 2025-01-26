@@ -146,30 +146,43 @@ export default function GameState({
 
   return (
     <div className="max-w-md">
-      {(playerState === PlayerState.NoRound || playerState === PlayerState.RoundToPlay) && (previousTurns == null || (previousTurns.length == 0 && completedTurn == null && lastLink1 == "" && lastLink2 == "" )) &&
+      {(playerState === PlayerState.NoRound || playerState === PlayerState.RoundToPlay) && (previousTurns == null || (previousTurns.length == 0 && completedTurn == null && lastLink1 == "" && lastLink2 == "")) &&
         <Explainer />
       }
       {(playerState == PlayerState.NoRound) &&
         <button
-          className="mb-6 rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:bg-blue-600 dark:hover:bg-blue-700 hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 mx-auto dark:text-white"
+          className="mb-6 rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 mx-auto"
           onClick={startTurn}
         >
           Start new round
         </button>
       }
       {(playerState == PlayerState.RoundToPlayNoMatch) &&
-        <div className="text-purple-500">Your submission didn&apos;t match your partner&apos;s submission. Try again!</div>
+        <div className="text-purple-500">Your submission didn&apos;t match your partner&apos;s submission.
+          <br />
+          Your submissions were <b>{lastLink1}</b> and <b>{lastLink2}</b>.
+        </div>
       }
       {(playerState == PlayerState.RoundToPlay) &&
         <div>It&apos;s your turn.</div>
       }
-      {(playerState == PlayerState.RoundToPlay || playerState == PlayerState.RoundToPlayNoMatch) &&
+      {(playerState == PlayerState.RoundToPlay) &&
         <div>
           <button
             className="mt-6 mb-6 rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 mx-auto"
             onClick={startTurn}
           >
             Play round.
+          </button>
+        </div>
+      }
+      {(playerState == PlayerState.RoundToPlayNoMatch) &&
+        <div>
+          <button
+            className="mt-6 mb-6 rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 mx-auto"
+            onClick={startTurn}
+          >
+            Try again
           </button>
         </div>
       }
@@ -180,7 +193,7 @@ export default function GameState({
             <br />
             <br />
             {lastLink1 === "" && lastLink2 === "" ? "Think of a word (or two-word phrase) that connects them!" : thisTurn}
-            {(previousTurns == null || (previousTurns.length == 0 && completedTurn == null && lastLink1 == "" && lastLink2 == "" )) &&
+            {(previousTurns == null || (previousTurns.length == 0 && completedTurn == null && lastLink1 == "" && lastLink2 == "")) &&
               <div>
                 <br />
                 Remember, your goal is to submit the same connection as <b>{player2}</b>!
