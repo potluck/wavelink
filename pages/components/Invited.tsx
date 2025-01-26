@@ -14,6 +14,12 @@ const getUserFromLocalStorage = () => {
     userSlug: userSlug
   };
 }
+
+const saveUserToLocalStorage = (userId: number, userName: string) => {
+  localStorage.setItem('wavelink-userId', userId.toString());
+  localStorage.setItem('wavelink-userSlug', userName);
+}
+
 // create user via API
 async function callAPICreateOrRetrieveUser(userName: string) {
   const response = await fetch(`/api/create-or-retrieve-user?userName=${encodeURIComponent(userName)}`);
@@ -26,6 +32,7 @@ async function callAPICreateOrRetrieveUser(userName: string) {
 
 export default function Invited({ player1 }: { player1: string }) {
   const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
   const router = useRouter();
   const [showExplainer, setShowExplainer] = useState(false);
   const [showPasskeyModal, setShowPasskeyModal] = useState(false);
@@ -57,11 +64,9 @@ export default function Invited({ player1 }: { player1: string }) {
     if (sanitizedSlug === player1.toLowerCase()) {
       setError("You can't play with yourself! " + sanitizedSlug);
       return;
-    } else {
-      setError(null);
     }
-    if (sanitizedName.length < 2 || sanitizedName === "help" || sanitizedName === "invite") {
-      setError("Please enter a valid name between 2 and 10 characters!");
+    else if (sanitizedName.length < 2 || sanitizedName === "help" || sanitizedName === "invite") {
+      setError("Please enter a valid name (2+ characters).");
       return;
     } else {
       setError(null);
@@ -72,10 +77,11 @@ export default function Invited({ player1 }: { player1: string }) {
       console.log("localUserId: ", localUser);
 
       // existing user who is already in a game, who is not in local storage
-      if (retrievedUser && retrievedUser.id !== localUser.userId && user.game_id) {
+      if (retrievedUser && user.id !== localUser.userId && user.game_id) {
         setOtherPlayers(otherPlayers);
         setRetrievedUserId(user.id);
         setRetrievedUserName(user.name);
+        setSlug(user.slug);
 
         if (userHasPasskey) {
           setShowPasskeyModal(true);
@@ -99,7 +105,8 @@ export default function Invited({ player1 }: { player1: string }) {
           userName={retrievedUserName || ""}
           onConfirm={(confirmed) => {
             if (confirmed) {
-              router.push(`/${name.replace(/ /g, '-')}/${player1}`);
+              saveUserToLocalStorage(retrievedUserId || 0, slug);
+              router.push(`/${slug}/${player1}`);
             }
             setShowPasskeyModal(false);
           }}
@@ -111,7 +118,8 @@ export default function Invited({ player1 }: { player1: string }) {
           otherPlayers={otherPlayers}
           onConfirm={(confirmed) => {
             if (confirmed) {
-              router.push(`/${name.replace(/ /g, '-')}/${player1}`);
+              saveUserToLocalStorage(retrievedUserId || 0, slug);
+              router.push(`/${slug}/${player1}`);
             } else {
               setShowClaimUserModal(false);
             }
