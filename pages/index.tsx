@@ -1,9 +1,34 @@
 import { Nunito } from 'next/font/google'
 import Link from "next/link";
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
 const nunito = Nunito({ subsets: ['latin'] })
 
+const getUserFromLocalStorage = () => {
+  const userId = localStorage.getItem('wavelink-userId');
+  const userSlug = localStorage.getItem('wavelink-userSlug');
+  return {
+    userId: userId ? parseInt(userId) : null,
+    userSlug: userSlug
+  };
+}
+
+
 export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!router.isReady) return;
+
+    const localUser = getUserFromLocalStorage();
+    if (localUser.userId) {
+      router.push(`/${localUser.userSlug}`);
+      return;
+    }
+  }, [router.isReady, router]);
+
+
   return (
     <div
       className={`${nunito.className} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 dark:bg-gray-900 dark:text-white`}
