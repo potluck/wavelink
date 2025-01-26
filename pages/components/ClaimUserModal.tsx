@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
-import PasskeySelector from "./PasskeySelector";
+import { useEffect, useCallback } from "react";
 
 type ClaimUserModalProps = {
   onConfirm: (confirmed: boolean) => void;
@@ -8,7 +7,6 @@ type ClaimUserModalProps = {
 }
 
 export default function ClaimUserModal({ onConfirm, userName, otherPlayers }: ClaimUserModalProps) {
-  const [error, setError] = useState<string | null>(null);
 
   const handleClose = useCallback(async (confirmed: boolean) => {
     if (!confirmed) {
@@ -37,7 +35,7 @@ export default function ClaimUserModal({ onConfirm, userName, otherPlayers }: Cl
           There is already an account with the name {userName}.
         </p>
         <p className="mb-4 text-gray-700 dark:text-gray-300">
-          They are playing games with: {otherPlayers.join(', ')}.
+          They are playing games with: {(otherPlayers || []).join(', ')}.
         </p>
         <p className="mb-4 text-gray-700 dark:text-gray-300">
           Is this you? If not, you can create a new account by choosing a different name.
