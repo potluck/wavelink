@@ -33,6 +33,7 @@ export default function Invited({ player1 }: { player1: string }) {
   const [retrievedUserId, setRetrievedUserId] = useState<number | null>(null);
   const [retrievedUserName, setRetrievedUserName] = useState<string | null>(null);
   const [otherPlayers, setOtherPlayers] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -50,9 +51,23 @@ export default function Invited({ player1 }: { player1: string }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const sanitizedSlug = name.toLowerCase().trim().replace(/ /g, '-').replace(/[^\w-]/g, '');
+    const sanitizedName = name.trim().replace(/ [^\w'-]/g, '');
     const localUser = getUserFromLocalStorage();
+    if (sanitizedSlug === player1.toLowerCase()) {
+      setError("You can't play with yourself! " + sanitizedSlug);
+      return;
+    } else {
+      setError(null);
+    }
+    if (sanitizedName.length < 2 || sanitizedName === "help" || sanitizedName === "invite") {
+      setError("Please enter a valid name between 2 and 10 characters!");
+      return;
+    } else {
+      setError(null);
+    }
     try {
-      const { user, retrievedUser, userHasPasskey, otherPlayers } = await callAPICreateOrRetrieveUser(name);
+      const { user, retrievedUser, userHasPasskey, otherPlayers } = await callAPICreateOrRetrieveUser(sanitizedName);
       console.log("got user: ", user, retrievedUser, userHasPasskey);
       console.log("localUserId: ", localUser);
 
@@ -109,6 +124,7 @@ export default function Invited({ player1 }: { player1: string }) {
         <p className="text-gray-700 dark:text-gray-300">You&apos;ve been invited to play with <b>{player1}</b>!</p>
         <p className="text-gray-700 dark:text-gray-300">Enter your name below to play.</p>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {error && <p className="text-red-500 dark:text-red-400">{error}</p>}
           <input
             type="text"
             placeholder="Your name"
