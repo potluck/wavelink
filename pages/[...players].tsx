@@ -508,6 +508,7 @@ export default function Page() {
             currentTurn={currentTurn}
             submitAnswer={submitAnswer}
             completedTurn={completedTurn}
+            player2={player2}
           />
           <InviteLink player1={player1} numOtherGamesToRespondTo={numOtherGamesToRespondTo} />
         </div>

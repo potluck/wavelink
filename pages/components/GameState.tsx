@@ -9,6 +9,7 @@ type GameStateProps = {
   previousTurns: Turn[],
   currentTurn: Turn | null,
   completedTurn: Turn | null,
+  player2: string
 }
 
 export type Submission = {
@@ -74,7 +75,8 @@ export default function GameState({
   submitAnswer,
   previousTurns,
   currentTurn,
-  completedTurn
+  completedTurn,
+  player2
 }: GameStateProps) {
 
   const [answer, setAnswer] = useState("");
@@ -144,7 +146,7 @@ export default function GameState({
 
   return (
     <div className="max-w-md">
-      {previousTurns == null || (previousTurns.length == 0 && completedTurn == null && lastLink1 == "" && lastLink2 == "" && playerState !== PlayerState.Waiting) &&
+      {(playerState === PlayerState.NoRound || playerState === PlayerState.RoundToPlay) && (previousTurns == null || (previousTurns.length == 0 && completedTurn == null && lastLink1 == "" && lastLink2 == "" )) &&
         <Explainer />
       }
       {(playerState == PlayerState.NoRound) &&
@@ -178,6 +180,12 @@ export default function GameState({
             <br />
             <br />
             {lastLink1 === "" && lastLink2 === "" ? "Think of a word (or two-word phrase) that connects them!" : thisTurn}
+            {(previousTurns == null || (previousTurns.length == 0 && completedTurn == null && lastLink1 == "" && lastLink2 == "" )) &&
+              <div>
+                <br />
+                Remember, your goal is to submit the same connection as <b>{player2}</b>!
+              </div>
+            }
           </div>
           {error && <div className="text-red-500">{error}</div>}
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
