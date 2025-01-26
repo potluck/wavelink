@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Explainer from './Explainer';
 import ConfirmPasskeyModal from './ConfirmPasskeyModal';
+import ClaimUserModal from './ClaimUserModal';
 
 const nunito = Nunito({ subsets: ['latin'] })
 const getUserFromLocalStorage = () => {
@@ -28,8 +29,10 @@ export default function Invited({ player1 }: { player1: string }) {
   const router = useRouter();
   const [showExplainer, setShowExplainer] = useState(false);
   const [showPasskeyModal, setShowPasskeyModal] = useState(false);
+  const [showClaimUserModal, setShowClaimUserModal] = useState(false);
   const [retrievedUserId, setRetrievedUserId] = useState<number | null>(null);
   const [retrievedUserName, setRetrievedUserName] = useState<string | null>(null);
+  const [otherPlayers, setOtherPlayers] = useState<string[]>([]);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -55,14 +58,14 @@ export default function Invited({ player1 }: { player1: string }) {
 
       // existing user who is already in a game, who is not in local storage
       if (retrievedUser && retrievedUser.id !== localUser.userId && user.game_id) {
+        setOtherPlayers(otherPlayers);
+        setRetrievedUserId(user.id);
+        setRetrievedUserName(user.name);
+
         if (userHasPasskey) {
-          setRetrievedUserId(user.id);
-          setRetrievedUserName(user.name);
           setShowPasskeyModal(true);
-        } else { // no passkey, so just give it to them
-          // TODO: Confirm this is you
-          console.log("other players: ", otherPlayers);
-          router.push(`/${user.slug}/${player1}`);
+        } else {
+          setShowClaimUserModal(true);
         }
       } else { // created new user, or matched local storage, or existing user had no games
         router.push(`/${user.slug}/${player1}`);
@@ -84,6 +87,19 @@ export default function Invited({ player1 }: { player1: string }) {
               router.push(`/${name.replace(/ /g, '-')}/${player1}`);
             }
             setShowPasskeyModal(false);
+          }}
+        />
+      )}
+      {showClaimUserModal && (
+        <ClaimUserModal
+          userName={retrievedUserName || ""}
+          otherPlayers={otherPlayers}
+          onConfirm={(confirmed) => {
+            if (confirmed) {
+              router.push(`/${name.replace(/ /g, '-')}/${player1}`);
+            } else {
+              setShowClaimUserModal(false);
+            }
           }}
         />
       )}
