@@ -79,9 +79,10 @@ const callAPIRetrieveGamesToRespondTo = async (userId: number) => {
   }
 }
 
-const processTurns = (subs: Submission[]): { prevTurns: Turn[], currTurn: Turn | null } => {
+const processTurns = (subs: Submission[], thisLower: boolean): { prevTurns: Turn[], currTurn: Turn | null, completedTurn: Turn | null } => {
   const prevTurns: Turn[] = [];
   let currTurn = null;
+  let completedTurn = null;
   for (const sub of subs) {
     if (sub.turn_completed_at == null) {
       if (currTurn == null) {
@@ -100,7 +101,7 @@ const processTurns = (subs: Submission[]): { prevTurns: Turn[], currTurn: Turn |
     } else {
       const foundTurn = prevTurns.find(turn => turn.id == sub.turn_id);
       if (foundTurn == null) {
-        prevTurns.push({
+        const newTurn = {
           id: sub.turn_id,
           speed_score: sub.speed_score,
           word1: sub.word1,
@@ -108,8 +109,11 @@ const processTurns = (subs: Submission[]): { prevTurns: Turn[], currTurn: Turn |
           created_at: sub.turn_created_at,
           completed_at: sub.turn_completed_at,
           submissions: [sub]
-        });
+        };
+        prevTurns.push(newTurn);
+        completedTurn = newTurn;
       } else {
+        completedTurn = foundTurn;
         foundTurn.submissions.push(sub)
       }
     }
@@ -117,9 +121,12 @@ const processTurns = (subs: Submission[]): { prevTurns: Turn[], currTurn: Turn |
 
   if (currTurn != null) {
     currTurn.submissions.sort((a, b) => a.counter - b.counter);
+    if ((thisLower && !!currTurn.submissions[0].link1) || (!thisLower && !!currTurn.submissions[0].link2)) {
+      completedTurn = null;
+    }
   }
 
-  return { prevTurns, currTurn };
+  return { prevTurns, currTurn, completedTurn };
 }
 
 const saveUserToLocalStorage = (userId: number, userName: string) => {
@@ -251,16 +258,27 @@ export default function Page() {
     async function fetchTurnsData(gameIdl: number, thisLower: boolean) {
       callAPIRetrieveTurns(gameIdl)
         .then((turns) => {
-          const { prevTurns, currTurn } = processTurns(turns?.rows || []);
+          const { prevTurns, currTurn, completedTurn } = processTurns(turns?.rows || [], thisLower);
           setPreviousTurns(prevTurns);
           setCurrentTurn(currTurn);
+          setCompletedTurn(completedTurn);
 
           if (currTurn !== null) {
             const latestSub = currTurn.submissions[currTurn.submissions.length - 1];
             if ((thisLower && !!(latestSub?.link1)) || (!thisLower && !!latestSub.link2)) {
               setPlayerState(PlayerState.Waiting);
-            } else {
-              setPlayerState(PlayerState.RoundToPlay);
+            } else if (((thisLower && !!(latestSub?.link2)) || (!thisLower && !!latestSub.link1))) {
+              if (currTurn.submissions.length > 1) {
+                setPlayerState(PlayerState.RoundToPlayNoMatch);
+              } else {
+                setPlayerState(PlayerState.RoundToPlay);
+              }
+            } else { // neither of us have a link for this submission
+              if (currTurn.submissions.length > 1) {
+                setPlayerState(PlayerState.RoundToPlayNoMatch);
+              } else {
+                setPlayerState(PlayerState.RoundToPlay);
+              }
             }
           } else {
             setPlayerState(PlayerState.NoRound);
@@ -363,7 +381,7 @@ export default function Page() {
       document.title = "Wavelink - a Pots production";
       callAPICreateTurn(gameId)
         .then((turn) => {
-          const { currTurn } = processTurns([turn]);
+          const { currTurn } = processTurns([turn], thisPlayerHasLowerID);
           setCurrentTurn(currTurn);
           setPlayerState(PlayerState.Playing);
           setCompletedTurn(null);

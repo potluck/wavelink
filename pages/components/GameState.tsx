@@ -134,12 +134,24 @@ export default function GameState({
     </div>
   );
 
+  if (completedTurn && !(lastLink1 && lastLink2)) {
+    lastLink1 = completedTurn.submissions[completedTurn.submissions.length - 1].link1 || "";
+    lastLink2 = completedTurn.submissions[completedTurn.submissions.length - 1].link2 || "";
+  }
+
   const justCompletedTurn = completedTurn && (
     <div>
       <b>Round complete! </b>
       {completedTurn.speed_score || 0 > 0 ?
         <div className="text-green-500">Congrats! You won this round in {6 - (completedTurn.speed_score || 0)} {6 - (completedTurn.speed_score || 0) === 1 ? "try" : "tries"}!</div> :
-        <div className="text-red-500">Unfortunately, you did not win this round. Try again!</div>}
+        <div className="text-red-500">
+          Unfortunately, you did not win this round.
+          <br />
+          Your final submissions were <b>{lastLink1}</b> and <b>{lastLink2}</b>.
+          <br />
+          Try again!
+        </div>
+      }
       {((completedTurn.speed_score || 0) > 0 && lastLink1 === lastLink2) && (<div className="text-green-500">You and your partner both submitted <b>{lastLink1}</b>!</div>)}
       {((completedTurn.speed_score || 0) > 0 && lastLink1 !== lastLink2) && (<div className="text-green-500">You and your partner submitted <b>{lastLink1}</b> and <b>{lastLink2}</b>!</div>)}
     </div>);
@@ -204,6 +216,7 @@ export default function GameState({
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <input
               value={answer}
+              autoFocus
               onChange={e => setAnswer(e.target.value)}
               className="block w-full px-4 py-3 text-base text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 transition-colors"
               placeholder="Enter link..."
