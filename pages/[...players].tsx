@@ -188,6 +188,7 @@ export default function Page() {
 
   useEffect(() => {
     async function fetchGameData(player1l: string, player2l: string) {
+      // TODO: Check local user against player name before getting the game.
       callAPICreateOrRetrieveGame(player1l, player2l)
         .then((games) => {
           if (games.rows != null && games.rows.length > 0) {

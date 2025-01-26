@@ -8,6 +8,8 @@ type PasskeySelectorProps = {
   submitButtonText: string;
   cancelButtonText: string;
   backendError: string | null;
+  showExplainer: boolean;
+  additionalDescription?: string;
 }
 
 export default function PasskeySelector({ 
@@ -17,7 +19,9 @@ export default function PasskeySelector({
   description,
   submitButtonText,
   cancelButtonText,
-  backendError
+  backendError,
+  additionalDescription,
+  showExplainer
 }: PasskeySelectorProps) {
   const [error, setError] = useState<string | null>(null);
 
@@ -48,9 +52,16 @@ export default function PasskeySelector({
       <p className="mb-4 dark:text-gray-300">
         {description}
       </p>
-      <p className="mb-4 dark:text-gray-300">
-        A Wavelink passkey is just a star sign and your home state.
-      </p>
+      {additionalDescription && (
+        <p className="mb-4 dark:text-gray-300">
+          {additionalDescription}
+        </p>
+      )}
+      {showExplainer && (
+        <p className="mb-4 dark:text-gray-300">
+          A Wavelink passkey is just a star sign and your home state.
+        </p>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (

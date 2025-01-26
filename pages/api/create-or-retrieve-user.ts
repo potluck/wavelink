@@ -10,7 +10,7 @@ export default async function handler(
     if (!userName) throw new Error('User name required');
     const slug = userName.toLowerCase().replace(/ /g, '-');
     const {rows: existingUsers} = await sql`
-      SELECT u.id, u.passkey, u.slug, u2.name as other_player, g.id as game_id
+      SELECT u.id, u.passkey, u.name, u.slug, u2.name as other_player, g.id as game_id
       FROM users u
       LEFT JOIN games g on u.id = g.user_id1 or u.id = g.user_id2
       LEFT JOIN users u2 on ((g.user_id1 = u2.id and g.user_id2 = u.id) or (g.user_id2 = u2.id and g.user_id1 = u.id))

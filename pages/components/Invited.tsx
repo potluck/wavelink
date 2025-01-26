@@ -29,6 +29,7 @@ export default function Invited({ player1 }: { player1: string }) {
   const [showExplainer, setShowExplainer] = useState(false);
   const [showPasskeyModal, setShowPasskeyModal] = useState(false);
   const [retrievedUserId, setRetrievedUserId] = useState<number | null>(null);
+  const [retrievedUserName, setRetrievedUserName] = useState<string | null>(null);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -56,6 +57,7 @@ export default function Invited({ player1 }: { player1: string }) {
       if (retrievedUser && retrievedUser.id !== localUser.userId && user.game_id) {
         if (userHasPasskey) {
           setRetrievedUserId(user.id);
+          setRetrievedUserName(user.name);
           setShowPasskeyModal(true);
         } else { // no passkey, so just give it to them
           // TODO: Confirm this is you
@@ -76,6 +78,7 @@ export default function Invited({ player1 }: { player1: string }) {
       {showPasskeyModal && (
         <ConfirmPasskeyModal
           userId={retrievedUserId || 0}
+          userName={retrievedUserName || ""}
           onConfirm={(confirmed) => {
             if (confirmed) {
               router.push(`/${name.replace(/ /g, '-')}/${player1}`);

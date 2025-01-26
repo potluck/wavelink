@@ -4,9 +4,10 @@ import PasskeySelector from "./PasskeySelector";
 type ConfirmPasskeyModalProps = {
   onConfirm: (passkey: string | null) => void;
   userId: number;
+  userName: string;
 }
 
-export default function ConfirmPasskeyModal({ onConfirm, userId }: ConfirmPasskeyModalProps) {
+export default function ConfirmPasskeyModal({ onConfirm, userId, userName }: ConfirmPasskeyModalProps) {
   const [error, setError] = useState<string | null>(null);
 
   const handleClose = useCallback(async (passkey: string | null) => {
@@ -44,13 +45,15 @@ export default function ConfirmPasskeyModal({ onConfirm, userId }: ConfirmPasske
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <PasskeySelector
-        title="Please confirm your passkey"
-        description="To access your game, please enter your passkey."
+        title={`${userName} - Please confirm your passkey`}
+        description={`There is already an account with the name ${userName}. To access this game, please enter your passkey.`}
         submitButtonText="Confirm Passkey"
         cancelButtonText="Cancel"
+        showExplainer={false}
         onSubmit={(passkey) => handleClose(passkey)}
         onCancel={() => handleClose(null)}
         backendError={error}
+        additionalDescription={`Alternatively, you can create a new account by choosing a different name.`}
       />
     </div>
   );

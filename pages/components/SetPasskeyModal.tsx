@@ -59,6 +59,7 @@ export default function SetPasskeyModal({ inputPassKey }: SetPasskeyModalProps) 
           onSubmit={(passkey) => handleClose(passkey)}
           onCancel={() => handleClose(null)}
           backendError={null}
+          showExplainer={true}
         />
       )}
     </div>
