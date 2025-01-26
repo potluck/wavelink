@@ -62,10 +62,10 @@ export default function Invited({ player1 }: { player1: string }) {
     const sanitizedName = name.trim().replace(/ [^\w'-]/g, '');
     const localUser = getUserFromLocalStorage();
     if (sanitizedSlug === player1.toLowerCase()) {
-      setError("You can't play with yourself! " + sanitizedSlug);
+      setError("You can't play with yourself!");
       return;
     }
-    else if (sanitizedName.length < 2 || sanitizedName === "help" || sanitizedName === "invite") {
+    else if (sanitizedName.length < 2 || sanitizedSlug === "help" || sanitizedSlug === "invite") {
       setError("Please enter a valid name (2+ characters).");
       return;
     } else {
@@ -89,6 +89,7 @@ export default function Invited({ player1 }: { player1: string }) {
           setShowClaimUserModal(true);
         }
       } else { // created new user, or matched local storage, or existing user had no games
+        saveUserToLocalStorage(user.id, user.slug);
         router.push(`/${user.slug}/${player1}`);
       }
 
