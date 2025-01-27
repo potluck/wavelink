@@ -163,6 +163,9 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
               ))}
             </div>
           )}
+          <Link href={`/${player1}/ai`} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded dark:bg-blue-600 dark:hover:bg-blue-800 mt-4 inline-block">
+            Play with the AI
+          </Link>
         </div>
       </div>
     </div>
