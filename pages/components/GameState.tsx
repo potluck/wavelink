@@ -297,7 +297,7 @@ export default function GameState({
             onClick={handleShare}
             className="mt-4 w-full sm:w-auto rounded-lg bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-6 transition-colors duration-200 flex items-center justify-center"
           >
-            Nudge {player2Name}
+            Let {player2Name} know you made your move!
           </button>
           {showNudgeModal && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
