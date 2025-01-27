@@ -9,7 +9,10 @@ type GameStateProps = {
   previousTurns: Turn[],
   currentTurn: Turn | null,
   completedTurn: Turn | null,
-  player2: string
+  player1Slug: string
+  player2Slug: string
+  player1Name: string
+  player2Name: string
 }
 
 export type Submission = {
@@ -76,7 +79,10 @@ export default function GameState({
   previousTurns,
   currentTurn,
   completedTurn,
-  player2
+  player1Slug,
+  player2Slug,
+  player1Name,
+  player2Name
 }: GameStateProps) {
 
   const [answer, setAnswer] = useState("");
@@ -232,8 +238,24 @@ export default function GameState({
       }
       {(playerState == PlayerState.Waiting) &&
         <div className="mb-2 text-purple-500 max-w-md"><b>Status: </b>Waiting for your partner to complete this round.
-        <br /><br />
-        The page will auto-update when they submit, but you can also refresh the page to reload.</div>
+          <br /><br />
+          The page will auto-update when they submit, but you can also refresh the page to reload.</div>
+
+      }
+      {(playerState == PlayerState.Waiting) && (
+        <button
+          onClick={() => {
+            if (navigator.share) {
+              navigator.share({
+                url: `/${player2Slug}/${player1Slug}`,
+                text: "I played in Wavelink - your move!"
+              }).catch(console.error);
+            }
+          }}
+          className="mt-4 w-full sm:w-auto rounded-lg bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-6 transition-colors duration-200 flex items-center justify-center"
+        >
+          Nudge {player2Name}
+        </button>)
       }
       {justCompletedTurn}
       {previousTurns?.length > 0 && (

@@ -168,6 +168,8 @@ export default function Page() {
   const [player1, setPlayer1] = useState<string>("");
   const [player2, setPlayer2] = useState<string>("");
   const [userId1, setUserId1] = useState<number>(0);
+  const [userName1, setUserName1] = useState<string>("");
+  const [userName2, setUserName2] = useState<string>("");
   const [userHasPasskey, setUserHasPasskey] = useState<boolean>(false);
   const [gamesToRespondTo, setGamesToRespondTo] = useState<GameToRespondTo[]>([]);
   const [numOtherGamesToRespondTo, setNumOtherGamesToRespondTo] = useState<number>(0);
@@ -242,6 +244,8 @@ export default function Page() {
 
             setUserHasPasskey(gameUserHasPasskey);
             setUserId1(gameUserId1);
+            setUserName1(games.userName1);
+            setUserName2(games.userName2);
 
             const game = games.rows[0];
             setGameId(game.id);
@@ -500,7 +504,7 @@ export default function Page() {
       <main className="flex flex-col gap-4 row-start-2 items-center sm:items-start">
         <h1 className="text-4xl font-bold text-center w-full">Wavelink &nbsp;&nbsp;🌊&thinsp;🔗</h1>
         <div className="mb-2">
-          Hi <b>{player1}</b>. You&apos;re playing with: <b>{player2}</b>
+          Hi <b>{userName1 || player1}</b>. You&apos;re playing with: <b>{userName2 || player2}</b>
         </div>
         {showPasskeyModal && <SetPasskeyModal inputPassKey={setUserPasskey} />}
         {showConfirmPasskeyModal &&
@@ -526,7 +530,10 @@ export default function Page() {
             currentTurn={currentTurn}
             submitAnswer={submitAnswer}
             completedTurn={completedTurn}
-            player2={player2}
+            player1Slug={player1}
+            player2Slug={player2}
+            player1Name={userName1}
+            player2Name={userName2}
           />
           <InviteLink player1={player1} numOtherGamesToRespondTo={numOtherGamesToRespondTo} />
         </div>

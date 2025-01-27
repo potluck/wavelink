@@ -11,8 +11,8 @@ export default async function handler(
     const userName2 = request.query.userName2 as string;
 
     if (!userName1 || !userName2) throw new Error('Users 1 & 2 required');
-    let { rows: user1 } = await sql`SELECT u.id, u.passkey FROM users u where u.slug=${userName1.toLowerCase()};`;
-    let { rows: user2 } = await sql`SELECT u.id, u.passkey FROM users u where u.slug=${userName2.toLowerCase()};`;
+    let { rows: user1 } = await sql`SELECT u.id, u.name, u.passkey FROM users u where u.slug=${userName1.toLowerCase()};`;
+    let { rows: user2 } = await sql`SELECT u.id, u.name, u.passkey FROM users u where u.slug=${userName2.toLowerCase()};`;
     let newUserCreated = false;
 
     if (user1?.length == 0 && user2?.length > 0) {
@@ -50,6 +50,8 @@ export default async function handler(
           thisLower,
           userId1: thisLower ? userId1 : userId2,
           userId2: thisLower ? userId2 : userId1,
+          userName1: user1[0].name,
+          userName2: user2[0].name,
           userHasPasskey: (user1[0].passkey) != null
         });
       }
@@ -61,6 +63,8 @@ export default async function handler(
       thisLower,
       userId1: thisLower ? userId1 : userId2,
       userId2: thisLower ? userId2 : userId1,
+      userName1: user1[0].name,
+      userName2: user2[0].name,
       userHasPasskey: (user1[0].passkey) != null
     });
   } catch (error) {
