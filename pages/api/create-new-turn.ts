@@ -3,7 +3,6 @@
 import { sql } from '@vercel/postgres';
 import { NextApiResponse, NextApiRequest } from 'next';
 
-const MAX_PAIR_ID = 50;
 export default async function handler(
   request: NextApiRequest,
   response: NextApiResponse,
@@ -14,10 +13,10 @@ export default async function handler(
   let currTurn = null;
 
   try {
-    const { rows } = await sql`SELECT * FROM turns t where t.game_id = ${gameId};`;
+    const { rows: turnsPlayed } = await sql`SELECT * FROM turns t where t.game_id = ${gameId};`;
     const pairsUsed = new Set<number>();
 
-    for (const turn of rows) {
+    for (const turn of turnsPlayed) {
       if (turn.completed_at == null) {
         currTurn = turn;
         pairToReturn = currTurn.pair_id;
@@ -26,11 +25,23 @@ export default async function handler(
       }
     }
     if (currTurn == null) {
-      // Get random unused pair ID
-      const availablePairs = Array.from(
-        { length: MAX_PAIR_ID },
-        (_, i) => i + 1
-      ).filter(id => !pairsUsed.has(id));
+      const { rows: allPairs } = await sql`SELECT p.id, p.easy FROM pairs p`;
+
+      let availablePairs : number[];
+      if (turnsPlayed.length == 0) {
+        // First Turn for this game - get a random easy pair ID
+        const easyPairs = allPairs.filter(pair => pair.easy);
+        availablePairs = easyPairs.map((pair) => pair.id)
+
+      } else {
+        // Get random unused pair ID
+        const maxPairId = allPairs.length;
+        availablePairs = Array.from(
+          { length: maxPairId },
+          (_, i) => i + 1
+        ).filter(id => !pairsUsed.has(id));
+      }
+
 
       if (availablePairs.length === 0) {
         return response.status(400).json({ error: "No more available pairs" });
