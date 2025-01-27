@@ -1,5 +1,5 @@
 import { Nunito } from 'next/font/google'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
 
 const nunito = Nunito({ subsets: ['latin'] })
@@ -51,17 +51,16 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
   const [allGames, setAllGames] = useState<GameToRespondTo[]>([]);
   const [allGamesToRespondTo, setAllGamesToRespondTo] = useState<GameToRespondTo[]>([]);
   const [showAllGames, setShowAllGames] = useState(false);
+  const initialFetchDone = useRef(false);
 
   useEffect(() => {
-    if (userId1 == 0) {
-      console.log("yo pots, we don't have the user ID", userId1, player1);
+    if (userId1 === 0 && !initialFetchDone.current) {
+      initialFetchDone.current = true;
       const slug = player1?.toLowerCase().replace(/ /g, '-') || "";
       callAPIRetrieveUser(slug).then((data) => {
         setUserId(data.rows[0].id);
-        console.log("user: ", data);
 
         callAPIRetrieveAllGamesToRespondTo(data.rows[0].id).then((data) => {
-          console.log("games to respond to: ", data);
           setAllGameIDsToRespondTo(data.rows.map((game: GameToRespondTo) => game.id));
         });
       });
@@ -70,10 +69,8 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
 
 
   useEffect(() => {
-    console.log("in use effect for userId", userId);
     if (userId > 0) {
       callAPIRetrieveAllGames(userId).then((data) => {
-        console.log("all games: ", data);
         setAllGames(data.rows as GameToRespondTo[]);
       });
     }

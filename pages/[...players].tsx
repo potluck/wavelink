@@ -254,7 +254,8 @@ export default function Page() {
             fetchGamesToRespondTo(games.userId1, game.id);
           } else if (games.error) {
             setIsLoading(false);
-            setLoadingError(games.error);
+            console.error("Error loading game between ", player1, " and ", player2, ": ", games.error);
+            setLoadingError("Sorry, there was an error loading the game. Please refresh and try again.");
           }
         })
     }
@@ -523,21 +524,24 @@ export default function Page() {
             }}
           />
         }
-        {isLoading ? <div>Loading...</div> : loadingError ? <div>{loadingError} <InviteLink player1={player1} numOtherGamesToRespondTo={numOtherGamesToRespondTo} /></div> : (<div>
-          <GameState
-            playerState={playerState}
-            startTurn={startTurn}
-            previousTurns={previousTurns}
-            currentTurn={currentTurn}
-            submitAnswer={submitAnswer}
-            completedTurn={completedTurn}
-            player1Slug={player1}
-            player2Slug={player2}
-            player2Name={userName2}
-          />
-          <InviteLink player1={player1} numOtherGamesToRespondTo={numOtherGamesToRespondTo} />
-        </div>
-        )}
+        {isLoading ? <div>Loading...</div>
+          : loadingError ?
+            <div> <div className="text-red-600">{loadingError}</div> <InviteLink player1={player1} numOtherGamesToRespondTo={numOtherGamesToRespondTo} /></div>
+            : (<div>
+              <GameState
+                playerState={playerState}
+                startTurn={startTurn}
+                previousTurns={previousTurns}
+                currentTurn={currentTurn}
+                submitAnswer={submitAnswer}
+                completedTurn={completedTurn}
+                player1Slug={player1}
+                player2Slug={player2}
+                player2Name={userName2}
+              />
+              <InviteLink player1={player1} numOtherGamesToRespondTo={numOtherGamesToRespondTo} />
+            </div>
+            )}
 
       </main>
       <footer className="row-start-3 text-sm">

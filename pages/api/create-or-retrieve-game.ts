@@ -56,7 +56,6 @@ export default async function handler(
         });
       }
     }
-
     const { rows: gameTake2 } = await sql`INSERT INTO games (user_id1, user_id2) VALUES (${userId1}, ${userId2}) returning *;`;
     return response.status(200).json({
       rows: gameTake2,
