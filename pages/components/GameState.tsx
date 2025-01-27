@@ -88,6 +88,7 @@ export default function GameState({
   const [error, setError] = useState<string | null>(null);
   const [showNudgeModal, setShowNudgeModal] = useState(false);
   const [copyButtonText, setCopyButtonText] = useState("Copy");
+  const [timeLeft, setTimeLeft] = useState(30);
 
   const isMobileDevice = () => {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -192,6 +193,22 @@ export default function GameState({
     };
   }, [showNudgeModal]);
 
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (playerState === PlayerState.Playing && timeLeft > 0) {
+      timer = setInterval(() => {
+        setTimeLeft(prev => Math.max(0, prev - 1));
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [playerState, timeLeft]);
+
+  useEffect(() => {
+    if (playerState === PlayerState.Playing) {
+      setTimeLeft(30);
+    }
+  }, [playerState]);
+
   return (
     <div className="max-w-md">
       {(playerState === PlayerState.NoRound || playerState === PlayerState.RoundToPlay) && (previousTurns == null || (previousTurns.length == 0 && completedTurn == null && lastLink1 == "" && lastLink2 == "")) &&
@@ -236,6 +253,9 @@ export default function GameState({
       }
       {(playerState == PlayerState.Playing) &&
         <div>
+          <div className="mb-2 text-base">
+            Suggested time limit: 0:{timeLeft}
+          </div>
           <div className="mb-2">
             Your starting words {lastLink1 && lastLink2 ? "were: " : "are: "} <b>{currentTurn?.word1}</b> and <b>{currentTurn?.word2}</b>.
             <br />
