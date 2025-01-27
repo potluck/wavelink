@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useEffect } from "react";
 import { PlayerState } from "../[...players]";
 import Explainer from "./Explainer";
 
@@ -9,7 +9,9 @@ type GameStateProps = {
   previousTurns: Turn[],
   currentTurn: Turn | null,
   completedTurn: Turn | null,
-  player2: string
+  player1Slug: string
+  player2Slug: string
+  player2Name: string
 }
 
 export type Submission = {
@@ -76,13 +78,31 @@ export default function GameState({
   previousTurns,
   currentTurn,
   completedTurn,
-  player2
+  player1Slug,
+  player2Slug,
+  player2Name
 }: GameStateProps) {
 
   const [answer, setAnswer] = useState("");
   const [showPreviousRounds, setShowPreviousRounds] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showNudgeModal, setShowNudgeModal] = useState(false);
+  const [copyButtonText, setCopyButtonText] = useState("Copy");
 
+  const isMobileDevice = () => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  };
+
+  const handleShare = () => {
+    if (navigator.share && isMobileDevice()) {
+      navigator.share({
+        url: `/${player2Slug}/${player1Slug}`,
+        text: "I played in Wavelink - your move!"
+      }).catch(console.error);
+    } else {
+      setShowNudgeModal(true);
+    }
+  };
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -156,6 +176,22 @@ export default function GameState({
       {((completedTurn.speed_score || 0) > 0 && lastLink1 !== lastLink2) && (<div className="text-green-500">You and your partner submitted <b>{lastLink1}</b> and <b>{lastLink2}</b>!</div>)}
     </div>);
 
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setShowNudgeModal(false);
+      }
+    };
+
+    if (showNudgeModal) {
+      document.addEventListener('keydown', handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [showNudgeModal]);
+
   return (
     <div className="max-w-md">
       {(playerState === PlayerState.NoRound || playerState === PlayerState.RoundToPlay) && (previousTurns == null || (previousTurns.length == 0 && completedTurn == null && lastLink1 == "" && lastLink2 == "")) &&
@@ -208,18 +244,19 @@ export default function GameState({
             {(previousTurns == null || (previousTurns.length == 0 && completedTurn == null && lastLink1 == "" && lastLink2 == "")) &&
               <div>
                 <br />
-                Remember, your goal is to submit the same connection as {player2}!
+                Remember, your goal is to submit the same connection as {player2Name}!
               </div>
             }
           </div>
           {error && <div className="text-red-500">{error}</div>}
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-            <input
+            <textarea
               value={answer}
               autoFocus
               onChange={e => setAnswer(e.target.value)}
               className="block w-full px-4 py-3 text-base text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 transition-colors"
               placeholder="Enter link..."
+              rows={2}
             />
             <button
               type="submit"
@@ -232,9 +269,51 @@ export default function GameState({
       }
       {(playerState == PlayerState.Waiting) &&
         <div className="mb-2 text-purple-500 max-w-md"><b>Status: </b>Waiting for your partner to complete this round.
-        <br /><br />
-        The page will auto-update when they submit, but you can also refresh the page to reload.</div>
+          <br /><br />
+          The page will auto-update when they submit, but you can also refresh the page to reload.</div>
       }
+      {(playerState == PlayerState.Waiting) && (
+        <>
+          <button
+            onClick={handleShare}
+            className="mt-4 w-full sm:w-auto rounded-lg bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-6 transition-colors duration-200 flex items-center justify-center"
+          >
+            Nudge {player2Name}
+          </button>
+          {showNudgeModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+                <h3 className="text-lg font-bold mb-4">Nudge {player2Name} to make their move!</h3>
+                <p className="mb-4">Copy this text to share:</p>
+                <div className="flex gap-2 mb-4">
+                  <textarea
+                    readOnly
+                    value={`I played in Wavelink! It's your move.\n${window.location.origin}/${player2Slug}/${player1Slug}`}
+                    className="block w-full px-3 py-2 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white resize-none"
+                    rows={2}
+                  />
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(`I played in Wavelink! It's your move.\n${window.location.origin}/${player2Slug}/${player1Slug}`);
+                      setCopyButtonText("Copied!");
+                      setTimeout(() => setCopyButtonText("Copy"), 2000);
+                    }}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                  >
+                    {copyButtonText}
+                  </button>
+                </div>
+                <button
+                  onClick={() => setShowNudgeModal(false)}
+                  className="w-full px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
       {justCompletedTurn}
       {previousTurns?.length > 0 && (
         <div className="mt-4">
