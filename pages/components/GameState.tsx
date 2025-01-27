@@ -11,7 +11,6 @@ type GameStateProps = {
   completedTurn: Turn | null,
   player1Slug: string
   player2Slug: string
-  player1Name: string
   player2Name: string
 }
 
@@ -81,7 +80,6 @@ export default function GameState({
   completedTurn,
   player1Slug,
   player2Slug,
-  player1Name,
   player2Name
 }: GameStateProps) {
 
@@ -214,7 +212,7 @@ export default function GameState({
             {(previousTurns == null || (previousTurns.length == 0 && completedTurn == null && lastLink1 == "" && lastLink2 == "")) &&
               <div>
                 <br />
-                Remember, your goal is to submit the same connection as {player2}!
+                Remember, your goal is to submit the same connection as {player2Name}!
               </div>
             }
           </div>

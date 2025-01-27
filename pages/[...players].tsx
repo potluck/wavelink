@@ -532,7 +532,6 @@ export default function Page() {
             completedTurn={completedTurn}
             player1Slug={player1}
             player2Slug={player2}
-            player1Name={userName1}
             player2Name={userName2}
           />
           <InviteLink player1={player1} numOtherGamesToRespondTo={numOtherGamesToRespondTo} />
