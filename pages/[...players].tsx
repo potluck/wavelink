@@ -206,7 +206,6 @@ export default function Page() {
             const gameUserId1 = games.userId1;
             const gameUserHasPasskey = games.userHasPasskey;
             const localUser = getUserFromLocalStorage();
-            console.log("yo pots: ", localUser, games)
             if (!gameUserHasPasskey) {
               if (localUser.userId == gameUserId1) {
                 // No-op. All good. Game user matches local storage
@@ -493,7 +492,6 @@ export default function Page() {
     if (players.length == 2 && players[0].toLowerCase() == players[1].toLowerCase()) {
       router.push(`/${players[0]}`);
     }
-    console.log("hi pots, players length is 1");
     return <Share player1={player1} gamesToRespondTo={gamesToRespondTo} userId1={userId1} />;
   }
 

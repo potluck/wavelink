@@ -47,6 +47,7 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
   const [copied, setCopied] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [userId, setUserId] = useState<number>(userId1);
+  const [userName, setUserName] = useState<string>("");
   const [allGameIDsToRespondTo, setAllGameIDsToRespondTo] = useState<number[]>(gamesToRespondTo?.map((game: GameToRespondTo) => game.id) || []);
   const [allGames, setAllGames] = useState<GameToRespondTo[]>([]);
   const [allGamesToRespondTo, setAllGamesToRespondTo] = useState<GameToRespondTo[]>([]);
@@ -63,6 +64,7 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
           setInvalidUser(true);
         } else {
           setUserId(data.rows[0]?.id || 0);
+          setUserName(data.rows[0]?.name || "");
           callAPIRetrieveAllGamesToRespondTo(data.rows[0]?.id).then((data) => {
           setAllGameIDsToRespondTo(data.rows.map((game: GameToRespondTo) => game.id));
           });
@@ -110,7 +112,7 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
       <div className={`${nunito.className} grid grid-rows-[auto_1fr_auto] items-center justify-items-center p-2 pb-20 gap-6 sm:p-8 max-w-5xl mx-auto w-full`}>
         <h1 className="text-4xl font-bold text-center w-full dark:text-white">Wavelink &nbsp;&nbsp;🌊&thinsp;🔗</h1>
         <div className="space-y-4">
-          <p className="text-gray-700 dark:text-gray-300">Hi, {player1}!</p>
+          <p className="text-gray-700 dark:text-gray-300">Hi, {userName || player1}!</p>
           <p className="text-gray-700 dark:text-gray-300">Send your invite link to a friend to play:</p>
           <div className="flex gap-2 items-center w-full max-w-xl">
             <input
