@@ -208,7 +208,7 @@ export default function GameState({
             {(previousTurns == null || (previousTurns.length == 0 && completedTurn == null && lastLink1 == "" && lastLink2 == "")) &&
               <div>
                 <br />
-                Remember, your goal is to submit the same connection as <b>{player2}</b>!
+                Remember, your goal is to submit the same connection as {player2}!
               </div>
             }
           </div>
