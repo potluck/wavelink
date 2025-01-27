@@ -254,7 +254,7 @@ export default function GameState({
       {(playerState == PlayerState.Playing) &&
         <div>
           <div className="mb-2 text-base">
-            Suggested time limit: 0:{timeLeft}
+            Suggested time limit: 0:{timeLeft.toString().padStart(2, '0')}
           </div>
           <div className="mb-2">
             Your starting words {lastLink1 && lastLink2 ? "were: " : "are: "} <b>{currentTurn?.word1}</b> and <b>{currentTurn?.word2}</b>.
