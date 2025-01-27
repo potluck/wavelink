@@ -59,9 +59,9 @@ const callAPIRetrieveTurns = async (gameId: number) => {
   }
 }
 
-const callAPISubmitAnswer = async (turnId: number, submission: string, thisPlayerHasLowerID: boolean) => {
+const callAPISubmitAnswer = async (turnId: number, submission: string, thisPlayerHasLowerID: boolean, player2: string, word1: string, word2: string) => {
   try {
-    const res = await fetch(`/api/submit-answer/?turnId=${turnId}&&submission=${submission}&thisLower=${thisPlayerHasLowerID}`);
+    const res = await fetch(`/api/submit-answer/?turnId=${turnId}&&submission=${submission}&thisLower=${thisPlayerHasLowerID}&player2=${player2}&word1=${word1}&word2=${word2}`);
     const data = await res.json();
     return data;
   } catch (err) {
@@ -442,7 +442,7 @@ export default function Page() {
       return { success: false, error: "Can't repeat previous words or submissions" };
     }
 
-    callAPISubmitAnswer(currentTurn?.id || 0, submission, thisPlayerHasLowerID)
+    callAPISubmitAnswer(currentTurn?.id || 0, submission, thisPlayerHasLowerID, player2, currentTurnRef.current?.word1 || "", currentTurnRef.current?.word2 || "")
       .then(({ submissionCompleted, turnCompleted, speedScore, link1, link2 }) => {
         if (turnCompleted) {
           if (currentTurn) {

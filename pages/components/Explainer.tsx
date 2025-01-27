@@ -10,16 +10,16 @@ export default function Explainer() {
       </div>
       <br />
       <div>
-        <b>Fire</b> and <b>Water</b> might yield <b>Element</b> or <b>Steam</b>.
+        If the starting words are <b>Fire</b> and <b>Water</b>, you might submit <b>Element</b>.
       </div>
       <br />
       <div>
-        If you and your partner submit matching words, you win the round!
+        If you and your partner submit the same word, you win the round!
       </div>
       <br />
       <div>
         Otherwise, you try again. Now, you&apos;ll both be trying to connect the two words you just submitted.
-        For example, if you submitted <b>Element</b> and your partner submitted <b>Steam</b>, you might try <b>Gas</b>.
+        For example, if you submitted <b>Element</b> but your partner submitted <b>Steam</b>, you might submit <b>Gas</b>.
       </div>
       <br />
       <div>
