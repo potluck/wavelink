@@ -59,9 +59,9 @@ const callAPIRetrieveTurns = async (gameId: number) => {
   }
 }
 
-const callAPISubmitAnswer = async (turnId: number, submission: string, thisPlayerHasLowerID: boolean) => {
+const callAPISubmitAnswer = async (turnId: number, submission: string, thisPlayerHasLowerID: boolean, player2: string, word1: string, word2: string, previousSubmissionWords: string) => {
   try {
-    const res = await fetch(`/api/submit-answer/?turnId=${turnId}&&submission=${submission}&thisLower=${thisPlayerHasLowerID}`);
+    const res = await fetch(`/api/submit-answer/?turnId=${turnId}&&submission=${submission}&thisLower=${thisPlayerHasLowerID}&player2=${player2}&word1=${word1}&word2=${word2}&previousSubmissionWords=${previousSubmissionWords}`);
     const data = await res.json();
     return data;
   } catch (err) {
@@ -150,9 +150,9 @@ const InviteLink = ({ player1, numOtherGamesToRespondTo }: { player1: string, nu
         (<>
           <b>You have {numOtherGamesToRespondTo} other {numOtherGamesToRespondTo === 1 ? 'game' : 'games'} to respond to!</b>
           <br />
-          In addition, you can invite other friends or play against the AI.
+          In addition, you can invite other friends or play with the AI.
         </>)
-        : "Invite other friends or play against the AI"}
+        : "Invite other friends or play with the AI"}
     </Link>
   </div>
 );
@@ -253,7 +253,7 @@ export default function Page() {
             fetchGamesToRespondTo(games.userId1, game.id);
           } else if (games.error) {
             setIsLoading(false);
-            console.error("Error loading game between ", player1, " and ", player2, ": ", games.error);
+            console.error("Error loading game between ", player1l, " and ", player2l, ": ", games.error);
             setLoadingError("Sorry, there was an error loading the game. Please refresh and try again.");
           }
         })
@@ -362,7 +362,10 @@ export default function Page() {
       setPlayers(queryPlayers);
       setPlayer1(queryPlayers[0]);
       setPlayer2(queryPlayers.length > 1 ? queryPlayers[1] : "No teammate set");
-      if (queryPlayers.length > 1 && queryPlayers[1].toLowerCase() != "invite" && queryPlayers[1] !== queryPlayers[0]) {
+      if (queryPlayers[0] == "ai") {
+        setLoadingError("You can't play as the AI!");
+        setIsLoading(false);
+      } else if (queryPlayers.length > 1 && queryPlayers[1].toLowerCase() != "invite" && queryPlayers[1] !== queryPlayers[0]) {
         fetchGameData(queryPlayers[0], queryPlayers[1]);
       }
     }
@@ -442,7 +445,15 @@ export default function Page() {
       return { success: false, error: "Can't repeat previous words or submissions" };
     }
 
-    callAPISubmitAnswer(currentTurn?.id || 0, submission, thisPlayerHasLowerID)
+    let previousSubmissionWords = "";
+    if (player2 == "ai") {
+      previousSubmissionWords = currentTurnRef.current?.submissions
+        .flatMap(sub => [sub.link1, sub.link2])
+        .filter(link => link) // Remove null/undefined values
+        .join(", ") || "";
+    }
+
+    callAPISubmitAnswer(currentTurn?.id || 0, submission, thisPlayerHasLowerID, player2, currentTurnRef.current?.word1 || "", currentTurnRef.current?.word2 || "", previousSubmissionWords)
       .then(({ submissionCompleted, turnCompleted, speedScore, link1, link2 }) => {
         if (turnCompleted) {
           if (currentTurn) {
