@@ -51,6 +51,7 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
   const [allGames, setAllGames] = useState<GameToRespondTo[]>([]);
   const [allGamesToRespondTo, setAllGamesToRespondTo] = useState<GameToRespondTo[]>([]);
   const [showAllGames, setShowAllGames] = useState(false);
+  const [invalidUser, setInvalidUser] = useState(false);
   const initialFetchDone = useRef(false);
 
   useEffect(() => {
@@ -58,11 +59,14 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
       initialFetchDone.current = true;
       const slug = player1?.toLowerCase().replace(/ /g, '-') || "";
       callAPIRetrieveUser(slug).then((data) => {
-        setUserId(data.rows[0].id);
-
-        callAPIRetrieveAllGamesToRespondTo(data.rows[0].id).then((data) => {
+        if (!data || !data.rows || data.rows.length === 0) {
+          setInvalidUser(true);
+        } else {
+          setUserId(data.rows[0]?.id || 0);
+          callAPIRetrieveAllGamesToRespondTo(data.rows[0]?.id).then((data) => {
           setAllGameIDsToRespondTo(data.rows.map((game: GameToRespondTo) => game.id));
-        });
+          });
+        }
       });
     }
   }, [userId1, player1]);
@@ -87,6 +91,19 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
     const origin = window.location.origin.replace(/^https?:\/\/(www\.)?/, '');
     setShareUrl(`${origin}/${player1}/invite`);
   }, [player1]);
+
+  if (invalidUser) {
+    return (
+      <div className="min-h-screen">
+        <div className={`${nunito.className} grid grid-rows-[auto_1fr_auto] items-center justify-items-center p-2 pb-20 gap-6 sm:p-8 max-w-5xl mx-auto w-full`}>
+          <h1 className="text-4xl font-bold text-center w-full dark:text-white">Wavelink &nbsp;&nbsp;🌊&thinsp;🔗</h1>
+          <div className="space-y-4">
+            <p className="text-red-700 dark:text-red-300">It looks like the user ID <b>{player1}</b> is invalid. Please try again with a different name.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
