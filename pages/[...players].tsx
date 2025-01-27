@@ -253,7 +253,7 @@ export default function Page() {
             fetchGamesToRespondTo(games.userId1, game.id);
           } else if (games.error) {
             setIsLoading(false);
-            console.error("Error loading game between ", player1, " and ", player2, ": ", games.error);
+            console.error("Error loading game between ", player1l, " and ", player2l, ": ", games.error);
             setLoadingError("Sorry, there was an error loading the game. Please refresh and try again.");
           }
         })
