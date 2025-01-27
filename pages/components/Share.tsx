@@ -54,6 +54,7 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
 
   useEffect(() => {
     if (userId1 == 0) {
+      console.log("yo pots, we don't have the user ID", userId1, player1);
       const slug = player1?.toLowerCase().replace(/ /g, '-') || "";
       callAPIRetrieveUser(slug).then((data) => {
         setUserId(data.rows[0].id);
@@ -69,6 +70,7 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
 
 
   useEffect(() => {
+    console.log("in use effect for userId", userId);
     if (userId > 0) {
       callAPIRetrieveAllGames(userId).then((data) => {
         console.log("all games: ", data);
