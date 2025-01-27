@@ -150,9 +150,9 @@ const InviteLink = ({ player1, numOtherGamesToRespondTo }: { player1: string, nu
         (<>
           <b>You have {numOtherGamesToRespondTo} other {numOtherGamesToRespondTo === 1 ? 'game' : 'games'} to respond to!</b>
           <br />
-          In addition, you can invite other friends or play against the AI.
+          In addition, you can invite other friends or play with the AI.
         </>)
-        : "Invite other friends or play against the AI"}
+        : "Invite other friends or play with the AI"}
     </Link>
   </div>
 );

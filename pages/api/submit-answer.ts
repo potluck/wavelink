@@ -96,11 +96,10 @@ export default async function handler(
       }
     }
 
-
     if (thisLower == "true" && turnCompleted) {
       await sql`
         UPDATE submissions 
-        SET link1=${submission}, completed_at = NOW()
+        SET link1=${submission}, link2=${aiWord},completed_at = NOW()
         WHERE turn_id=${turnId} and counter=${counter};
       `;
       await sql`
@@ -117,7 +116,7 @@ export default async function handler(
       if (submissionCompleted) {
         await sql`
           UPDATE submissions 
-          SET link1=${submission}, completed_at = NOW()
+          SET link1=${submission}, link2=${aiWord}, completed_at = NOW()
           WHERE turn_id=${turnId} and counter=${counter};
         `;
         await sql`
@@ -127,14 +126,14 @@ export default async function handler(
       } else {
         await sql`
           UPDATE submissions 
-          SET link1=${submission}
+          SET link1=${submission}, link2=${aiWord}
           WHERE turn_id=${turnId} and counter=${counter};
         `;
       }
     } else if (thisLower == "false" && turnCompleted) {
       await sql`
         UPDATE submissions 
-        SET link2=${submission}, completed_at = NOW()
+        SET link2=${submission}, link1=${aiWord}, completed_at = NOW()
         WHERE turn_id=${turnId} and counter=${counter};
       `;
       await sql`
@@ -151,7 +150,7 @@ export default async function handler(
       if (submissionCompleted) {
         await sql`
           UPDATE submissions 
-          SET link2=${submission}, completed_at = NOW()
+          SET link2=${submission}, link1=${aiWord}, completed_at = NOW()
           WHERE turn_id=${turnId} and counter=${counter};
         `;
         await sql`
@@ -161,7 +160,7 @@ export default async function handler(
       } else {
         await sql`
           UPDATE submissions 
-          SET link2=${submission}
+          SET link2=${submission}, link1=${aiWord}
           WHERE turn_id=${turnId} and counter=${counter};
         `;
       }
