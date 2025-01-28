@@ -66,7 +66,7 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
           setUserId(data.rows[0]?.id || 0);
           setUserName(data.rows[0]?.name || "");
           callAPIRetrieveAllGamesToRespondTo(data.rows[0]?.id).then((data) => {
-          setAllGameIDsToRespondTo(data.rows.map((game: GameToRespondTo) => game.id));
+            setAllGameIDsToRespondTo(data.rows.map((game: GameToRespondTo) => game.id));
           });
         }
       });
@@ -138,7 +138,11 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
               <p className="text-gray-700 dark:text-gray-300"><b>It&apos;s your turn:</b></p>
               {allGamesToRespondTo.map((game) => (
                 <div key={game.id}>
-                  <Link href={`/${player1}/${game.other_player_slug}`} className="text-gray-700 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400">
+                  <Link
+                    href={`/${player1}/${game.other_player_slug}`}
+                    className="text-gray-700 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400"
+                    onClick={() => setShowAllGames(false)}
+                  >
                     - With {game.other_player}
                   </Link>
                 </div>
@@ -156,7 +160,11 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
             <div className="pl-4">
               {allGames.map((game) => (
                 <div key={game.id}>
-                  <Link href={`/${player1}/${game.other_player_slug}`} className="text-gray-700 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400">
+                  <Link
+                    href={`/${player1}/${game.other_player_slug}`}
+                    className="text-gray-700 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400"
+                    onClick={() => setShowAllGames(false)}
+                  >
                     Game with {game.other_player}
                   </Link>
                 </div>
