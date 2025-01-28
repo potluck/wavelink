@@ -58,7 +58,7 @@ export default async function handler(
         max_tokens: 50,
         store: true
       });
-      aiWord = aiResponse.choices[0].message.content?.trim().split(/\s+/)[0] || "";
+      aiWord = aiResponse.choices[0].message.content?.trim() || "";
     }
 
     const { rows } = await sql`
