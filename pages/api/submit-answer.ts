@@ -91,6 +91,9 @@ export default async function handler(
         break;
       }
     }
+    if (aiWord == null) {
+      aiWord = otherLink;
+    }
 
     if (thisLower == "true" && turnCompleted) {
       await sql`
