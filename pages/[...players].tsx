@@ -449,8 +449,12 @@ export default function Page() {
     }
 
     let previousSubmissionWords = "";
-    const latestWord1 = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 1]?.link1 || "";
-    const latestWord2 = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 1]?.link2 || "";
+    let latestWord1 = currentTurnRef.current?.word1 || "";
+    let latestWord2 = currentTurnRef.current?.word2 || "";
+    if ((currentTurnRef.current?.submissions.length || 0) > 1) {
+      latestWord1 = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 2]?.link1 || "";
+      latestWord2 = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 2]?.link2 || "";
+    }
     if (player2 == "ai") {
       previousSubmissionWords = currentTurnRef.current?.submissions
         .flatMap(sub => [sub.link1, sub.link2])
