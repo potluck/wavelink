@@ -54,15 +54,14 @@ export default function Home() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const sanitizedSlug = name.toLowerCase().trim().replace(/ /g, '-').replace(/[^\w-]/g, '');
-    const sanitizedName = name.trim().replace(/[^\w'-]/g, '');
 
-    if (sanitizedName.length < 2 || sanitizedSlug === "help" || sanitizedSlug === "invite" || sanitizedSlug === "ai") {
+    if (sanitizedSlug.length < 2 || sanitizedSlug === "help" || sanitizedSlug === "invite" || sanitizedSlug === "ai") {
       setError("Please enter a valid name (2+ characters).");
       return;
     }
 
     try {
-      const { user, retrievedUser, userHasPasskey, otherPlayers } = await callAPICreateOrRetrieveUser(sanitizedName);
+      const { user, retrievedUser, userHasPasskey, otherPlayers } = await callAPICreateOrRetrieveUser(name.trim());
       if (retrievedUser && user.game_id) {
         setOtherPlayers(otherPlayers);
         setRetrievedUserId(user.id);

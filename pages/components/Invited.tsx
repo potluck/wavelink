@@ -59,20 +59,19 @@ export default function Invited({ player1 }: { player1: string }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const sanitizedSlug = name.toLowerCase().trim().replace(/ /g, '-').replace(/[^\w-]/g, '');
-    const sanitizedName = name.trim().replace(/ [^\w'-]/g, '');
     const localUser = getUserFromLocalStorage();
     if (sanitizedSlug === player1.toLowerCase()) {
       setError("You can't play with yourself!");
       return;
     }
-    else if (sanitizedName.length < 2 || sanitizedSlug === "help" || sanitizedSlug === "invite" || sanitizedSlug === "ai") {
+    else if (sanitizedSlug.length < 2 || sanitizedSlug === "help" || sanitizedSlug === "invite" || sanitizedSlug === "ai") {
       setError("Please enter a valid name (2+ characters).");
       return;
     } else {
       setError(null);
     }
     try {
-      const { user, retrievedUser, userHasPasskey, otherPlayers } = await callAPICreateOrRetrieveUser(sanitizedName);
+      const { user, retrievedUser, userHasPasskey, otherPlayers } = await callAPICreateOrRetrieveUser(name.trim());
 
       // existing user who is already in a game, who is not in local storage
       if (retrievedUser && user.id !== localUser.userId && user.game_id) {
