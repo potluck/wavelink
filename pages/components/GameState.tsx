@@ -268,7 +268,7 @@ export default function GameState({
             {(previousTurns == null || (previousTurns.length == 0 && completedTurn == null && lastLink1 == "" && lastLink2 == "")) &&
               <div>
                 <br />
-                Remember, your goal is to submit the same connection as {player2Name}!
+                Remember, your goal is to submit the <b>same connection</b> as {player2Name}!
               </div>
             }
           </div>
@@ -279,7 +279,7 @@ export default function GameState({
               autoFocus
               onChange={e => setAnswer(e.target.value)}
               className="block w-full px-4 py-3 text-base text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 transition-colors"
-              placeholder="Enter link..."
+              placeholder="Enter word..."
             />
             <button
               type="submit"
