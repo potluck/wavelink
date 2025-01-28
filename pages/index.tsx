@@ -85,7 +85,7 @@ export default function Home() {
 
   return (
     <div
-      className={`${nunito.className} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 dark:bg-gray-900 dark:text-white`}
+      className={`${nunito.className} grid grid-rows-[auto_1fr_auto] items-start justify-items-center min-h-screen p-2 pb-8 gap-4 sm:gap-8 sm:p-12 dark:bg-gray-900 dark:text-white`}
     >
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         <h1 className="text-4xl font-bold text-center w-full dark:text-white">Wavelink &nbsp;&nbsp;🌊&thinsp;🔗</h1>
@@ -159,11 +159,9 @@ export default function Home() {
               </button>
             </form>
           )}
+          <Link href="/help" className="text-blue-600 hover:text-blue-800 underline dark:text-blue-400 dark:hover:text-blue-300">How to play</Link>
         </div>
       </main>
-      <footer className="row-start-3 text-base">
-        <Link href="/help" className="text-blue-600 hover:text-blue-800 underline dark:text-blue-400 dark:hover:text-blue-300">How to play</Link>
-      </footer>
     </div>
   );
 }
