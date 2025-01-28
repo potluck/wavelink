@@ -59,9 +59,9 @@ const callAPIRetrieveTurns = async (gameId: number) => {
   }
 }
 
-const callAPISubmitAnswer = async (turnId: number, submission: string, thisPlayerHasLowerID: boolean, player2: string, word1: string, word2: string, previousSubmissionWords: string) => {
+const callAPISubmitAnswer = async (turnId: number, submission: string, thisPlayerHasLowerID: boolean, player2: string, word1: string, word2: string, previousSubmissionWords: string, latestWord1: string, latestWord2: string) => {
   try {
-    const res = await fetch(`/api/submit-answer/?turnId=${turnId}&&submission=${submission}&thisLower=${thisPlayerHasLowerID}&player2=${player2}&word1=${word1}&word2=${word2}&previousSubmissionWords=${previousSubmissionWords}`);
+    const res = await fetch(`/api/submit-answer/?turnId=${turnId}&&submission=${submission}&thisLower=${thisPlayerHasLowerID}&player2=${player2}&word1=${word1}&word2=${word2}&previousSubmissionWords=${previousSubmissionWords}&latestWord1=${latestWord1}&latestWord2=${latestWord2}`);
     const data = await res.json();
     return data;
   } catch (err) {
@@ -449,6 +449,8 @@ export default function Page() {
     }
 
     let previousSubmissionWords = "";
+    let latestWord1 = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 1]?.link1 || "";
+    let latestWord2 = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 1]?.link2 || "";
     if (player2 == "ai") {
       previousSubmissionWords = currentTurnRef.current?.submissions
         .flatMap(sub => [sub.link1, sub.link2])
@@ -456,7 +458,7 @@ export default function Page() {
         .join(", ") || "";
     }
 
-    callAPISubmitAnswer(currentTurn?.id || 0, submission, thisPlayerHasLowerID, player2, currentTurnRef.current?.word1 || "", currentTurnRef.current?.word2 || "", previousSubmissionWords)
+    callAPISubmitAnswer(currentTurn?.id || 0, submission, thisPlayerHasLowerID, player2, currentTurnRef.current?.word1 || "", currentTurnRef.current?.word2 || "", previousSubmissionWords, latestWord1, latestWord2)
       .then(({ submissionCompleted, turnCompleted, speedScore, link1, link2 }) => {
         if (turnCompleted) {
           if (currentTurn) {

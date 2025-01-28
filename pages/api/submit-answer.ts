@@ -35,10 +35,14 @@ export default async function handler(
     const word1 = request.query.word1 as string;
     const word2 = request.query.word2 as string;
     const previousSubmissionWords = request.query.previousSubmissionWords as string;
+    const latestWord1 = request.query.latestWord1 as string;
+    const latestWord2 = request.query.latestWord2 as string;
     if (!turnId || !submission || !thisLower) throw new Error('Missing param');
 
     let aiWord = null;
     if (player2 === "ai") {
+      let inputWord1 = word1;
+      let inputWord2 = word2;
       const previousWords = previousSubmissionWords + ", " + [word1, word2].join(", ");
       const aiResponse = await openai.chat.completions.create({
         model: "gpt-4o-mini",
@@ -49,7 +53,7 @@ export default async function handler(
           },
           {
             role: "user",
-            content: `Provide a single word or two-word phrase (just the word or words, nothing else) that creates a logical connection between "${word1}" and "${word2}". Your word cannot match, contain any of, or be a substring of any of the following words: ${previousWords}`
+            content: `Provide a single word or two-word phrase (just the word or words, nothing else) that creates a logical connection between "${latestWord1}" and "${latestWord2}". Your word cannot match, contain any of, or be a substring of any of the following words: ${previousWords}`
           }
         ],
         temperature: 0.7,
