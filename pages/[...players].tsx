@@ -363,9 +363,12 @@ export default function Page() {
       setPlayer1(queryPlayers[0]);
       setPlayer2(queryPlayers.length > 1 ? queryPlayers[1] : "No teammate set");
       if (queryPlayers[0] == "ai") {
+        console.log("Yo pots: ", queryPlayers);
         setLoadingError("You can't play as the AI!");
         setIsLoading(false);
       } else if (queryPlayers.length > 1 && queryPlayers[1].toLowerCase() != "invite" && queryPlayers[1] !== queryPlayers[0]) {
+        setLoadingError(null);
+        setIsLoading(true);
         fetchGameData(queryPlayers[0], queryPlayers[1]);
       }
     }

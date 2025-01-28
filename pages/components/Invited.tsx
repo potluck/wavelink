@@ -128,7 +128,7 @@ export default function Invited({ player1 }: { player1: string }) {
       <h1 className="text-4xl font-bold text-center max-w-md dark:text-white">Wavelink &nbsp;&nbsp;🌊&thinsp;🔗</h1>
       <div className="space-y-4">
         <p className="text-gray-700 dark:text-gray-300">Hi there, welcome to Wavelink!</p>
-        <p className="text-gray-700 dark:text-gray-300">You&apos;ve been invited to play with <b>{player1}</b>!</p>
+        <p className="text-gray-700 dark:text-gray-300">You&apos;ve been invited to play with <b>{player1 === "ai" ? "the AI" : player1}</b>!</p>
         <p className="text-gray-700 dark:text-gray-300">Enter your name below to play.</p>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && <p className="text-red-500 dark:text-red-400">{error}</p>}
