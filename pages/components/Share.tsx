@@ -57,6 +57,7 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
 
   useEffect(() => {
     if (userId1 === 0 && !initialFetchDone.current) {
+      setShowAllGames(false);
       initialFetchDone.current = true;
       const slug = player1?.toLowerCase().replace(/ /g, '-') || "";
       callAPIRetrieveUser(slug).then((data) => {
