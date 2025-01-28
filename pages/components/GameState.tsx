@@ -87,6 +87,7 @@ export default function GameState({
   const [showPreviousRounds, setShowPreviousRounds] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showNudgeModal, setShowNudgeModal] = useState(false);
+  const [submitting, setSubmitting] = useState(true);
   const [copyButtonText, setCopyButtonText] = useState("Copy");
   const [timeLeft, setTimeLeft] = useState(30);
 
@@ -109,10 +110,11 @@ export default function GameState({
     e.preventDefault();
     const { success, error } = submitAnswer(answer.trim());
     if (success) {
-      setAnswer("");
       setError(null);
+      setSubmitting(true);
     } else {
       setError(error);
+      setSubmitting(false);
     }
   }
 
@@ -205,6 +207,8 @@ export default function GameState({
 
   useEffect(() => {
     if (playerState === PlayerState.Playing) {
+      setAnswer("");
+      setSubmitting(false);
       setTimeLeft(30);
     }
   }, [playerState]);
@@ -281,7 +285,7 @@ export default function GameState({
               type="submit"
               className="w-full sm:w-auto rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-6 transition-colors duration-200 flex items-center justify-center"
             >
-              Submit Answer
+              {submitting ? "Submitting..." : "Submit Answer"}
             </button>
           </form>
         </div>
