@@ -41,8 +41,6 @@ export default async function handler(
 
     let aiWord = null;
     if (player2 === "ai") {
-      let inputWord1 = word1;
-      let inputWord2 = word2;
       const previousWords = previousSubmissionWords + ", " + [word1, word2].join(", ");
       const aiResponse = await openai.chat.completions.create({
         model: "gpt-4o-mini",

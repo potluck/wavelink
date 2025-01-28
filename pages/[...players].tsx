@@ -449,8 +449,8 @@ export default function Page() {
     }
 
     let previousSubmissionWords = "";
-    let latestWord1 = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 1]?.link1 || "";
-    let latestWord2 = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 1]?.link2 || "";
+    const latestWord1 = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 1]?.link1 || "";
+    const latestWord2 = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 1]?.link2 || "";
     if (player2 == "ai") {
       previousSubmissionWords = currentTurnRef.current?.submissions
         .flatMap(sub => [sub.link1, sub.link2])
