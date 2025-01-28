@@ -45,19 +45,16 @@ export default async function handler(
         messages: [
           {
             role: "system",
-            content: `You are playing a word association game.
-              You need to provide a word or two-word phrase that creates a logical connection between two given words.
-              The word(s) should be simple and clear. Your goal is to match the word(s) your partner submitted.`
+            content: `You are playing a word association game. You need to provide a word or two-word phrase that creates a logical connection between two given words. The word(s) should be simple and clear. Your goal is to match the word(s) your partner submitted.`
           },
           {
             role: "user",
-            content: `Provide a single word or two-word phrase (just the word or words, nothing else) that creates
-            a logical connection between "${word1}" and "${word2}".
-            Your word cannot match, contain any of, or be a substring of any of the following words: ${previousWords}`
+            content: `Provide a single word or two-word phrase (just the word or words, nothing else) that creates a logical connection between "${word1}" and "${word2}". Your word cannot match, contain any of, or be a substring of any of the following words: ${previousWords}`
           }
         ],
         temperature: 0.7,
-        max_tokens: 50
+        max_tokens: 50,
+        store: true
       });
       aiWord = aiResponse.choices[0].message.content?.trim().split(/\s+/)[0] || "";
     }
