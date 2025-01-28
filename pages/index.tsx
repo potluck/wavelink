@@ -38,11 +38,16 @@ export default function Home() {
         <ul className="list-inside text-base sm:text-base text-center sm:text-left dark:text-gray-300">
           <li>Hey! You&apos;ve reached the homepage for Wavelink. This game is in the Beta phase of development.</li>
           <br />
-          <li>You can start a game with Potluck by clicking the button below!</li>
+          <li>You can start a game with Potluck or the AI partner by clicking the button below!</li>
         </ul>
-        <Link href="/potluck/invite" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded dark:bg-blue-600 dark:hover:bg-blue-800">
-          Start a game with Potluck
-        </Link>
+        <div className="flex gap-4">
+          <Link href="/potluck/invite" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded dark:bg-blue-600 dark:hover:bg-blue-800">
+            Play with Potluck
+          </Link>
+          <Link href="/ai/invite" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded dark:bg-green-600 dark:hover:bg-green-800">
+            Play with the AI
+          </Link>
+        </div>
       </main>
       <footer className="row-start-3 text-base">
         <Link href="/help" className="text-blue-600 hover:text-blue-800 underline dark:text-blue-400 dark:hover:text-blue-300">How to play</Link>
