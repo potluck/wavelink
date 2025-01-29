@@ -12,6 +12,7 @@ type GameStateProps = {
   player1Slug: string
   player2Slug: string
   player2Name: string
+  thisLower: boolean
 }
 
 export type Submission = {
@@ -80,7 +81,8 @@ export default function GameState({
   completedTurn,
   player1Slug,
   player2Slug,
-  player2Name
+  player2Name,
+  thisLower
 }: GameStateProps) {
 
   const [answer, setAnswer] = useState("");
@@ -229,7 +231,7 @@ export default function GameState({
       {(playerState == PlayerState.RoundToPlayNoMatch) &&
         <div className="text-purple-500">Your submission didn&apos;t match your partner&apos;s submission.
           <br />
-          Your submissions were <b>{lastLink1}</b> and <b>{lastLink2}</b>.
+          You submitted <b>{thisLower ? lastLink1 : lastLink2}</b> and {player2Name} submitted <b>{thisLower ? lastLink2 : lastLink1}</b>.
         </div>
       }
       {(playerState == PlayerState.RoundToPlay) &&
@@ -264,7 +266,7 @@ export default function GameState({
             Your starting words {lastLink1 && lastLink2 ? "were: " : "are: "} <b>{currentTurn?.word1}</b> and <b>{currentTurn?.word2}</b>.
             <br />
             <br />
-            {lastLink1 === "" && lastLink2 === "" ? "Think of a word (or two-word phrase) that connects them!" : thisTurn}
+            {lastLink1 === "" && lastLink2 === "" ? `Think of a word (or two-word phrase) that connects ${currentTurn?.word1} and ${currentTurn?.word2}!` : thisTurn}
             {(previousTurns == null || (previousTurns.length == 0 && completedTurn == null && lastLink1 == "" && lastLink2 == "")) &&
               <div>
                 <br />

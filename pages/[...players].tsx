@@ -556,6 +556,7 @@ export default function Page() {
                 player1Slug={player1}
                 player2Slug={player2}
                 player2Name={userName2}
+                thisLower={thisPlayerHasLowerID}
               />
               <InviteLink player1={player1} numOtherGamesToRespondTo={numOtherGamesToRespondTo} />
             </div>
