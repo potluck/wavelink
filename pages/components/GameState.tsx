@@ -114,6 +114,7 @@ export default function GameState({
     if (success) {
       setError(null);
       setSubmitting(true);
+      setAnswer("");
     } else {
       setError(error);
       setSubmitting(false);
