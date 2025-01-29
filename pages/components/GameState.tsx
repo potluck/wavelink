@@ -1,6 +1,8 @@
 import { FormEvent, useState, useEffect } from "react";
 import { PlayerState } from "../[...players]";
 import Explainer from "./Explainer";
+import { Badge } from "@/components/ui/badge"
+
 
 type GameStateProps = {
   playerState: PlayerState,
@@ -264,7 +266,8 @@ export default function GameState({
             Suggested time limit: 0:{timeLeft.toString().padStart(2, '0')}
           </div>
           <div className="mb-2">
-            Your starting words {lastLink1 && lastLink2 ? "were: " : "are: "} <b>{currentTurn?.word1}</b> and <b>{currentTurn?.word2}</b>.
+            Your starting words {lastLink1 && lastLink2 ? "were: " : "are: "}
+            <Badge variant="secondary" className="text-sm px-2 py-0.5">{currentTurn?.word1}</Badge> and <Badge variant="secondary" className="text-sm px-2 py-0.5">{currentTurn?.word2}</Badge>.
             <br />
             <br />
             {lastLink1 === "" && lastLink2 === "" ? `Think of a word (or two-word phrase) that connects ${currentTurn?.word1} and ${currentTurn?.word2}!` : thisTurn}
