@@ -41,6 +41,7 @@ export interface GameToRespondTo {
   id: number;
   other_player: string;
   other_player_slug: string;
+  last_turn_completed_at: string;
 }
 
 export default function Share({ player1, gamesToRespondTo, userId1 }: { player1: string, gamesToRespondTo: GameToRespondTo[], userId1: number }) {
@@ -50,6 +51,7 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
   const [userName, setUserName] = useState<string>("");
   const [allGameIDsToRespondTo, setAllGameIDsToRespondTo] = useState<number[]>(gamesToRespondTo?.map((game: GameToRespondTo) => game.id) || []);
   const [allGames, setAllGames] = useState<GameToRespondTo[]>([]);
+  const [allGamesLastDay, setAllGamesLastDay] = useState<GameToRespondTo[]>([]);
   const [allGamesToRespondTo, setAllGamesToRespondTo] = useState<GameToRespondTo[]>([]);
   const [showAllGames, setShowAllGames] = useState(false);
   const [invalidUser, setInvalidUser] = useState(false);
@@ -79,6 +81,7 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
     if (userId > 0) {
       callAPIRetrieveAllGames(userId).then((data) => {
         setAllGames(data.rows as GameToRespondTo[]);
+        setAllGamesLastDay(data.rows.filter((game: GameToRespondTo) => new Date(game.last_turn_completed_at) > new Date(Date.now() - 24 * 60 * 60 * 1000)));
       });
     }
   }, [userId]);
@@ -156,10 +159,27 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
           >
             {showAllGames ? '▼' : '▶'} All of your games ({allGames.length})
           </button>
-
-          {showAllGames && allGames.length > 0 && (
+          {showAllGames && allGamesLastDay.length > 0 && (
             <div className="pl-4">
-              {allGames.map((game) => (
+              <p className="text-gray-700 dark:text-gray-300"><u>Games from the last 24 hours:</u></p>
+              {allGamesLastDay.map((game) => (
+                <div key={game.id}>
+                  <Link
+                    href={`/${player1}/${game.other_player_slug}`}
+                    className="text-gray-700 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400"
+                    onClick={() => setShowAllGames(false)}
+                  >
+                    Game with {game.other_player}
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {showAllGames && allGames.length > allGamesLastDay.length && (
+            <div className="pl-4">
+              <p className="text-gray-700 dark:text-gray-300"><u>All other games:</u></p>
+              {allGames.filter((game) => !allGamesLastDay.includes(game)).map((game) => (
                 <div key={game.id}>
                   <Link
                     href={`/${player1}/${game.other_player_slug}`}
