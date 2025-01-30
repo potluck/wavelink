@@ -85,20 +85,20 @@ export default function Home() {
 
   return (
     <div
-      className={`${nunito.className} grid grid-rows-[auto_1fr_auto] items-start justify-items-center min-h-screen p-2 pb-8 gap-4 sm:gap-8 sm:p-12 dark:bg-gray-900 dark:text-white`}
+      className={`${nunito.className} grid grid-rows-[auto_1fr_auto] items-center justify-items-center min-h-screen p-2 pb-8 gap-4 sm:gap-8 sm:p-12 dark:bg-gray-900 dark:text-white`}
     >
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
+      <main className="flex flex-col gap-8 items-center max-w-2xl w-full">
         <h1 className="text-4xl font-bold text-center w-full dark:text-white">Wavelink &nbsp;&nbsp;🌊&thinsp;🔗</h1>
-        <ul className="list-inside text-base sm:text-base text-center sm:text-left dark:text-gray-300">
-          <li>Hey! You&apos;ve reached the homepage for Wavelink. This game is in the Beta phase of development.</li>
+        <ul className="list-inside text-base sm:text-base max-w-xl">
+          <li>Hey! You&apos;ve reached the homepage for Wavelink.</li>
           <br />
           <li>Wavelink is a 2-player word association game. The rules will be explained once you start playing.</li>
           <br />
           <li>You can start a game with Potluck or the AI partner by clicking the button below!</li>
           <br />
-          <li>Or, create an account and send your invite link to a friend!</li>
+          <li>Or to play with a friend, create an account and send them your invite link!</li>
         </ul>
-        <div className="flex flex-col gap-4 items-center">
+        <div className="flex flex-col gap-4 items-center w-full max-w-md">
           <div className="flex gap-4">
             <Link href="/potluck/invite" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded dark:bg-blue-600 dark:hover:bg-blue-800 text-sm">
               Play with Potluck
