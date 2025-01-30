@@ -92,7 +92,7 @@ export default function GameState({
   const [submitting, setSubmitting] = useState(true);
   const [copyButtonText, setCopyButtonText] = useState("Copy");
   const [timeLeft, setTimeLeft] = useState(30);
-
+  const [showCurrentRound, setShowCurrentRound] = useState(false);
   const isMobileDevice = () => {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   };
@@ -139,6 +139,8 @@ export default function GameState({
 
   let lastLink1 = "";
   let lastLink2 = "";
+
+  // For showing the turn while playing
   const thisTurn = currentTurn && currentTurn.submissions.length > 0 && (
     <div>
       {currentTurn.submissions.map((submission, idx) => {
@@ -149,7 +151,7 @@ export default function GameState({
         return (
           submission.link1 && submission.link2 && (
             <div key={idx}>
-              <b>Submission {idx + 1}: </b>{submission.link1} {submission.link2}
+              <b>Submission {idx + 1}: </b>{submission.link1} <b>|</b> {submission.link2}
             </div>
           )
         )
@@ -157,6 +159,29 @@ export default function GameState({
       {lastLink1 && lastLink2 && (
         <div>Now think of a word (or two-word phrase) that connects <b>{lastLink1}</b> and <b>{lastLink2}</b>!</div>
       )}
+    </div>
+  );
+
+  // Mostly redundant with thisTurn - this is for when player is waiting
+  const currRound = currentTurn && (
+    <div>
+      <span className="inline-flex gap-2">
+        Starting words:
+        <span className="px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300">
+          {currentTurn?.word1}
+        </span>
+        <span className="px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300">
+          {currentTurn?.word2}
+        </span>
+      </span>
+      {currentTurn.submissions.map((submission, idx) => {
+        return (
+          <div key={idx}>
+            <b>Submission {idx + 1}: </b>
+            {submission.link1 || "____"} <b>|</b> {submission.link2 || "____"}
+          </div>
+        )
+      })}
     </div>
   );
 
@@ -304,7 +329,15 @@ export default function GameState({
       {(playerState == PlayerState.Waiting) &&
         <div className="mb-2 text-purple-500 max-w-md"><b>Status: </b>Waiting for {player2Name} to complete this round.
           <br /><br />
-          The page will auto-update when they submit, but you can also refresh the page to reload.</div>
+          The page will auto-update when they submit, but you can also refresh the page to reload.
+          <button
+            onClick={() => setShowCurrentRound(!showCurrentRound)}
+            className="text-blue-500 hover:text-blue-700 underline cursor-pointer flex items-center gap-1 pt-4"
+          >
+            <b>{showCurrentRound ? 'Hide' : 'See'} Current Round Progress {showCurrentRound ? '▲' : '▼'}</b>
+          </button>
+          {showCurrentRound && <div className="mt-2 text-gray-900 dark:text-white">{currRound}</div>}
+        </div>
       }
       {(playerState == PlayerState.Waiting) && (
         <>

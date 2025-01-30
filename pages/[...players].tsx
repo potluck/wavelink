@@ -512,6 +512,15 @@ export default function Page() {
           }
         } else {
           setPlayerState(PlayerState.Waiting);
+          const thisSubmission = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 1];
+          if (thisSubmission) {
+            if (thisPlayerHasLowerID) {
+              thisSubmission.link1 = submission;
+            } else {
+              thisSubmission.link2 = submission;
+            }
+          }
+          setCurrentTurn(currentTurnRef.current);
         }
       })
     return { success: true, error: null };
