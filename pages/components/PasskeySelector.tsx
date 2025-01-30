@@ -3,24 +3,28 @@ import { useState, useEffect, FormEvent } from "react";
 type PasskeySelectorProps = {
   onSubmit: (passkey: string) => void;
   onCancel: () => void;
+  onSwitchToOtherUser?: () => void;
   title: string;
   description: string;
   submitButtonText: string;
   cancelButtonText: string;
   backendError: string | null;
   showExplainer: boolean;
+  otherUserName?: string;
   additionalDescription?: string;
 }
 
 export default function PasskeySelector({ 
   onSubmit, 
   onCancel, 
+  onSwitchToOtherUser,
   title, 
   description,
   submitButtonText,
   cancelButtonText,
   backendError,
   additionalDescription,
+  otherUserName,
   showExplainer
 }: PasskeySelectorProps) {
   const [error, setError] = useState<string | null>(null);
@@ -118,9 +122,18 @@ export default function PasskeySelector({
           >
             {cancelButtonText}
           </button>
+          {otherUserName && (
+            <button
+              type="button"
+              onClick={onSwitchToOtherUser}
+              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
+            >
+              Switch to {otherUserName}
+            </button>
+          )}
           <button
             type="submit"
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
           >
             {submitButtonText}
           </button>

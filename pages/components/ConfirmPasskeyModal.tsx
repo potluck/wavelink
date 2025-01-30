@@ -5,9 +5,11 @@ type ConfirmPasskeyModalProps = {
   onConfirm: (passkey: string | null) => void;
   userId: number;
   userName: string;
+  otherUserName?: string;
+  onSwitchToOtherUser?: () => void;
 }
 
-export default function ConfirmPasskeyModal({ onConfirm, userId, userName }: ConfirmPasskeyModalProps) {
+export default function ConfirmPasskeyModal({ onConfirm, userId, userName, otherUserName, onSwitchToOtherUser }: ConfirmPasskeyModalProps) {
   const [error, setError] = useState<string | null>(null);
 
   const handleClose = useCallback(async (passkey: string | null) => {
@@ -50,6 +52,8 @@ export default function ConfirmPasskeyModal({ onConfirm, userId, userName }: Con
         submitButtonText="Confirm Passkey"
         cancelButtonText="Cancel"
         showExplainer={false}
+        otherUserName={otherUserName}
+        onSwitchToOtherUser={onSwitchToOtherUser}
         onSubmit={(passkey) => handleClose(passkey)}
         onCancel={() => handleClose(null)}
         backendError={error}

@@ -531,6 +531,11 @@ export default function Page() {
           <ConfirmPasskeyModal
             userId={userId1}
             userName={player1}
+            otherUserName={userName2}
+            onSwitchToOtherUser={() => {
+              setShowConfirmPasskeyModal(false);
+              router.push(`/${player2}/${player1}`);
+            }}
             onConfirm={(confirmed) => {
               if (confirmed) {
                 setShowConfirmPasskeyModal(false);
