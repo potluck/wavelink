@@ -178,8 +178,8 @@ export default function GameState({
           Try again!
         </div>
       }
-      {((completedTurn.speed_score || 0) > 0 && lastLink1 === lastLink2) && (<div className="text-green-500">You and your partner both submitted <b>{lastLink1}</b>!</div>)}
-      {((completedTurn.speed_score || 0) > 0 && lastLink1 !== lastLink2) && (<div className="text-green-500">You and your partner submitted <b>{lastLink1}</b> and <b>{lastLink2}</b>!</div>)}
+      {((completedTurn.speed_score || 0) > 0 && lastLink1 === lastLink2) && (<div className="text-green-500">You and {player2Name} both submitted <b>{lastLink1}</b>!</div>)}
+      {((completedTurn.speed_score || 0) > 0 && lastLink1 !== lastLink2) && (<div className="text-green-500">You and {player2Name} submitted <b>{lastLink1}</b> and <b>{lastLink2}</b>!</div>)}
     </div>);
 
   useEffect(() => {
@@ -230,7 +230,7 @@ export default function GameState({
         </button>
       }
       {(playerState == PlayerState.RoundToPlayNoMatch) &&
-        <div className="text-purple-500">Your submission didn&apos;t match your partner&apos;s submission.
+        <div className="text-purple-500">Your submission didn&apos;t match {player2Name}&apos;s submission.
           <br />
           You submitted <b>{thisLower ? lastLink1 : lastLink2}</b> and {player2Name} submitted <b>{thisLower ? lastLink2 : lastLink1}</b>.
         </div>
@@ -302,7 +302,7 @@ export default function GameState({
         </div>
       }
       {(playerState == PlayerState.Waiting) &&
-        <div className="mb-2 text-purple-500 max-w-md"><b>Status: </b>Waiting for your partner to complete this round.
+        <div className="mb-2 text-purple-500 max-w-md"><b>Status: </b>Waiting for {player2Name} to complete this round.
           <br /><br />
           The page will auto-update when they submit, but you can also refresh the page to reload.</div>
       }
