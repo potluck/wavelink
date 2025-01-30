@@ -23,6 +23,19 @@ function computeRareness(word: string) {
   }
   return 5;
 }
+
+// TODO: Some better way to handle edge cases with the stemmer
+function isStemmerEdgeCase(submission: string, otherLink: string) {
+  const submissions = [submission.toLowerCase(), otherLink.toLowerCase()].sort();
+  return (
+    (submissions[0] === "feet" && submissions[1] === "foot") ||
+    (submissions[0] === "vocal" && submissions[1] === "voice") ||
+    (submissions[0] === "fry" && submissions[1] === "fryer") ||
+    (submissions[0] === "clothes" && submissions[1] === "clothing") ||
+    (submissions[0] === "coin" && submissions[1] === "coinage")
+  );
+}
+
 export default async function handler(
   request: NextApiRequest,
   response: NextApiResponse,
@@ -83,6 +96,10 @@ export default async function handler(
           if (distance(stemmer(submission), stemmer(otherLink)) <= 1) {
             speedScore = 5 - counter;
             rarenessScore = computeRareness(submission.toLowerCase());
+            turnCompleted = true;
+          } else if (isStemmerEdgeCase(submission, otherLink)) {
+            speedScore = 5 - counter;
+            rarenessScore = 0;
             turnCompleted = true;
           } else if (counter == 4) {
             turnCompleted = true;
