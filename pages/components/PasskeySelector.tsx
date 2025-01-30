@@ -10,7 +10,7 @@ type PasskeySelectorProps = {
   cancelButtonText: string;
   backendError: string | null;
   showExplainer: boolean;
-  otherUserName?: string;
+  otherUserName?: string | null;
   additionalDescription?: string;
 }
 

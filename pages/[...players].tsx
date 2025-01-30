@@ -218,7 +218,9 @@ export default function Page() {
               } else if (localUser.userId == null) {
                 // no passkey, no local user. Save the user to local storage
                 saveUserToLocalStorage(gameUserId1, player1l);
-                setShowSwitchUserLink(true);
+                if (player2l !== "ai") {
+                  setShowSwitchUserLink(true);
+                }
               } else if (localUser.userId == games.userId2) {
                 // local user matches user 2
                 router.push(`/${player2l}/${player1l}`);
@@ -538,7 +540,7 @@ export default function Page() {
           <ConfirmPasskeyModal
             userId={userId1}
             userName={player1}
-            otherUserName={userName2}
+            otherUserName={player2 === "ai" ? null : userName2}
             onSwitchToOtherUser={() => {
               setShowConfirmPasskeyModal(false);
               router.push(`/${player2}/${player1}`);

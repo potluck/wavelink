@@ -5,7 +5,7 @@ type ConfirmPasskeyModalProps = {
   onConfirm: (passkey: string | null) => void;
   userId: number;
   userName: string;
-  otherUserName?: string;
+  otherUserName?: string | null;
   onSwitchToOtherUser?: () => void;
 }
 
