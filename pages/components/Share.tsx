@@ -94,7 +94,7 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
 
 
   useEffect(() => {
-    const origin = window.location.origin.replace(/^https?:\/\/(www\.)?/, '');
+    const origin = window.location.origin.replace(/^(https?:\/\/)www\./, '$1');
     setShareUrl(`${origin}/${player1}/invite`);
   }, [player1]);
 
