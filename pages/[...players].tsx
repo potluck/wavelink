@@ -143,6 +143,11 @@ const getUserFromLocalStorage = () => {
   };
 }
 
+const clearLocalStorage = () => {
+  localStorage.removeItem('wavelink-userId');
+  localStorage.removeItem('wavelink-userSlug');
+}
+
 const InviteLink = ({ player1, numOtherGamesToRespondTo }: { player1: string, numOtherGamesToRespondTo: number }) => (
   <div className="mb-2 mt-6 text-center">
     <Link href={`/${player1}`} className="text-blue-600 hover:text-blue-800 underline">
@@ -177,6 +182,7 @@ export default function Page() {
   const [thisPlayerHasLowerID, setThisPlayerLower] = useState<boolean>(false);
   const [showPasskeyModal, setShowPasskeyModal] = useState<boolean>(false);
   const [showConfirmPasskeyModal, setShowConfirmPasskeyModal] = useState<boolean>(false);
+  const [showSwitchUserLink, setShowSwitchUserLink] = useState<boolean>(false);
 
   const [previousTurns, setPreviousTurns] = useState<Turn[]>([]);
   const [currentTurn, setCurrentTurn] = useState<Turn | null>(null);
@@ -212,6 +218,7 @@ export default function Page() {
               } else if (localUser.userId == null) {
                 // no passkey, no local user. Save the user to local storage
                 saveUserToLocalStorage(gameUserId1, player1l);
+                setShowSwitchUserLink(true);
               } else if (localUser.userId == games.userId2) {
                 // local user matches user 2
                 router.push(`/${player2l}/${player1l}`);
@@ -563,6 +570,12 @@ export default function Page() {
                 player2Name={userName2}
                 thisLower={thisPlayerHasLowerID}
               />
+              {showSwitchUserLink &&
+                <div className="mb-2 mt-6 text-center">
+                  <Link onClick={() => clearLocalStorage()} href={`/${player2}/${player1}`} className="text-blue-600 hover:text-blue-800 underline">Not {player1}? Switch to {player2}
+                  </Link>
+                </div>
+              }
               <InviteLink player1={player1} numOtherGamesToRespondTo={numOtherGamesToRespondTo} />
             </div>
             )}
