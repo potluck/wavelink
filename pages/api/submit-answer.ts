@@ -32,7 +32,8 @@ function isStemmerEdgeCase(submission: string, otherLink: string) {
     (submissions[0] === "vocal" && submissions[1] === "voice") ||
     (submissions[0] === "fry" && submissions[1] === "fryer") ||
     (submissions[0] === "clothes" && submissions[1] === "clothing") ||
-    (submissions[0] === "coin" && submissions[1] === "coinage")
+    (submissions[0] === "coin" && submissions[1] === "coinage") ||
+    (submissions[0] === "flight" && submissions[1] === "fly")
   );
 }
 
