@@ -6,7 +6,7 @@ export default async function handler(
   request: NextApiRequest,
   response: NextApiResponse,
 ) {
-  // TODO: include games where the last turn was completed and no new turn has been started
+
   const userId = request.query.userId as string;
   if (!userId) throw new Error('Missing userId');
   const { rows } = await sql`
