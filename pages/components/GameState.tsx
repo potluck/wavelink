@@ -125,7 +125,7 @@ export default function GameState({
   const prevTurns = (previousTurns || []).map((turn, idx) =>
     <div key={idx}>
       <span className="text-orange-500"><b>Round {idx + 1}. </b></span>
-      <br />Score: <b>{(turn.speed_score || 0)}</b>
+      <br />Score: <b>{(turn.speed_score || 0)}</b> {(turn.speed_score || 0) == 5 ? "🔥" : ""}
       <br />Words: {turn.word1}, {turn.word2}
       {turn.submissions?.map((submission, idx) => {
         return (
