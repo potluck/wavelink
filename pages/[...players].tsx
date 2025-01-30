@@ -444,8 +444,8 @@ export default function Page() {
   }
 
   function submitAnswer(submission: string) {
-    if (submission.length < 2) {
-      return { success: false, error: "Submission must be at least 2 characters" };
+    if (submission.trim().replace(/[.,/#!$%^&*;:{}=\_`~()]/g, "").length < 2) {
+      return { success: false, error: "Submission must be at least 2 letters" };
     }
 
     if (submission.split(/\s+/).length > 2) {
