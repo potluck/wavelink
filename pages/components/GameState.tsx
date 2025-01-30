@@ -114,6 +114,7 @@ export default function GameState({
     if (success) {
       setError(null);
       setSubmitting(true);
+      setAnswer("");
     } else {
       setError(error);
       setSubmitting(false);
@@ -263,7 +264,15 @@ export default function GameState({
             Suggested time limit: 0:{timeLeft.toString().padStart(2, '0')}
           </div>
           <div className="mb-2">
-            Your starting words {lastLink1 && lastLink2 ? "were: " : "are: "} <b>{currentTurn?.word1}</b> and <b>{currentTurn?.word2}</b>.
+            Your starting words {lastLink1 && lastLink2 ? "were: " : "are: "}
+            <span className="inline-flex gap-2">
+              <span className="px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300">
+                {currentTurn?.word1}
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300">
+                {currentTurn?.word2}
+              </span>
+            </span>
             <br />
             <br />
             {lastLink1 === "" && lastLink2 === "" ? `Think of a word (or two-word phrase) that connects ${currentTurn?.word1} and ${currentTurn?.word2}!` : thisTurn}

@@ -152,7 +152,7 @@ const InviteLink = ({ player1, numOtherGamesToRespondTo }: { player1: string, nu
           <br />
           In addition, you can invite other friends or play with the AI.
         </>)
-        : "Invite other friends, see your other games, or play with the AI"}
+        : "Invite other friends and see your other games"}
     </Link>
   </div>
 );
