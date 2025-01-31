@@ -309,18 +309,15 @@ export default function Page() {
         }
         const data = JSON.parse(event.data);
         const justCompletedSubmission = data && data.length > 0 ? data[0] : null;
-        // console.log("got data: ", data, justCompletedSubmission, currentTurnRef.current);
         if ((justCompletedSubmission?.turn_id == currentTurnRef.current?.id) && justCompletedSubmission?.counter + 1 >= (currentTurnRef.current?.submissions.length || 0)
           && playerStateRef.current == PlayerState.Waiting) {
           const lastSubmission = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 1];
-          // console.log("last submission: ", lastSubmission);
           if (lastSubmission) {
             lastSubmission.link1 = justCompletedSubmission.link1;
             lastSubmission.link2 = justCompletedSubmission.link2;
             lastSubmission.completed_at = new Date().toISOString();
           }
           if (justCompletedSubmission.turn_completed_at != null) {
-            // console.log("completed turn");
             const newTurn: Turn = {
               id: currentTurnRef.current?.id || 0,
               speed_score: justCompletedSubmission.speed_score,
@@ -372,7 +369,6 @@ export default function Page() {
       setPlayer1(queryPlayers[0]);
       setPlayer2(queryPlayers.length > 1 ? queryPlayers[1] : "No teammate set");
       if (queryPlayers[0] == "ai") {
-        console.log("Yo pots: ", queryPlayers);
         setLoadingError("You can't play as the AI!");
         setIsLoading(false);
       } else if (queryPlayers.length > 1 && queryPlayers[1].toLowerCase() != "invite" && queryPlayers[1] !== queryPlayers[0]) {
