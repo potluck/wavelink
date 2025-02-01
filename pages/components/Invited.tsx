@@ -64,7 +64,7 @@ export default function Invited({ player1 }: { player1: string }) {
       setError("You can't play with yourself!");
       return;
     }
-    else if (sanitizedSlug.length < 2 || sanitizedSlug === "help" || sanitizedSlug === "invite" || sanitizedSlug === "ai") {
+    else if (sanitizedSlug.length < 2 || sanitizedSlug === "help" || sanitizedSlug === "invite" || sanitizedSlug === "ai" || sanitizedSlug === "party") {
       setError("Please enter a valid name (2+ characters).");
       return;
     } else {

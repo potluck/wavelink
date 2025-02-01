@@ -55,7 +55,7 @@ export default function Home() {
     e.preventDefault();
     const sanitizedSlug = name.toLowerCase().trim().replace(/ /g, '-').replace(/[^\w-]/g, '');
 
-    if (sanitizedSlug.length < 2 || sanitizedSlug === "help" || sanitizedSlug === "invite" || sanitizedSlug === "ai") {
+    if (sanitizedSlug.length < 2 || sanitizedSlug === "help" || sanitizedSlug === "invite" || sanitizedSlug === "ai" || sanitizedSlug === "party") {
       setError("Please enter a valid name (2+ characters).");
       return;
     }
