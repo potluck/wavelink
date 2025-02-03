@@ -300,6 +300,7 @@ export default function Page() {
           setupPolling(gameIdl);
         })
     }
+    // TODO: replace this with websocket
     async function setupPolling(gameIdl: number) {
       const eventSource = new EventSource(`/api/poll?gameId=${gameIdl}`);
 
