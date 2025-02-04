@@ -5,6 +5,7 @@ import { stemmer } from 'stemmer'
 import { distance } from 'fastest-levenshtein';
 import { words } from 'popular-english-words';
 import OpenAI from 'openai';
+import { createClient } from '@supabase/supabase-js'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -88,7 +89,11 @@ export default async function handler(
     let rarenessScore = 0;
     let otherLink = null;
     let counter = -1;
+    let gameId = null;
     for (const row of rows) {
+      if (gameId == null) {
+        gameId = row.game_id;
+      }
       if ((thisLower == "true" && row.link1 == null) || (thisLower == "false" && row.link2 == null)) {
         counter = row.counter;
         otherLink = aiWord || (thisLower == "true" ? row.link2 : row.link1);
@@ -114,6 +119,8 @@ export default async function handler(
     if (aiWord == null) {
       aiWord = otherLink;
     }
+
+    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || "", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "")
 
     if (thisLower == "true" && turnCompleted) {
       await sql`
@@ -182,6 +189,22 @@ export default async function handler(
           SET link2=${submission}, link1=${aiWord}
           WHERE turn_id=${turnId} and counter=${counter};
         `;
+      }
+    }
+    if (submissionCompleted && player2 != "ai") {
+      const { error } = await supabase
+        .from('completed-submissions')
+        .insert({
+          game_id: gameId,
+          turn_id: turnId,
+          counter: counter,
+          link1: thisLower == "true" ? submission : otherLink,
+          link2: thisLower == "true" ? otherLink : submission,
+          turn_completed_at: turnCompleted ? new Date().toISOString() : null,
+          speed_score: speedScore
+        })
+      if (error) {
+        console.error("Error inserting completed submission to supabase: ", error);
       }
     }
     return response.status(200).json({

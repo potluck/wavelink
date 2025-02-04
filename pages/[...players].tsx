@@ -8,6 +8,7 @@ import Share from './components/Share';
 import Invited from './components/Invited';
 import ConfirmPasskeyModal from './components/ConfirmPasskeyModal';
 import { GameToRespondTo } from './components/Share';
+import { createClient, RealtimePostgresInsertPayload } from '@supabase/supabase-js'
 
 const nunito = Nunito({ subsets: ['latin'] })
 
@@ -162,6 +163,15 @@ const InviteLink = ({ player1, numOtherGamesToRespondTo }: { player1: string, nu
   </div>
 );
 
+interface CompletedSubmission {
+  turn_id: number;
+  counter: number;
+  link1: string | null;
+  link2: string | null;
+  turn_completed_at: string | null;
+  speed_score: number;
+}
+
 export default function Page() {
   const router = useRouter();
 
@@ -300,58 +310,15 @@ export default function Page() {
           setupPolling(gameIdl);
         })
     }
-    // TODO: replace this with websocket
-    async function setupPolling(gameIdl: number) {
-      const eventSource = new EventSource(`/api/poll?gameId=${gameIdl}`);
 
-      eventSource.onmessage = (event) => {
-        if (event.data && event.data.length > 2) {
-          console.log("got data: ", event.data);
-        }
-        const data = JSON.parse(event.data);
-        const justCompletedSubmission = data && data.length > 0 ? data[0] : null;
-        if ((justCompletedSubmission?.turn_id == currentTurnRef.current?.id) && justCompletedSubmission?.counter + 1 >= (currentTurnRef.current?.submissions.length || 0)
-          && playerStateRef.current == PlayerState.Waiting) {
-          const lastSubmission = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 1];
-          if (lastSubmission) {
-            lastSubmission.link1 = justCompletedSubmission.link1;
-            lastSubmission.link2 = justCompletedSubmission.link2;
-            lastSubmission.completed_at = new Date().toISOString();
-          }
-          if (justCompletedSubmission.turn_completed_at != null) {
-            const newTurn: Turn = {
-              id: currentTurnRef.current?.id || 0,
-              speed_score: justCompletedSubmission.speed_score,
-              word1: currentTurnRef.current?.word1 || "",
-              word2: currentTurnRef.current?.word2 || "",
-              created_at: currentTurnRef.current?.created_at || "",
-              completed_at: "",
-              submissions: currentTurnRef.current?.submissions || []
-            };
-            setCompletedTurn(newTurn);
-            setPreviousTurns([...previousTurnsRef.current, newTurn]);
-            setPlayerState(PlayerState.NoRound);
-            document.title = "(1) Wavelink - a Pots production";
-          } else if (lastSubmission) {
-            const newSubmission = {
-              ...lastSubmission,
-              completed_at: null,
-              counter: lastSubmission.counter + 1,
-              link1: null,
-              link2: null,
-            };
-            currentTurnRef.current?.submissions.push(newSubmission);
-            setPlayerState(PlayerState.RoundToPlayNoMatch);
-            document.title = "(1) Wavelink - a Pots production";
-          }
-        }
-      };
-      eventSource.onerror = function (e) {
-        console.log("eventsource error: " + e.type);
-      };
-      return () => {
-        eventSource.close();
-      };
+    async function setupPolling(gameIdl: number) {
+      const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || "", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "")
+      supabase
+        .channel('completed-submissions')
+        .on('postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'completed-submissions', filter: `game_id=eq.${gameIdl}` },
+          handleCompletedSubmissions)
+        .subscribe()
     }
 
     async function fetchGamesToRespondTo(userId: number, gameId: number) {
@@ -438,6 +405,45 @@ export default function Page() {
       }
     }
     return false;
+  }
+
+  const handleCompletedSubmissions = (payload: RealtimePostgresInsertPayload<CompletedSubmission>) => {
+    const justCompletedSubmission = payload.new;
+    if ((justCompletedSubmission?.turn_id == currentTurnRef.current?.id) && justCompletedSubmission?.counter + 1 >= (currentTurnRef.current?.submissions.length || 0)
+      && playerStateRef.current == PlayerState.Waiting) {
+      const lastSubmission = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 1];
+      if (lastSubmission) {
+        lastSubmission.link1 = justCompletedSubmission.link1;
+        lastSubmission.link2 = justCompletedSubmission.link2;
+        lastSubmission.completed_at = new Date().toISOString();
+      }
+      if (justCompletedSubmission.turn_completed_at != null) {
+        const newTurn: Turn = {
+          id: currentTurnRef.current?.id || 0,
+          speed_score: justCompletedSubmission.speed_score,
+          word1: currentTurnRef.current?.word1 || "",
+          word2: currentTurnRef.current?.word2 || "",
+          created_at: currentTurnRef.current?.created_at || "",
+          completed_at: "",
+          submissions: currentTurnRef.current?.submissions || []
+        };
+        setCompletedTurn(newTurn);
+        setPreviousTurns([...previousTurnsRef.current, newTurn]);
+        setPlayerState(PlayerState.NoRound);
+        document.title = "(1) Wavelink - a Pots production";
+      } else if (lastSubmission) {
+        const newSubmission = {
+          ...lastSubmission,
+          completed_at: null,
+          counter: lastSubmission.counter + 1,
+          link1: null,
+          link2: null,
+        };
+        currentTurnRef.current?.submissions.push(newSubmission);
+        setPlayerState(PlayerState.RoundToPlayNoMatch);
+        document.title = "(1) Wavelink - a Pots production";
+      }
+    }
   }
 
   function submitAnswer(submission: string) {
