@@ -63,9 +63,10 @@ export default async function handler(
     }
 
     const { rows } = await sql`
-      SELECT *
+      SELECT s.*, t.game_id, g.user_id1, g.user_id2
       FROM turns t 
       JOIN submissions s ON t.id = s.turn_id
+      JOIN games g on t.game_id = g.id
       where t.id = ${turnId}
       order by s.counter asc;
     `;
@@ -75,9 +76,11 @@ export default async function handler(
     let otherLink = null;
     let counter = -1;
     let gameId = null;
+    let otherUserId = null;
     for (const row of rows) {
       if (gameId == null) {
         gameId = row.game_id;
+        otherUserId = thisLower == "true" ? row.user_id2 : row.user_id1;
       }
       if ((thisLower == "true" && row.link1 == null) || (thisLower == "false" && row.link2 == null)) {
         counter = row.counter;
@@ -183,7 +186,8 @@ export default async function handler(
           link1: thisLower == "true" ? submission : otherLink,
           link2: thisLower == "true" ? otherLink : submission,
           turn_completed_at: turnCompleted ? new Date().toISOString() : null,
-          speed_score: speedScore
+          speed_score: speedScore,
+          user_id_first_submitter: otherUserId
         })
       if (error) {
         console.error("Error inserting completed submission to supabase: ", error);

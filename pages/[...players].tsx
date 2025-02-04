@@ -7,8 +7,8 @@ import SetPasskeyModal from './components/SetPasskeyModal';
 import Share from './components/Share';
 import Invited from './components/Invited';
 import ConfirmPasskeyModal from './components/ConfirmPasskeyModal';
-import { GameToRespondTo } from './components/Share';
 import { createClient, RealtimePostgresInsertPayload } from '@supabase/supabase-js'
+import { useGameContext } from '../contexts/GameContext';
 
 const nunito = Nunito({ subsets: ['latin'] })
 
@@ -170,12 +170,14 @@ interface CompletedSubmission {
   link2: string | null;
   turn_completed_at: string | null;
   speed_score: number;
+  game_id: number;
 }
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || "", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "")
 
 export default function Page() {
   const router = useRouter();
+  const { gameIDsToRespondTo, setGameIDsToRespondTo } = useGameContext();
 
   const [playerState, setPlayerState] = useState(PlayerState.NoRound);
   const [isLoading, setIsLoading] = useState(true);
@@ -188,7 +190,6 @@ export default function Page() {
   const [userName1, setUserName1] = useState<string>("");
   const [userName2, setUserName2] = useState<string>("");
   const [userHasPasskey, setUserHasPasskey] = useState<boolean>(false);
-  const [gamesToRespondTo, setGamesToRespondTo] = useState<GameToRespondTo[]>([]);
   const [numOtherGamesToRespondTo, setNumOtherGamesToRespondTo] = useState<number>(0);
   const [gameId, setGameId] = useState<number>(0);
   const [thisPlayerHasLowerID, setThisPlayerLower] = useState<boolean>(false);
@@ -201,6 +202,7 @@ export default function Page() {
   const [completedTurn, setCompletedTurn] = useState<Turn | null>(null);
   const currentTurnRef = useRef<Turn | null>(null);
   const previousTurnsRef = useRef<Turn[]>([]);
+  const gameIDsToRespondToRef = useRef<number[]>([]);
   const playerStateRef = useRef<PlayerState>(PlayerState.NoRound);
 
   useEffect(() => {
@@ -214,6 +216,11 @@ export default function Page() {
   useEffect(() => {
     playerStateRef.current = playerState;
   }, [playerState]);
+
+  useEffect(() => {
+    gameIDsToRespondToRef.current = gameIDsToRespondTo;
+    setNumOtherGamesToRespondTo(gameIDsToRespondTo.filter((gameID: number) => gameID != gameId).length);
+  }, [gameIDsToRespondTo, gameId]);
 
   useEffect(() => {
     async function fetchGameData(player1l: string, player2l: string) {
@@ -270,7 +277,7 @@ export default function Page() {
             const game = games.rows[0];
             setGameId(game.id);
             setThisPlayerLower(games.thisLower);
-            fetchTurnsData(game.id, games.thisLower);
+            fetchTurnsData(game.id, games.thisLower, gameUserId1);
             fetchGamesToRespondTo(games.userId1, game.id);
           } else if (games.error) {
             setIsLoading(false);
@@ -280,7 +287,7 @@ export default function Page() {
         })
     }
 
-    async function fetchTurnsData(gameIdl: number, thisLower: boolean) {
+    async function fetchTurnsData(gameIdl: number, thisLower: boolean, userId1: number) {
       callAPIRetrieveTurns(gameIdl)
         .then((turns) => {
           const { prevTurns, currTurn, completedTurn } = processTurns(turns?.rows || [], thisLower);
@@ -309,25 +316,35 @@ export default function Page() {
             setPlayerState(PlayerState.NoRound);
           }
           setIsLoading(false);
-          setupPolling(gameIdl);
+          setupPolling(gameIdl, userId1);
         })
     }
 
-    async function setupPolling(gameIdl: number) {
+    async function setupPolling(gameIdl: number, userId1: number) {
       supabase
         .channel('completed-submissions')
         .on('postgres_changes',
           { event: 'INSERT', schema: 'public', table: 'completed-submissions', filter: `game_id=eq.${gameIdl}` },
           handleCompletedSubmissions)
         .subscribe()
+
+        supabase
+        .channel('other-completed-games')
+        .on('postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'completed-submissions', filter: `user_id_first_submitter=eq.${userId1}` },
+           handleOtherCompletedGames)
+        .subscribe()
     }
 
     async function fetchGamesToRespondTo(userId: number, gameId: number) {
+      if (gameIDsToRespondToRef.current.length > 0) {
+        setNumOtherGamesToRespondTo(gameIDsToRespondToRef.current.filter((gameID) => gameID != gameId).length);
+        return;
+      }
       callAPIRetrieveGamesToRespondTo(userId)
         .then((games) => {
           if (games?.rows != null && games.rows.length > 0) {
-            setGamesToRespondTo(games.rows);
-            setNumOtherGamesToRespondTo(games.rows.filter((game: GameToRespondTo) => game.id != gameId).length);
+            setGameIDsToRespondTo(games.rows.map((game: {id: number}) => game.id));
           }
         })
     }
@@ -447,6 +464,14 @@ export default function Page() {
     }
   }
 
+  const handleOtherCompletedGames = (payload: RealtimePostgresInsertPayload<CompletedSubmission>) => {
+    const justCompletedSubmission = payload.new;
+    const completedGameId = parseInt(justCompletedSubmission.game_id.toString());
+    if (!gameIDsToRespondToRef.current.some(gameID => gameID == completedGameId)) {
+      setGameIDsToRespondTo([...gameIDsToRespondToRef.current, completedGameId]);
+    }
+  }
+
   function submitAnswer(submission: string) {
     if (submission.trim().replace(/[.,/#!$%^&*;:{}=\_`~()]/g, "").length < 2) {
       return { success: false, error: "Submission must be at least 2 letters" };
@@ -515,6 +540,7 @@ export default function Page() {
             currentTurnRef.current?.submissions.push(newSubmission);
           }
         } else {
+          setGameIDsToRespondTo(gameIDsToRespondToRef.current.filter((gameID) => gameID != gameId));
           setPlayerState(PlayerState.Waiting);
           const thisSubmission = currentTurnRef.current?.submissions[currentTurnRef.current?.submissions.length - 1];
           if (thisSubmission) {
@@ -534,7 +560,7 @@ export default function Page() {
     if (players.length == 2 && players[0].toLowerCase() == players[1].toLowerCase()) {
       router.push(`/${players[0]}`);
     }
-    return <Share player1={player1} gamesToRespondTo={gamesToRespondTo} userId1={userId1} />;
+    return <Share player1={player1} userId1={userId1} />;
   }
 
   if (players.length == 2 && players[1].toLowerCase() == "invite") {

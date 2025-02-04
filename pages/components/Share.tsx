@@ -1,6 +1,7 @@
 import { Nunito } from 'next/font/google'
 import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
+import { useGameContext } from '../../contexts/GameContext'
 
 const nunito = Nunito({ subsets: ['latin'] })
 
@@ -37,22 +38,22 @@ const callAPIRetrieveUser = async (slug: string) => {
 }
 
 // Add interface for game type
-export interface GameToRespondTo {
+export interface GameInfo {
   id: number;
   other_player: string;
   other_player_slug: string;
   last_turn_completed_at: string;
 }
 
-export default function Share({ player1, gamesToRespondTo, userId1 }: { player1: string, gamesToRespondTo: GameToRespondTo[], userId1: number }) {
+export default function Share({ player1, userId1 }: { player1: string, userId1: number }) {
+  const { gameIDsToRespondTo, setGameIDsToRespondTo } = useGameContext();
   const [copied, setCopied] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [userId, setUserId] = useState<number>(userId1);
   const [userName, setUserName] = useState<string>("");
-  const [allGameIDsToRespondTo, setAllGameIDsToRespondTo] = useState<number[]>(gamesToRespondTo?.map((game: GameToRespondTo) => game.id) || []);
-  const [allGames, setAllGames] = useState<GameToRespondTo[]>([]);
-  const [allGamesLastDay, setAllGamesLastDay] = useState<GameToRespondTo[]>([]);
-  const [allGamesToRespondTo, setAllGamesToRespondTo] = useState<GameToRespondTo[]>([]);
+  const [allGames, setAllGames] = useState<GameInfo[]>([]);
+  const [allGamesLastDay, setAllGamesLastDay] = useState<GameInfo[]>([]);
+  const [allGamesToRespondTo, setAllGamesToRespondTo] = useState<GameInfo[]>([]);
   const [showAllGames, setShowAllGames] = useState(false);
   const [invalidUser, setInvalidUser] = useState(false);
   const initialFetchDone = useRef(false);
@@ -69,7 +70,7 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
           setUserId(data.rows[0]?.id || 0);
           setUserName(data.rows[0]?.name || "");
           callAPIRetrieveAllGamesToRespondTo(data.rows[0]?.id).then((data) => {
-            setAllGameIDsToRespondTo(data.rows.map((game: GameToRespondTo) => game.id));
+            setGameIDsToRespondTo(data.rows.map((game: GameInfo) => game.id));
           });
         }
       });
@@ -80,17 +81,17 @@ export default function Share({ player1, gamesToRespondTo, userId1 }: { player1:
   useEffect(() => {
     if (userId > 0) {
       callAPIRetrieveAllGames(userId).then((data) => {
-        setAllGames(data.rows as GameToRespondTo[]);
-        setAllGamesLastDay(data.rows.filter((game: GameToRespondTo) => new Date(game.last_turn_completed_at) > new Date(Date.now() - 24 * 60 * 60 * 1000)));
+        setAllGames(data.rows as GameInfo[]);
+        setAllGamesLastDay(data.rows.filter((game: GameInfo) => new Date(game.last_turn_completed_at) > new Date(Date.now() - 24 * 60 * 60 * 1000)));
       });
     }
   }, [userId]);
 
   useEffect(() => {
-    if (allGames.length > 0 && allGameIDsToRespondTo.length > 0) {
-      setAllGamesToRespondTo(allGames.filter((game: GameToRespondTo) => allGameIDsToRespondTo.includes(game.id)));
+    if (allGames.length > 0 && gameIDsToRespondTo.length > 0) {
+      setAllGamesToRespondTo(allGames.filter((game: GameInfo) => gameIDsToRespondTo.includes(game.id)));
     }
-  }, [allGames, allGameIDsToRespondTo]);
+  }, [allGames, gameIDsToRespondTo]);
 
 
   useEffect(() => {
