@@ -13,9 +13,13 @@ export default async function handler(
   let currTurn = null;
 
   try {
-    const { rows: turnsPlayed } = await sql`SELECT * FROM turns t where t.game_id = ${gameId};`;
+    const { rows: turnsPlayed } = await sql`SELECT t.*, g.user_id1, g.user_id2 FROM turns t join games g on t.game_id = g.id where t.game_id = ${gameId};`;
     const pairsUsed = new Set<number>();
 
+    const aiPlayer = turnsPlayed.length > 0 && (turnsPlayed[0].user_id1 == 106 || turnsPlayed[0].user_id2 == 106);
+    if (aiPlayer && turnsPlayed.length > 50) {
+      return response.status(400).json({ error: "Limit of 50 turns with AI player reached" });
+    }
     for (const turn of turnsPlayed) {
       if (turn.completed_at == null) {
         currTurn = turn;

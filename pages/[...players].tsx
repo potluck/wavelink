@@ -34,9 +34,13 @@ const callAPICreateTurn = async (gameId: number) => {
   try {
     const res = await fetch(`/api/create-new-turn/?gameId=${gameId}`);
     const data = await res.json();
+    if (data.error) {
+      return {error: data.error};
+    }
     return data.rows[0];
   } catch (err) {
     console.log(err);
+    return {error: err};
   }
 }
 
@@ -382,6 +386,11 @@ export default function Page() {
       document.title = "Wavelink - a Pots production";
       callAPICreateTurn(gameId)
         .then((turn) => {
+          if (turn.error) {
+            setLoadingError("Sorry, there was an error starting the turn. Please refresh and try again.");
+            setIsLoading(false);
+            return;
+          }
           const { currTurn } = processTurns([turn], thisPlayerHasLowerID);
           setCurrentTurn(currTurn);
           setPlayerState(PlayerState.Playing);
