@@ -2,7 +2,7 @@ export default function Explainer() {
   return (
     <div>
       <div>
-        Wavelink is a word association game. In each round, you and your partner receive 2 starting words.
+        Wavelink is a 2-player word association game. In each round, you and your partner receive 2 starting words.
       </div>
       <br />
       <div>
