@@ -3,27 +3,12 @@ import { sql } from '@vercel/postgres';
 import { NextApiResponse, NextApiRequest } from 'next';
 import { stemmer } from 'stemmer'
 import { distance } from 'fastest-levenshtein';
-import { words } from 'popular-english-words';
 import OpenAI from 'openai';
 import { createClient } from '@supabase/supabase-js'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-
-function computeRareness(word: string) {
-  const rank = words.getWordRank(word);
-  if (rank < 500) {
-    return 1;
-  } else if (rank < 2000) {
-    return 2;
-  } else if (rank < 10000) {
-    return 3;
-  } else if (rank < 50000) {
-    return 4;
-  }
-  return 5;
-}
 
 // TODO: Some better way to handle edge cases with the stemmer
 function isStemmerEdgeCase(submission: string, otherLink: string) {
@@ -87,7 +72,6 @@ export default async function handler(
     let turnCompleted = false;
     let submissionCompleted = false;
     let speedScore = 0;
-    let rarenessScore = 0;
     let otherLink = null;
     let counter = -1;
     let gameId = null;
@@ -102,16 +86,13 @@ export default async function handler(
           submissionCompleted = true;
           if (distance(stemmer(submission), stemmer(otherLink)) <= 1) {
             speedScore = 5 - counter;
-            rarenessScore = computeRareness(submission.toLowerCase());
             turnCompleted = true;
           } else if (isStemmerEdgeCase(submission, otherLink)) {
             speedScore = 5 - counter;
-            rarenessScore = 0;
             turnCompleted = true;
           } else if (counter == 4) {
             turnCompleted = true;
             speedScore = 0;
-            rarenessScore = 0;
           }
         }
         break;
@@ -131,7 +112,7 @@ export default async function handler(
       `;
       await sql`
         UPDATE turns 
-        SET completed_at = NOW(), speed_score=${speedScore}, rareness_score=${rarenessScore} 
+        SET completed_at = NOW(), speed_score=${speedScore}
         WHERE id=${turnId};
       `;
     } else if (thisLower == "true" && !turnCompleted) {
@@ -165,7 +146,7 @@ export default async function handler(
       `;
       await sql`
         UPDATE turns 
-        SET completed_at = NOW(), speed_score=${speedScore}, rareness_score=${rarenessScore} 
+        SET completed_at = NOW(), speed_score=${speedScore}
         WHERE id=${turnId};
       `;
     } else if (thisLower == "false" && !turnCompleted) {

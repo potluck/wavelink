@@ -62,7 +62,6 @@ export default async function handler(
     SELECT t.id as turn_id, 
       t.created_at as turn_created_at,
       t.completed_at as turn_completed_at,
-      t.rareness_score,
       t.speed_score,
       p.word1, p.word2, 
       s.id,
