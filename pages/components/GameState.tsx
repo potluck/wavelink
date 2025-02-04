@@ -318,6 +318,7 @@ export default function GameState({
               placeholder="Enter word..."
               autoComplete="off"
               type="text"
+              name="submission"
             />
             <button
               type="submit"
