@@ -92,7 +92,7 @@ export default function Home() {
         <ul className="list-inside text-base sm:text-base max-w-xl">
           <li>Hey! You&apos;ve reached the homepage for Wavelink.</li>
           <br />
-          <li>Wavelink is a 2-player word association game. The rules will be explained once you start playing.</li>
+          <li>Wavelink is a 2-player word association game.</li>
           <br />
           <li>You can start a game with Potluck or the AI partner by clicking the button below!</li>
           <br />
