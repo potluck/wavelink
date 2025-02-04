@@ -13,13 +13,13 @@ export default async function handler(
     SELECT distinct g.id FROM games g 
     JOIN turns t on t.game_id = g.id and t.completed_at is null 
     JOIN submissions s on s.turn_id = t.id and s.completed_at is null
-    WHERE ((g.user_id1 = ${userId} and s.link1 is null)
-      OR (g.user_id2 = ${userId} and s.link2 is null)
+    WHERE ((g.user_id1 = ${userId} and s.link1 is null and g.user_id2 != 106)
+      OR (g.user_id2 = ${userId} and s.link2 is null and g.user_id1 != 106)
     )
     UNION ALL
     SELECT distinct g.id FROM games g
     JOIN turns t on t.game_id = g.id and t.completed_at is not null
-    WHERE ((g.user_id1 = ${userId} or g.user_id2 = ${userId})) AND NOT EXISTS (
+    WHERE (((g.user_id1 = ${userId} and g.user_id2 != 106) or (g.user_id2 = ${userId} and g.user_id1 != 106))) AND NOT EXISTS (
       SELECT 1
       FROM turns AS t
       WHERE t.game_id = g.id
