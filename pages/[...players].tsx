@@ -172,6 +172,8 @@ interface CompletedSubmission {
   speed_score: number;
 }
 
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || "", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "")
+
 export default function Page() {
   const router = useRouter();
 
@@ -312,7 +314,6 @@ export default function Page() {
     }
 
     async function setupPolling(gameIdl: number) {
-      const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || "", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "")
       supabase
         .channel('completed-submissions')
         .on('postgres_changes',
