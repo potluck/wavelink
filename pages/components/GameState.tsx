@@ -157,7 +157,14 @@ export default function GameState({
         )
       })}
       {lastLink1 && lastLink2 && (
-        <div>Now think of a word (or two-word phrase) that connects <b>{lastLink1}</b> and <b>{lastLink2}</b>!</div>
+        <div><br />Now think of a word (or two-word phrase) that connects<br />
+          <span className="px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300">
+            {lastLink1}
+          </span>
+          &nbsp;and&nbsp;
+          <span className="px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300">
+            {lastLink2}
+          </span>!</div>
       )}
     </div>
   );
@@ -290,17 +297,19 @@ export default function GameState({
           </div>
           <div className="mb-2">
             Your starting words {lastLink1 && lastLink2 ? "were: " : "are: "}
-            <span className="inline-flex gap-2">
-              <span className="px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300">
-                {currentTurn?.word1}
-              </span>
-              <span className="px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300">
-                {currentTurn?.word2}
-              </span>
-            </span>
+            <b>{currentTurn?.word1}</b> and <b>{currentTurn?.word2}</b>
             <br />
             <br />
-            {lastLink1 === "" && lastLink2 === "" ? `Think of a word (or two-word phrase) that connects ${currentTurn?.word1} and ${currentTurn?.word2}!` : thisTurn}
+            {lastLink1 === "" && lastLink2 === "" ?
+              <>Think of a word (or two-word phrase) that connects <br />
+                <span className="px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300">
+                  {currentTurn?.word1}
+                </span>
+                &nbsp;and&nbsp;
+                <span className="px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300">
+                  {currentTurn?.word2}
+                </span></>
+              : thisTurn}
             {(previousTurns == null || (previousTurns.length == 0 && completedTurn == null && lastLink1 == "" && lastLink2 == "")) &&
               <div>
                 <br />
