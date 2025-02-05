@@ -17,8 +17,8 @@ export default async function handler(
     const pairsUsed = new Set<number>();
 
     const aiPlayer = turnsPlayed.length > 0 && (turnsPlayed[0].user_id1 == 106 || turnsPlayed[0].user_id2 == 106);
-    if (aiPlayer && turnsPlayed.length > 50) {
-      return response.status(400).json({ error: "Limit of 50 turns with AI player reached" });
+    if (aiPlayer && turnsPlayed.length > 80) {
+      return response.status(400).json({ error: "Limit of 80 turns with AI player reached" });
     }
     for (const turn of turnsPlayed) {
       if (turn.completed_at == null) {
