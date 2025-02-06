@@ -157,14 +157,17 @@ export default function GameState({
         )
       })}
       {lastLink1 && lastLink2 && (
-        <div><br />Now think of a word (or two-word phrase) that connects<br />
-          <span className="px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300">
-            {lastLink1}
-          </span>
-          &nbsp;and&nbsp;
-          <span className="px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300">
-            {lastLink2}
-          </span>!</div>
+        <div><br />Enter a word (or two-word phrase) that connects<br /><br />
+          <div className="flex justify-center items-center gap-2">
+            <span className="px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300">
+              {lastLink1}
+            </span>
+            <b>+</b>
+            <span className="px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300">
+              {lastLink2}
+            </span>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -301,14 +304,18 @@ export default function GameState({
             <br />
             <br />
             {lastLink1 === "" && lastLink2 === "" ?
-              <>Think of a word (or two-word phrase) that connects <br />
+              <>Think of a word (or two-word phrase) that connects <br /><br />
+                <div className="flex justify-center items-center gap-2">
+
                 <span className="px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300">
                   {currentTurn?.word1}
                 </span>
-                &nbsp;and&nbsp;
+                <b>+</b>
                 <span className="px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300">
                   {currentTurn?.word2}
-                </span></>
+                </span>
+              </div>
+              </>
               : thisTurn}
             {(previousTurns == null || (previousTurns.length == 0 && completedTurn == null && lastLink1 == "" && lastLink2 == "")) &&
               <div>
