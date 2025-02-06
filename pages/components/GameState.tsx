@@ -130,7 +130,7 @@ export default function GameState({
       {turn.submissions?.map((submission, idx) => {
         return (
           <div className="pl-4" key={idx}>
-            <u>Submission {idx + 1}:</u> {submission.link1} <b>|</b> {submission.link2}
+            <u>Guess {idx + 1}:</u> {submission.link1} <b>|</b> {submission.link2}
           </div>
         )
       })}
@@ -151,7 +151,7 @@ export default function GameState({
         return (
           submission.link1 && submission.link2 && (
             <div key={idx}>
-              <b>Submission {idx + 1}: </b>{submission.link1} <b>|</b> {submission.link2}
+              <b>Guess {idx + 1}: </b>{submission.link1} <b>|</b> {submission.link2}
             </div>
           )
         )
@@ -187,7 +187,7 @@ export default function GameState({
       {currentTurn.submissions.map((submission, idx) => {
         return (
           <div key={idx}>
-            <b>Submission {idx + 1}: </b>
+            <b>Guess {idx + 1}: </b>
             {submission.link1 || "____"} <b>|</b> {submission.link2 || "____"}
           </div>
         )

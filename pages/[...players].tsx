@@ -266,7 +266,6 @@ export default function Page() {
                 router.push(`/${player2l}/${player1l}`);
                 return;
               } else {
-                // TODO: Ask user to switch account & confirm passkey.
                 //  Notify that we're switching from saved user
                 console.log("local User ID didn't match game User ID w/ passkey: ", localUser.userId, gameUserId1);
                 setShowConfirmPasskeyModal(true);
