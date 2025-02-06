@@ -269,7 +269,7 @@ export default function Page() {
                 // TODO: Ask user to switch account & confirm passkey.
                 //  Notify that we're switching from saved user
                 console.log("local User ID didn't match game User ID w/ passkey: ", localUser.userId, gameUserId1);
-                saveUserToLocalStorage(gameUserId1, player1l);
+                setShowConfirmPasskeyModal(true);
               }
             }
 
