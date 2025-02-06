@@ -47,9 +47,9 @@ export default function ConfirmPasskeyModal({ onConfirm, userId, userName, other
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <PasskeySelector
-        title={`${userName} - Please confirm your passkey`}
-        description={`There is already an account with the name ${userName}. To access this game, please enter your passkey.`}
-        submitButtonText="Confirm Passkey"
+        title={`${userName} - Please confirm your access key`}
+        description={`There is already an account with the name ${userName}. To access this game, please enter your access key.`}
+        submitButtonText="Confirm Access Key"
         cancelButtonText="Cancel"
         showExplainer={false}
         otherUserName={otherUserName}

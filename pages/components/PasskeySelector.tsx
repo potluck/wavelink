@@ -63,7 +63,7 @@ export default function PasskeySelector({
       )}
       {showExplainer && (
         <p className="mb-4 dark:text-gray-300">
-          A Wavelink passkey is just a star sign and your home state.
+          A Wavelink access key is just a star sign and your home state.
         </p>
       )}
 
