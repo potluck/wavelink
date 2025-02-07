@@ -137,6 +137,8 @@ export default function Invited({ player1 }: { player1: string }) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full px-4 py-2 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder-gray-400"
+            autoComplete="off"
+            name="your-name"
           />
           <button
             type="submit"
