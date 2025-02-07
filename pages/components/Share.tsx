@@ -59,7 +59,10 @@ export default function Share({ player1, userId1 }: { player1: string, userId1: 
   const initialFetchDone = useRef(false);
 
   useEffect(() => {
-    if (userId1 === 0 && !initialFetchDone.current) {
+    if (player1.toLowerCase() == "ai") {
+      setInvalidUser(true);
+      initialFetchDone.current = true;
+    } else if (userId1 === 0 && !initialFetchDone.current) {
       setShowAllGames(false);
       initialFetchDone.current = true;
       const slug = player1?.toLowerCase().replace(/ /g, '-') || "";
@@ -105,7 +108,10 @@ export default function Share({ player1, userId1 }: { player1: string, userId1: 
         <div className={`${nunito.className} grid grid-rows-[auto_1fr_auto] items-center justify-items-center p-2 pb-20 gap-6 sm:p-8 max-w-5xl mx-auto w-full`}>
           <h1 className="text-4xl font-bold text-center w-full dark:text-white">Wavelink &nbsp;&nbsp;🌊&thinsp;🔗</h1>
           <div className="space-y-4">
-            <p className="text-red-700 dark:text-red-300">It looks like the user ID <b>{player1}</b> is invalid. Please try again with a different name.</p>
+            <p className="text-red-700 dark:text-red-300">It looks like the user ID <b>{player1}</b> is invalid.
+              <br />
+              Please <Link href="/" className="text-red-700 hover:text-red-500 dark:text-red-300 dark:hover:text-red-400 underline">try again</Link> with a different name.
+            </p>
           </div>
         </div>
       </div>
